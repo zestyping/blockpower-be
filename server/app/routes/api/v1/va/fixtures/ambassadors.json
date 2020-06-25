@@ -1,0 +1,54 @@
+[
+  {
+    "uuid": "c9f10072-5372-4302-ba56-e25d6f2a29c4",
+    "first_name": "David",
+    "last_name": "Brooks",
+    "email": "david@colab.coop",
+    "phone": "+1 000-000-0000",
+    "date_of_birth": "01/01/1976",
+    "address": {
+      "address1":"1665 Logan St",
+      "city":"Denver",
+      "state":"CO",
+      "zip":"80203"
+    },
+    "latitude": 39.72813,
+    "longitude": -104.98237,
+    "quiz_results": [
+      {
+        "question": "Why are you so lazy Tomaz ?",
+        "answer": "That gives me a deep high"
+      },
+      {
+        "question": "When was the last time you could troll Aman successfully ?",
+        "answer": "Cannot recall, he is just too good"
+      }
+    ]
+  },
+  {
+    "uuid": "2e37a658-6505-40fb-b19a-e9d2f87bbfb7",
+    "first_name": "Ethan",
+    "last_name": "Winn",
+    "email": "ethan@colab.coop",
+    "phone": "+1 999-999-9999",
+    "date_of_birth": "01/01/1977",
+    "address": {
+      "address1":"1800 Grant St",
+      "city":"Denver",
+      "state":"CO",
+      "zip":"80203"
+    },
+    "latitude": 39.74524,
+    "longitude": -104.98323,
+    "quiz_results": [
+      {
+        "question": "Why is so difficult to enter time on time ?",
+        "answer": "ahem ahem"
+      },
+      {
+        "question": "Hey Ethan, who just called ?",
+        "answer": "I will tell you next week"
+      }
+    ]
+  }
+]

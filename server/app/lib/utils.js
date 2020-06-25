@@ -142,6 +142,10 @@ export function _403(res, msg) {
   return sendError(res, 403, msg);
 }
 
+export function _404(res, msg) {
+  return sendError(res, 404, msg);
+}
+
 export function _422(res, msg) {
   return sendError(res, 422, msg);
 }

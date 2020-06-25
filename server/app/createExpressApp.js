@@ -93,6 +93,7 @@ export function doExpressInit(log, db, qq) {
     }
     if (req.url.match(/^\/HelloVoterHQ.*mobile\//)) return next();
     if (req.url.match(/^\/HelloVoterHQ.*public\//)) return next();
+    if (req.url.match(/^\/.*va\//)) return next();
     if (req.url.match(/\/\.\.\//)) return _400(res, "Not OK..");
 
     try {
@@ -147,6 +148,8 @@ export function doExpressInit(log, db, qq) {
 
   app.use('/HelloVoterHQ/api/v1', router);
   app.use('/HelloVoterHQ/[0-9A-Z]+/api/v1', router);
+
+  app.use('/api/v1/va', router);
 
   // default error handler
   app.use((err, req, res, next) => {
