@@ -1,0 +1,56 @@
+[
+  {
+    "uuid": "5a0d366f-7077-4794-913d-7a13257764b3",
+    "first_name": "Montgomery",
+    "last_name": "Scott",
+    "phone": "+1 111-111-1111",
+    "address": {
+      "address1":"10 Forward",
+      "city":"Romulus",
+      "state":"CO",
+      "zip":"01701"
+    },
+    "latitude": 57.15,
+    "longitude": -2.11,
+    "status": "pending",
+    "ambassador_id": "c9f10072-5372-4302-ba56-e25d6f2a29c4",
+    "triplees": [
+      {
+        "name": "Uhura",
+        "relationship": "roommate"
+      },
+      {
+        "name": "Sulu",
+        "relationship": "roommate"
+      }
+    ]
+  },
+  {
+    "uuid": "8b746cc2-59d1-442d-aea7-420aa44de416",
+    "first_name": "Leonard",
+    "last_name": "McCoy",
+    "email": "bones@enterprise.uss",
+    "phone": "+1 222-222-2222",
+    "date_of_birth": "01/01/2227",
+    "address": {
+      "address1":"300 Deadjim Way",
+      "city":"Vulcan",
+      "state":"MS",
+      "zip":"40403"
+    },
+    "latitude": 33.755,
+    "longitude": -84.39,
+    "status": "confirmed",
+    "ambassador_id": "2e37a658-6505-40fb-b19a-e9d2f87bbfb7",
+    "triplees": [
+      {
+        "name": "Sarek",
+        "relationship": "godfather"
+      },
+      {
+        "name": "Kirk",
+        "relationship": "brother"
+      }
+    ]
+  }
+]
