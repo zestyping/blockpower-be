@@ -22,7 +22,7 @@ const router = require('./routes/createRouter.js')();
 var public_key;
 var jwt_iss = ov_config.jwt_iss;
 
-export function doExpressInit(log, db, qq) {
+export function doExpressInit(log, db, qq, neode) {
 
   // Initialize http server
   const app = express();
@@ -76,6 +76,7 @@ export function doExpressInit(log, db, qq) {
     req.user = {};
     req.db = db;
     req.qq = qq;
+    req.neode = neode;
 
     res.set('x-sm-oauth-url', ov_config.sm_oauth_url);
 

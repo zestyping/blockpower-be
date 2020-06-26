@@ -8,9 +8,6 @@ import {
 
 import sampleTripler from './fixtures/tripler.json';
 import triplersList from './fixtures/triplers.json';
-import sampleAmbassador from './fixtures/ambassador.json';
-import ambassadorsList from './fixtures/ambassadors.json';
-import fetchAmbassador from './ambassadors';
 
 function createTripler(req, res) {
   // validate for duplicate phone

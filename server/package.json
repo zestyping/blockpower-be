@@ -59,7 +59,8 @@
     "patch-package": "^6.2.1",
     "plaid": "^5.1.0",
     "stripe": "^8.63.0",
-    "wkx": "^0.5.0"
+    "wkx": "^0.5.0",
+    "neode": "0.3.7"
   },
   "optionalDependencies": {
     "jmx": "github:OurVoiceUSA/node-jmx"

@@ -1,7 +1,5 @@
 import { Router } from 'express';
 
-import { ov_config } from '../../../../lib/ov_config';
-
 import {
   _404
 } from '../../../../lib/utils';
@@ -16,8 +14,23 @@ function createAmbassador(req, res) {
   return res.json(sampleAmbassador);
 }
 
-function fetchAmbassadors(req, res) {
-  return res.json(ambassadorsList);
+async function countAmbassadors(req, res) {
+  const collection = await req.neode.model('Ambassador').all();
+  return res.json({ count: collection.length });
+}
+
+async function fetchAmbassadors(req, res) {
+  const collection = await req.neode.model('Ambassador').all();
+  let models = [];
+  for (var index = 0; index < collection.length; index++) {
+    let entry = collection.get(index);
+    let obj = {};
+    ['id', 'first_name', 'last_name', 'phone', 'email', 'latitude', 'longitude'].forEach(x => obj[x] = entry.get(x));
+    obj['address'] = entry.get('address') !== null ? JSON.parse(entry.get('address')) : null;
+    obj['quiz_results'] = entry.get('quiz_results') !== null ? JSON.parse(entry.get('quiz_results')) : null;
+    models.push(obj);
+  }
+  return res.json(models);
 }
 
 function fetchAmbassador(req, res) {
@@ -58,6 +71,9 @@ module.exports = Router({mergeParams: true})
 })
 .get('/ambassadors', (req, res) => {
   return fetchAmbassadors(req, res);
+})
+.get('/ambassadors/count', (req, res) => {
+  return countAmbassadors(req, res);
 })
 .get('/ambassadors/:ambassadorId', (req, res) => {
   return fetchAmbassador(req, res);

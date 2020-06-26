@@ -7,7 +7,8 @@ For this server, configure an `.env` file. The following is a complete list of v
     NEO4J_HOST=localhost
     NEO4J_PORT=7687
     NEO4J_USER=neo4j
-    NEO4J_PASS=hellovoter
+    NEO4J_PASSWORD=hellovoter
+    NEO4J_ENTERPRISE=false
     NEO4J_JMX_PORT=9999
     NEO4J_JMX_USER=monitor
     NEO4J_JMX_PASS=Neo4j
@@ -36,7 +37,8 @@ The meaning of each config item is as follows:
 * `NEO4J_HOST`: Hostname of your neo4j server.
 * `NEO4J_PORT`: Port number of your neo4j server.
 * `NEO4J_USER`: Username to use to connect to neo4j.
-* `NEO4J_PASS`: Password to use to connect to neo4j.
+* `NEO4J_PASSWORD`: Password to use to connect to neo4j.
+* `NEO4J_ENTERPRISE`: Flag to enable enterprise features in neo4j.
 * `NEO4J_JMX_PORT`: The port on your `NEO4J_HOST` that exposes JMX. This port isn't exposed by default by Neo4j. See "Neo4j Configuration" below for how to set this up on the database side.
 * `NEO4J_JMX_USER`: Username to use to connect to neo4j jmx.
 * `NEO4J_JMX_PASS`: Password to use to connect to neo4j jmx.
