@@ -4,6 +4,7 @@
 For this server, configure an `.env` file. The following is a complete list of variables and their defaults:
 
     SERVER_PORT=8080
+    NEO4J_PROTOCOL=bolt
     NEO4J_HOST=localhost
     NEO4J_PORT=7687
     NEO4J_USER=neo4j
@@ -34,6 +35,7 @@ For this server, configure an `.env` file. The following is a complete list of v
 The meaning of each config item is as follows:
 
 * `SERVER_PORT`: Port for node to listen on for http requests.
+* `NEO4J_PROTOCOL`: Protocol for talking to neo4j.
 * `NEO4J_HOST`: Hostname of your neo4j server.
 * `NEO4J_PORT`: Port number of your neo4j server.
 * `NEO4J_USER`: Username to use to connect to neo4j.

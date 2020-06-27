@@ -9,11 +9,23 @@ import {
 import sampleTripler from './fixtures/tripler.json';
 import triplersList from './fixtures/triplers.json';
 
-function createTripler(req, res) {
-  // validate for duplicate phone
-  // assume that all the required data has been provided
+import { v4 as uuidv4 } from 'uuid';
 
-  return res.json(sampleTripler);
+async function createTripler(req, res) {
+  let new_ambassador = await req.neode.create('Tripler', {
+    id: uuidv4(),
+    first_name: req.body.first_name,
+    last_name: req.body.last_name,
+    phone: req.body.phone,
+    email: req.body.email,
+    address: req.body.address,
+    status: req.body.status,
+    ambassador_id: req.body.ambassador_id,
+    triplees: req.body.triplees,
+    latitude: Math.random(), // TODO: geocode
+    longitude: Math.random() // TODO: geocode
+  });
+  return res.json({ok: true});
 }
 
 function fetchTriplers(req, res) {
@@ -25,16 +37,23 @@ function fetchTriplers(req, res) {
   }
 }
 
-function fetchTriplersByAmbassadorId(req, res) {
-  // Find all triplers claimed by the ambassador
-  let filteredList = triplersList.filter((tripler) => {
-    return tripler.ambassador_id === req.query.ambassador_id
-  })
+function serializeTripler(tripler) {
+  let obj = {};
+  ['id', 'first_name', 'last_name', 'status', 'ambassador_id', 'phone', 'email', 'latitude', 'longitude'].forEach(x => obj[x] = tripler.get(x));
+  obj['address'] = tripler.get('address') !== null ? JSON.parse(tripler.get('address')) : null;
+  obj['triplees'] = tripler.get('triplees') !== null ? JSON.parse(tripler.get('triplees')) : null;
+  return obj
+}
 
-  if (filteredList.length === 0) {
+async function fetchTriplersByAmbassadorId(req, res) {
+  // Find all triplers claimed by the ambassador
+  let result = await req.neode.all('Tripler', {ambassador_id: req.query.ambassador_id})
+  let found = result.map(serializeTripler)
+
+  if (found.length === 0) {
     return _404(res, "No triplers found for that ambassador ID");
   } else {
-    return res.json(filteredList);
+    return res.json(found);
   }
 }
 
@@ -53,15 +72,10 @@ function fetchTriplersByLocation(req, res) {
 }
 
 
-function fetchTripler(req, res) {
-  let found = null;
-  for (let tripler of triplersList) {
-    if (tripler.uuid === req.params.triplerId) {
-      found = tripler;
-    }
-  }
+async function fetchTripler(req, res) {
+  let found = await req.neode.first('Tripler', 'id', req.params.triplerId)
   if (found) {
-    return res.json(found);
+    return res.json(serializeTripler(found));
   }
   else {
     return _404(res, "Tripler not found");
@@ -95,6 +109,9 @@ function inBounds(tripler, latitude, longitude, radius) {
 }
 
 module.exports = Router({mergeParams: true})
+.post('/triplers', (req, res) => {
+  return createTripler(req, res);
+})
 .get('/triplers', (req, res) => {
   return fetchTriplers(req, res);
 })

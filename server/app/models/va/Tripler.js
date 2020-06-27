@@ -15,11 +15,13 @@ module.exports = {
     unique: true
   },
   email: 'string',  
+  status: 'string',
+  ambassador_id: 'string',
   address: {
     type: 'string',
     required: true
   },
   latitude: 'float',
   longitude: 'float',
-  quiz_results: 'string'
+  triplees: 'string'
 };
