@@ -77,6 +77,7 @@ export function doExpressInit(log, db, qq, neode) {
     req.db = db;
     req.qq = qq;
     req.neode = neode;
+    req.logger = logger;
 
     res.set('x-sm-oauth-url', ov_config.sm_oauth_url);
 

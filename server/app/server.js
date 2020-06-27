@@ -19,7 +19,7 @@ db.query('return timestamp()')
     process.exit(1)
   })
   .then(async () => {
-    await doStartupTasks(db, qq);
+    await doStartupTasks(db, qq, neode);
 
     const app = doExpressInit(true, db, qq, neode);
 

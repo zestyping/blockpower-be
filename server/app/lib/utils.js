@@ -1,6 +1,8 @@
 
 import crypto from 'crypto';
-
+import FormData from 'form-data';
+import fetch from 'node-fetch';
+import papa from 'papaparse';
 import { ov_config } from './ov_config';
 
 export var min_neo4j_version = 3.5;
@@ -168,4 +170,24 @@ export function valid(str) {
   if (typeof str !== "string") return true;
   if (str.match(/\*/)) return false;
   return true;
+}
+
+export async function geoCode(address) {
+  let file = "1," + address.address1 + "," + 
+             address.city + "," + address.state + "," + address.zip;
+
+  let fd = new FormData();
+  fd.append('benchmark', 'Public_AR_Current');
+  fd.append('returntype', 'locations');
+  fd.append('addressFile', file, 'import.csv');
+
+  let res = await fetch('https://geocoding.geo.census.gov/geocoder/locations/addressbatch', {method: 'POST', body: fd });
+
+  // they return a csv file, parse it
+  let pp = papa.parse(await res.text());
+  let coordinates = pp.data[0][5].split(',');
+  return {
+    longitude: coordinates[0],
+    latitude: coordinates[1]
+  };
 }

@@ -9,6 +9,14 @@ import {
 import sampleTripler from './fixtures/tripler.json';
 import triplersList from './fixtures/triplers.json';
 
+function serializeTripler(tripler) {
+  let obj = {};
+  ['id', 'first_name', 'last_name', 'status', 'ambassador_id', 'phone', 'email', 'latitude', 'longitude'].forEach(x => obj[x] = tripler.get(x));
+  obj['address'] = tripler.get('address') !== null ? JSON.parse(tripler.get('address')) : null;
+  obj['triplees'] = tripler.get('triplees') !== null ? JSON.parse(tripler.get('triplees')) : null;
+  return obj
+}
+
 import { v4 as uuidv4 } from 'uuid';
 
 async function createTripler(req, res) {
@@ -28,21 +36,18 @@ async function createTripler(req, res) {
   return res.json({ok: true});
 }
 
-function fetchTriplers(req, res) {
-  if (req.query.ambassador_id) {
-    return fetchTriplersByAmbassadorId(req, res)
-  }
-  if (req.query.latitude && req.query.longitude && req.query.radius) {
-    return fetchTriplersByLocation(req, res)
-  }
-}
+function fetchTriplersByLocation(req, res) {
+  // Find all triplers within a some radius
+  // NOTE: later we will use: spatial.withinDistance
+  let filteredList = triplersList.filter((tripler) => {
+    return inBounds(tripler, req.query.latitude, req.query.longitude, req.query.radius)
+  })
 
-function serializeTripler(tripler) {
-  let obj = {};
-  ['id', 'first_name', 'last_name', 'status', 'ambassador_id', 'phone', 'email', 'latitude', 'longitude'].forEach(x => obj[x] = tripler.get(x));
-  obj['address'] = tripler.get('address') !== null ? JSON.parse(tripler.get('address')) : null;
-  obj['triplees'] = tripler.get('triplees') !== null ? JSON.parse(tripler.get('triplees')) : null;
-  return obj
+  if (filteredList.length === 0) {
+    return _404(res, "No triplers found within that location's radius");
+  } else {
+    return res.json(filteredList);
+  }
 }
 
 async function fetchTriplersByAmbassadorId(req, res) {
@@ -57,17 +62,12 @@ async function fetchTriplersByAmbassadorId(req, res) {
   }
 }
 
-function fetchTriplersByLocation(req, res) {
-  // Find all triplers within a some radius
-  // NOTE: later we will use: spatial.withinDistance
-  let filteredList = triplersList.filter((tripler) => {
-    return inBounds(tripler, req.query.latitude, req.query.longitude, req.query.radius)
-  })
-
-  if (filteredList.length === 0) {
-    return _404(res, "No triplers found within that location's radius");
-  } else {
-    return res.json(filteredList);
+function fetchTriplers(req, res) {
+  if (req.query.ambassador_id) {
+    return fetchTriplersByAmbassadorId(req, res)
+  }
+  if (req.query.latitude && req.query.longitude && req.query.radius) {
+    return fetchTriplersByLocation(req, res)
   }
 }
 

@@ -14,10 +14,11 @@ var jvmconfig = {};
 export var concurrency = ov_config.job_concurrency;
 
 // tasks to do on startup
-export async function doStartupTasks(db, qq) {
+export async function doStartupTasks(db, qq, neode) {
   // required to do in sequence
   if (!ov_config.disable_jmx) await doJmxInit(db, qq);
   await doDbInit(db);
+  await doNeodeInit(neode);
   // can happen in parallel
   postDbInit(qq);
 }
@@ -95,6 +96,11 @@ async function doJmxInit(db, qq) {
 
   let finish = new Date().getTime();
   console.log("doJmxInit() finished @ "+finish+" after "+(finish-start)+" milliseconds");
+}
+
+export async function doNeodeInit(neode) {
+  await neode.schema.install();
+  console.log('Neode schema installed!');
 }
 
 export async function doDbInit(db) {

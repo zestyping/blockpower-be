@@ -1,0 +1,152 @@
+{
+	"info": {
+		"_postman_id": "6d0a9316-0aa7-4ae7-be45-640475854762",
+		"name": "VoterAmbassador",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create ambassador",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"user-agent": true,
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"value": "127.0.0.1",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 100-000-0000\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch all ambassadors",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Count all ambassadors",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/count",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"count"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch an ambassador",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/c9f10072-5372-4302-ba56-e25d6f2a29c4",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"c9f10072-5372-4302-ba56-e25d6f2a29c4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update an ambassador",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Change my name please\",\n\t\"address\": {\n        \"address1\": \"1800 Grant St\",\n        \"city\": \"Denver\",\n        \"state\": \"CO\",\n        \"zip\": 80203\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/3cc5ee3c-96bc-4a16-9a95-8a3faed0967c",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"3cc5ee3c-96bc-4a16-9a95-8a3faed0967c"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
