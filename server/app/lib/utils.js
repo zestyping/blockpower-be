@@ -181,13 +181,41 @@ export async function geoCode(address) {
   fd.append('returntype', 'locations');
   fd.append('addressFile', file, 'import.csv');
 
-  let res = await fetch('https://geocoding.geo.census.gov/geocoder/locations/addressbatch', {method: 'POST', body: fd });
+  let res = null;
+
+  try {
+    res = await fetch('https://geocoding.geo.census.gov/geocoder/locations/addressbatch', {method: 'POST', body: fd });
+  } catch (err) {
+    throw(err);
+  }
 
   // they return a csv file, parse it
   let pp = papa.parse(await res.text());
+
+  // if invalid address, return no match
+  if (pp.data[0][2] === "No_Match" ) {
+    return "No_Match"
+  }
+
   let coordinates = pp.data[0][5].split(',');
   return {
     longitude: coordinates[0],
     latitude: coordinates[1]
   };
 }
+
+function _isEmpty(obj) {
+  if (!obj) return true;
+  if (typeof obj === 'object') return Object.keys(obj).length === 0;
+  if (typeof obj === 'string') return !(obj.trim());
+  return false;
+}
+
+export function validateEmpty(obj, keys) {
+  if (_isEmpty(obj)) return false;
+  for (var i = 0; i < keys.length; i++) {
+    if (_isEmpty(obj[keys[i]])) return false;
+  }
+  return true;
+}
+

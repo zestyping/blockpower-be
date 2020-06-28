@@ -3,13 +3,13 @@ import { Router } from 'express';
 import { ov_config } from '../../../../lib/ov_config';
 
 import {
-  _404
+  _404, _400, _500, geoCode, validateEmpty
 } from '../../../../lib/utils';
 
 import sampleTripler from './fixtures/tripler.json';
 import triplersList from './fixtures/triplers.json';
 
-function serializeTripler(tripler) {
+function _serializeTripler(tripler) {
   let obj = {};
   ['id', 'first_name', 'last_name', 'status', 'ambassador_id', 'phone', 'email', 'latitude', 'longitude'].forEach(x => obj[x] = tripler.get(x));
   obj['address'] = tripler.get('address') !== null ? JSON.parse(tripler.get('address')) : null;
@@ -20,20 +20,43 @@ function serializeTripler(tripler) {
 import { v4 as uuidv4 } from 'uuid';
 
 async function createTripler(req, res) {
-  let new_ambassador = await req.neode.create('Tripler', {
-    id: uuidv4(),
-    first_name: req.body.first_name,
-    last_name: req.body.last_name,
-    phone: req.body.phone,
-    email: req.body.email,
-    address: req.body.address,
-    status: req.body.status,
-    ambassador_id: req.body.ambassador_id,
-    triplees: req.body.triplees,
-    latitude: Math.random(), // TODO: geocode
-    longitude: Math.random() // TODO: geocode
-  });
-  return res.json({ok: true});
+  let new_tripler = null
+
+  try {
+    let existing_tripler = await req.neode.first('Tripler', 'phone', req.body.phone);
+    if (existing_tripler) {
+      return _400(res, "Tripler with this data already exists");
+    }
+
+    if (!validateEmpty(req.body, ['first_name', 'phone', 'address'])) {
+      return _400(res, "Invalid payload, tripler cannot be created");
+    }
+
+    let coordinates = await geoCode(req.body.address);
+    if (coordinates === "No_Match") {
+      return _400(res, "Invalid address, tripler cannot be created");
+    }
+
+    const obj = {
+      id: uuidv4(),
+      first_name: req.body.first_name,
+      last_name: req.body.last_name || null,
+      phone: req.body.phone,
+      email: req.body.email || null,
+      address: JSON.stringify(req.body.address),
+      status: req.body.status,
+      ambassador_id: req.body.ambassador_id,
+      triplees: JSON.stringify(req.body.triplees) || null,
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude
+    }
+
+    new_tripler = await req.neode.create('Tripler', obj);
+  } catch(err) {
+    req.logger.error("Unhandled error in %s: %j", req.url, err);
+    return _500(res, 'Unable to create tripler');
+  }
+  return res.json(_serializeTripler(new_tripler));
 }
 
 function fetchTriplersByLocation(req, res) {
@@ -82,17 +105,31 @@ async function fetchTripler(req, res) {
   }
 }
 
-function updateTripler(req, res) {
+async function updateTripler(req, res) {
   let found = null;
-  for (let tripler of triplersList) {
-    if (tripler.uuid === req.params.triplerId) {
-      found = tripler;
-    }
-  }
+  found = await req.neode.first('Tripler', 'id', req.params.triplerId);
   if (found) {
-    // we will eventually update the change here
-    let updated = {...found, ...req.body}
-    return res.json(updated);
+    let coordinates = {
+      latitude: found.latitude,
+      longitude: found.longitude
+    };
+    let json = req.body;
+    if (req.body.address) {
+      let coordinates = await geoCode(req.body.address);
+      if (coordinates === "No_Match") {
+        return _400(res, "Invalid address, tripler cannot be updated");
+      }
+
+      json = {
+        ...req.body,
+        ...coordinates,
+        ...{ address: JSON.stringify(req.body.address)},
+        ...{ triplees: JSON.stringify(req.body.triplees)}
+      };
+    }
+
+    let updated = await found.update(json);
+    return res.json(_serializeTripler(updated));
   }
   else {
     return _404(res, "Tripler not found");

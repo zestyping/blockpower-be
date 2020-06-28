@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import {
-  _404, _400, _500, geoCode
+  _404, _400, _500, geoCode, validateEmpty
 } from '../../../../lib/utils';
 
 import sampleAmbassador from './fixtures/ambassador.json';
@@ -17,21 +17,6 @@ function _serializeAmbassador(ambassador) {
   return obj
 }
 
-function _isEmpty(obj) {
-  if (!obj) return true;
-  if (typeof obj === 'object') return Object.keys(obj).length === 0;
-  if (typeof obj === 'string') return !(obj.trim());
-  return false;
-}
-
-function _validateEmpty(obj, keys) {
-  if (_isEmpty(obj)) return false;
-  for (var i = 0; i < keys.length; i++) {
-    if (_isEmpty(obj[keys[i]])) return false;
-  }
-  return true;
-}
-
 async function createAmbassador(req, res) {
   let new_ambassador = null;
   try {
@@ -40,11 +25,14 @@ async function createAmbassador(req, res) {
       return _400(res, "Ambassador with this data already exists");
     }
 
-    if (!_validateEmpty(req.body, ['first_name', 'phone', 'address'])) {
+    if (!validateEmpty(req.body, ['first_name', 'phone', 'address'])) {
       return _400(res, "Invalid payload, ambassador cannot be created");
     }
 
-    const coordinates = await geoCode(req.body.address);
+    let coordinates = await geoCode(req.body.address);
+    if (coordinates === "No_Match") {
+      return _400(res, "Invalid address, tripler cannot be created");
+    }
 
     new_ambassador = await req.neode.create('Ambassador', {
       id: uuidv4(),
@@ -53,7 +41,7 @@ async function createAmbassador(req, res) {
       phone: req.body.phone,
       email: req.body.email || null,
       address: JSON.stringify(req.body.address),
-      quiz_results: req.body.quiz_results || null,
+      quiz_results: JSON.stringify(req.body.quiz_results) || null,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude
     })
@@ -101,6 +89,10 @@ async function updateAmbassador(req, res) {
     let json = req.body;
     if (req.body.address) {
       coordinates = await geoCode(req.body.address);
+      if (coordinates === "No_Match") {
+        return _400(res, "Invalid address, tripler cannot be updated");
+      }
+
       json = {...req.body, ...coordinates, ...{ address: JSON.stringify(req.body.address)}};
     }
 

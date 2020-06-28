@@ -21,7 +21,13 @@ module.exports = {
     type: 'string',
     required: true
   },
-  latitude: 'float',
-  longitude: 'float',
+  latitude: {
+    type: 'float',
+    required: true
+  },
+  longitude: {
+    type: 'float',
+    required: true
+  },
   triplees: 'string'
 };
