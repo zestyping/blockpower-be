@@ -33,7 +33,7 @@ async function createTripler(req, res) {
     }
 
     let coordinates = await geoCode(req.body.address);
-    if (coordinates === "No_Match") {
+    if (coordinates === null) {
       return _400(res, "Invalid address, tripler cannot be created");
     }
 
@@ -44,8 +44,7 @@ async function createTripler(req, res) {
       phone: req.body.phone,
       email: req.body.email || null,
       address: JSON.stringify(req.body.address),
-      status: req.body.status,
-      ambassador_id: req.body.ambassador_id,
+      status: req.body.status || null,
       triplees: JSON.stringify(req.body.triplees) || null,
       latitude: coordinates.latitude,
       longitude: coordinates.longitude
@@ -62,6 +61,8 @@ async function createTripler(req, res) {
 function fetchTriplersByLocation(req, res) {
   // Find all triplers within a some radius
   // NOTE: later we will use: spatial.withinDistance
+  // TODO fire actual query
+
   let filteredList = triplersList.filter((tripler) => {
     return inBounds(tripler, req.query.latitude, req.query.longitude, req.query.radius)
   })
@@ -75,22 +76,36 @@ function fetchTriplersByLocation(req, res) {
 
 async function fetchTriplersByAmbassadorId(req, res) {
   // Find all triplers claimed by the ambassador
-  let result = await req.neode.all('Tripler', {ambassador_id: req.query.ambassador_id})
-  let found = result.map(serializeTripler)
 
-  if (found.length === 0) {
-    return _404(res, "No triplers found for that ambassador ID");
-  } else {
-    return res.json(found);
+  let ambassador = await req.neode.first('Ambassador', 'id', req.query.ambassador_id);
+  if (!ambassador) {
+    return _404(res, 'Ambassador not found');
   }
+
+  let triplers = [];
+  ambassador.get('claims').forEach((entry) => triplers.push(_serializeTripler(entry.otherNode())));
+  return res.json(triplers);
+}
+
+async function fetchAllTriplers(req, res) {
+  const collection = await req.neode.model('Tripler').all();
+  let models = [];
+  for (var index = 0; index < collection.length; index++) {
+    let entry = collection.get(index);
+    models.push(_serializeTripler(entry))
+  }
+  return res.json(models);
 }
 
 function fetchTriplers(req, res) {
   if (req.query.ambassador_id) {
-    return fetchTriplersByAmbassadorId(req, res)
+    return fetchTriplersByAmbassadorId(req, res);
   }
-  if (req.query.latitude && req.query.longitude && req.query.radius) {
-    return fetchTriplersByLocation(req, res)
+  else if (req.query.latitude && req.query.longitude && req.query.radius) {
+    return fetchTriplersByLocation(req, res);
+  }
+  else {
+    return fetchAllTriplers(req, res);
   }
 }
 
@@ -116,7 +131,7 @@ async function updateTripler(req, res) {
     let json = req.body;
     if (req.body.address) {
       let coordinates = await geoCode(req.body.address);
-      if (coordinates === "No_Match") {
+      if (coordinates === null) {
         return _400(res, "Invalid address, tripler cannot be updated");
       }
 
@@ -146,15 +161,22 @@ function inBounds(tripler, latitude, longitude, radius) {
 }
 
 module.exports = Router({mergeParams: true})
+// TODO admin api
 .post('/triplers', (req, res) => {
   return createTripler(req, res);
 })
+
+// TODO admin api when parameter is ambassador id, new api to extract ambassador api from token (or email)
 .get('/triplers', (req, res) => {
   return fetchTriplers(req, res);
 })
+
+
 .get('/triplers/:triplerId', (req, res) => {
   return fetchTripler(req, res);
 })
+
+// TODO admin api
 .put('/triplers/:triplerId', (req, res) => {
   return updateTripler(req, res);
 })

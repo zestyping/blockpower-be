@@ -33,7 +33,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 100-000-0000\"\n}",
+					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 100-000-0001\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -56,6 +56,56 @@
 			"response": []
 		},
 		{
+			"name": "Create tripler",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Tomaz\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 100-000-0002\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Fetch all ambassadors",
 			"request": {
 				"method": "GET",
@@ -70,6 +120,52 @@
 						"v1",
 						"va",
 						"ambassadors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch all triplers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch all triplers for an ambassador",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers?ambassador_id=49c62d5a-260a-4fd2-813e-f605ad9c0ce8",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers"
+					],
+					"query": [
+						{
+							"key": "ambassador_id",
+							"value": "49c62d5a-260a-4fd2-813e-f605ad9c0ce8"
+						}
 					]
 				}
 			},
@@ -102,7 +198,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/c9f10072-5372-4302-ba56-e25d6f2a29c4",
+					"raw": "{{base_url}}/api/v1/va/ambassadors/49c62d5a-260a-4fd2-813e-f605ad9c0ce8",
 					"host": [
 						"{{base_url}}"
 					],
@@ -111,7 +207,7 @@
 						"v1",
 						"va",
 						"ambassadors",
-						"c9f10072-5372-4302-ba56-e25d6f2a29c4"
+						"49c62d5a-260a-4fd2-813e-f605ad9c0ce8"
 					]
 				}
 			},
@@ -124,7 +220,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Change my name please\",\n\t\"address\": {\n        \"address1\": \"1800 Grant St\",\n        \"city\": \"Denver\",\n        \"state\": \"CO\",\n        \"zip\": 80203\n    }\n}",
+					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"address\": {\n        \"address1\": \"1800 Grant St\",\n        \"city\": \"Denver\",\n        \"state\": \"CO\",\n        \"zip\": 80203\n    }\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -142,6 +238,37 @@
 						"va",
 						"ambassadors",
 						"3cc5ee3c-96bc-4a16-9a95-8a3faed0967c"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Claim triplers",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"triplers\": [\"b0fd0101-7a27-4ac0-95dd-a7b068a8eceb\", \"5a536ba8-b2ed-4808-b59e-e4dfb427de26\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/49c62d5a-260a-4fd2-813e-f605ad9c0ce8/triplers",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"49c62d5a-260a-4fd2-813e-f605ad9c0ce8",
+						"triplers"
 					]
 				}
 			},

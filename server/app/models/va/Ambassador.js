@@ -27,5 +27,22 @@ module.exports = {
     type: 'float',
     required: true
   },
-  quiz_results: 'string'
+  claims: {
+    type: 'relationships',
+    relationship: 'CLAIMS',
+    direction: 'out',
+    target: 'Tripler',
+    properties: {
+      since: {
+        type: 'localdatetime',
+        default: () => new Date,
+      },
+    },
+    eager: true
+  },
+  quiz_results: 'string',
+  created_at: {
+    type: 'localdatetime',
+    default: () => new Date,
+  }
 };

@@ -132,6 +132,10 @@ export function base64edit(str) {
     .replace(/\//g, '-');
 }
 
+export function _204(res) {
+  return res.status(204).send();
+}
+
 export function _400(res, msg) {
   return sendError(res, 400, msg);
 }
@@ -194,7 +198,7 @@ export async function geoCode(address) {
 
   // if invalid address, return no match
   if (pp.data[0][2] === "No_Match" ) {
-    return "No_Match"
+    return null;
   }
 
   let coordinates = pp.data[0][5].split(',');

@@ -16,7 +16,6 @@ module.exports = {
   },
   email: 'string',  
   status: 'string',
-  ambassador_id: 'string',
   address: {
     type: 'string',
     required: true
@@ -29,5 +28,9 @@ module.exports = {
     type: 'float',
     required: true
   },
-  triplees: 'string'
+  triplees: 'string',
+  created_at: {
+    type: 'localdatetime',
+    default: () => new Date,
+  }
 };
