@@ -120,7 +120,7 @@ export function doExpressInit(log, db, qq, neode) {
       let a;
 
       try {
-        a = await req.db.query('merge (a:Volunteer {id:{id}}) on match set a += {last_seen: timestamp(), name:{name}, email:{email}, avatar:{avatar}} on create set a += {created: timestamp(), last_seen: timestamp(), name:{name}, email:{email}, avatar:{avatar}} return a', u);
+        a = await req.db.query('merge (a:Ambassador {id:{id}}) on match set a += {last_seen: timestamp(), name:{name}, email:{email}, avatar:{avatar}} on create set a += {created: timestamp(), last_seen: timestamp(), name:{name}, email:{email}, avatar:{avatar}} return a', u);
       } catch (e) {
         console.warn(e);
         return _500(res, e);

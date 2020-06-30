@@ -40,6 +40,8 @@ module.exports = {
     },
     eager: true
   },
+  submitted_form: 'boolean',
+  approved: 'boolean',
   quiz_results: 'string',
   created_at: {
     type: 'localdatetime',
