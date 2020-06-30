@@ -3,6 +3,7 @@ module.exports = {
     type: 'uuid',
     primary: true
   },
+  external_id: 'string',
   first_name: {
     type: 'string',
     required: true
@@ -11,10 +12,13 @@ module.exports = {
   date_of_birth: 'string',
   phone: {
     type: 'string',
-    required: true,
+    unique: true,
+    required: true
+  },
+  email: {
+    type: 'string',
     unique: true
   },
-  email: 'string',  
   address: {
     type: 'string',
     required: true
@@ -40,11 +44,25 @@ module.exports = {
     },
     eager: true
   },
-  submitted_form: 'boolean',
-  approved: 'boolean',
+  signup_completed: {
+    type: 'boolean',
+    default: false
+  },
+  approved: {
+    type: 'boolean',
+    default: false
+  },
   quiz_results: 'string',
   created_at: {
     type: 'localdatetime',
     default: () => new Date,
+  },
+  locked: {
+    type: 'boolean',
+    default: false
+  },
+  admin: {
+    type: 'boolean',
+    default: false
   }
 };

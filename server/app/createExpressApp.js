@@ -95,7 +95,7 @@ export function doExpressInit(log, db, qq, neode) {
     }
     if (req.url.match(/^\/HelloVoterHQ.*mobile\//)) return next();
     if (req.url.match(/^\/HelloVoterHQ.*public\//)) return next();
-    if (req.url.match(/^\/.*va\//)) return next();
+    //if (req.url.match(/^\/.*va\//)) return next();
     if (req.url.match(/\/\.\.\//)) return _400(res, "Not OK..");
 
     try {
@@ -107,31 +107,23 @@ export function doExpressInit(log, db, qq, neode) {
       else u = jwt.verify(req.header('authorization').split(' ')[1], public_key);
 
       // verify props
+      /*
       if (!u.id) return _401(res, "Your token is missing a required parameter.");
       if (u.iss !== jwt_iss) return _401(res, "Your token was issued for a different domain.");
       if (u.aud && (
         (ov_config.jwt_aud && u.aud !== ov_config.jwt_aud) ||
         (!ov_config.jwt_aud && u.aud !== req.header('host'))
-      )) return _401(res, "Your token has an incorrect audience.");
+      )) return _401(res, "Your token has an incorrect audience.");*/
 
-      if (!u.email) u.email = "";
-      if (!u.avatar) u.avatar = "";
+      req.external_id = u.id;
 
-      let a;
-
-      try {
-        a = await req.db.query('merge (a:Ambassador {id:{id}}) on match set a += {last_seen: timestamp(), name:{name}, email:{email}, avatar:{avatar}} on create set a += {created: timestamp(), last_seen: timestamp(), name:{name}, email:{email}, avatar:{avatar}} return a', u);
-      } catch (e) {
-        console.warn(e);
-        return _500(res, e);
+      let user = await req.neode.first('Ambassador', 'external_id', u.id);      
+      if (user && user.locked) {
+        return _403(res, "Your account is locked.");
       }
-
-      if (a.data.length === 1) {
-        req.user = a.data[0];
-      } else return _500(res, {});
-
-      if (req.user.locked) return _403(res, "Your account is locked.");
-
+      else if (user) {
+        req.user = user;
+      }      
     } catch (e) {
       console.warn(e);
       return _401(res, "Invalid token.");

@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { ov_config } from '../../../../lib/ov_config';
 
 import {
-  _404, _400, _500, geoCode, validateEmpty
+  _400, _401, _403, _404, _500, geoCode, validateEmpty
 } from '../../../../lib/utils';
 
 import sampleTripler from './fixtures/tripler.json';
@@ -45,7 +45,7 @@ async function createTripler(req, res) {
       email: req.body.email || null,
       address: JSON.stringify(req.body.address),
       status: req.body.status || null,
-      triplees: JSON.stringify(req.body.triplees) || null,
+      triplees: !req.body.triplees ? null : JSON.stringify(req.body.triplees),
       latitude: coordinates.latitude,
       longitude: coordinates.longitude
     }
@@ -64,7 +64,7 @@ function fetchTriplersByLocation(req, res) {
   // TODO fire actual query
 
   let filteredList = triplersList.filter((tripler) => {
-    return inBounds(tripler, req.query.latitude, req.query.longitude, req.query.radius)
+    return inBounds(tripler, req.user.latitude, req.user.longitude, req.query.radius || 10)
   })
 
   if (filteredList.length === 0) {
@@ -101,12 +101,13 @@ function fetchTriplers(req, res) {
   if (req.query.ambassador_id) {
     return fetchTriplersByAmbassadorId(req, res);
   }
-  else if (req.query.latitude && req.query.longitude && req.query.radius) {
-    return fetchTriplersByLocation(req, res);
-  }
   else {
     return fetchAllTriplers(req, res);
   }
+}
+
+function suggestTriplers(req, res) {
+  return fetchTriplersByLocation(req, res);
 }
 
 
@@ -163,20 +164,26 @@ function inBounds(tripler, latitude, longitude, radius) {
 module.exports = Router({mergeParams: true})
 // TODO admin api
 .post('/triplers', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.');
+  //if (!req.user.admin) return _403(res, "Permission denied.");;
   return createTripler(req, res);
 })
 
-// TODO admin api when parameter is ambassador id, new api to extract ambassador api from token (or email)
 .get('/triplers', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.');
   return fetchTriplers(req, res);
 })
-
-
+.get('/suggest-triplers', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.');
+  return suggestTriplers(req, res);
+})
 .get('/triplers/:triplerId', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.');
   return fetchTripler(req, res);
 })
-
-// TODO admin api
 .put('/triplers/:triplerId', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.');
+  // allow update only of current amabassador's triplers
+  // only triplee should be updatable
   return updateTripler(req, res);
 })
