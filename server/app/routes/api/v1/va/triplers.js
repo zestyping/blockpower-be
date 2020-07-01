@@ -11,7 +11,7 @@ import triplersList from './fixtures/triplers.json';
 
 function _serializeTripler(tripler) {
   let obj = {};
-  ['id', 'first_name', 'last_name', 'status', 'ambassador_id', 'phone', 'email', 'location'].forEach(x => obj[x] = tripler.get(x));
+  ['id', 'first_name', 'last_name', 'status', 'ambassador_id', 'phone', 'email', 'latitude', 'longitude'].forEach(x => obj[x] = tripler.get(x));
   obj['address'] = tripler.get('address') !== null ? JSON.parse(tripler.get('address')) : null;
   obj['triplees'] = tripler.get('triplees') !== null ? JSON.parse(tripler.get('triplees')) : null;
   return obj
@@ -46,11 +46,9 @@ async function createTripler(req, res) {
       address: JSON.stringify(req.body.address),
       status: req.body.status || null,
       triplees: !req.body.triplees ? null : JSON.stringify(req.body.triplees),
-      location: {
-        latitude: parseFloat(coordinates.latitude),
-        longitude: parseFloat(coordinates.longitude)
-      }
-   }
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude
+    }
 
     new_tripler = await req.neode.create('Tripler', obj);
   } catch(err) {
@@ -58,6 +56,35 @@ async function createTripler(req, res) {
     return _500(res, 'Unable to create tripler');
   }
   return res.json(_serializeTripler(new_tripler));
+}
+
+function fetchTriplersByLocation(req, res) {
+  // Find all triplers within a some radius
+  // NOTE: later we will use: spatial.withinDistance
+  // TODO fire actual query
+
+  let filteredList = triplersList.filter((tripler) => {
+    return inBounds(tripler, req.user.latitude, req.user.longitude, req.query.radius || 10)
+  })
+
+  if (filteredList.length === 0) {
+    return _404(res, "No triplers found within that location's radius");
+  } else {
+    return res.json(filteredList);
+  }
+}
+
+async function fetchTriplersByAmbassadorId(req, res) {
+  // Find all triplers claimed by the ambassador
+
+  let ambassador = await req.neode.first('Ambassador', 'id', req.query.ambassador_id);
+  if (!ambassador) {
+    return _404(res, 'Ambassador not found');
+  }
+
+  let triplers = [];
+  ambassador.get('claims').forEach((entry) => triplers.push(_serializeTripler(entry.otherNode())));
+  return res.json(triplers);
 }
 
 async function fetchAllTriplers(req, res) {
@@ -70,54 +97,19 @@ async function fetchAllTriplers(req, res) {
   return res.json(models);
 }
 
-async function suggestTriplers(req, res) {
-  // This doesn't work?
-  // let collection = await req.neode.model('Tripler').withinDistance('location', req.user.get('location'), 10);
-
-  // This works
-  // let collection = await req.neode.cypher('MATCH (a:Ambassador)-[:CLAIMS]->(t:Tripler) WHERE a.id = $id AND distance(t.location, a.location) <= 10 RETURN t', {id: req.user.get('id')})
-
-  // So does this
-  let collection = await req.neode.query()
-    .match('a', 'Ambassador')
-    .where('a.id', req.user.get('id'))
-    .relationship('CLAIMS')
-    .to('t', 'Tripler')
-    .whereRaw('distance(t.location, a.location) <= 10')
-    .return('t')
-    .execute()
-
-  // The first way needs just collection (if it worked)
-  /*
-  let models = [];
-  for (var index = 0; index < collection.length; index++) {
-    let entry = collection.get(index);
-    models.push(_serializeAmbassador(entry))
+function fetchTriplers(req, res) {
+  if (req.query.ambassador_id) {
+    return fetchTriplersByAmbassadorId(req, res);
   }
-  */
-
-  // The second two ways need collection.records and their fields
-  // NOTE TODO this is not the right structure... we cannot pass this as is.... needs proper serialization
-  let models = [];
-  for (var index = 0; index < collection.records.length; index++) {
-    let entry = collection.records[index]._fields[0].properties;
-    models.push(entry)
+  else {
+    return fetchAllTriplers(req, res);
   }
-  return res.json(models);
 }
 
-async function fetchClaimedTriplers(req, res) {
-  // Find all triplers claimed by the ambassador
-
-  let ambassador = await req.neode.first('Ambassador', 'id', req.user.get('id'));
-  if (!ambassador) {
-    return _404(res, 'Ambassador not found');
-  }
-
-  let triplers = [];
-  ambassador.get('claims').forEach((entry) => triplers.push(_serializeTripler(entry.otherNode())));
-  return res.json(triplers);
+function suggestTriplers(req, res) {
+  return fetchTriplersByLocation(req, res);
 }
+
 
 async function fetchTripler(req, res) {
   let found = await req.neode.first('Tripler', 'id', req.params.triplerId)
@@ -146,10 +138,7 @@ async function updateTripler(req, res) {
 
       json = {
         ...req.body,
-        ...{ location: {
-          latitude: parseFloat(coordinates.latitude),
-          longitude: parseFloat(coordinates.longitude)
-        } },
+        ...coordinates,
         ...{ address: JSON.stringify(req.body.address)},
         ...{ triplees: JSON.stringify(req.body.triplees)}
       };
@@ -182,15 +171,11 @@ module.exports = Router({mergeParams: true})
 
 .get('/triplers', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
-  return fetchAllTriplers(req, res);
+  return fetchTriplers(req, res);
 })
 .get('/suggest-triplers', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
   return suggestTriplers(req, res);
-})
-.get('/claimed-triplers', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.');
-  return fetchClaimedTriplers(req, res);
 })
 .get('/triplers/:triplerId', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
