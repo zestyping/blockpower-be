@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 function _serializeAmbassador(ambassador) {
   let obj = {};
-  ['id', 'first_name', 'last_name', 'phone', 'email', 'latitude', 'longitude', 'signup_completed', 'approved'].forEach(x => obj[x] = ambassador.get(x));
+  ['id', 'first_name', 'last_name', 'phone', 'email', 'location', 'signup_completed', 'approved'].forEach(x => obj[x] = ambassador.get(x));
   obj['address'] = ambassador.get('address') !== null ? JSON.parse(ambassador.get('address')) : null;
   obj['quiz_results'] = ambassador.get('quiz_results') !== null ? JSON.parse(ambassador.get('quiz_results')) : null;
 
@@ -46,8 +46,10 @@ async function createAmbassador(req, res) {
       approved: false,
       locked: false,
       signup_completed: false,
-      latitude: coordinates.latitude,
-      longitude: coordinates.longitude
+      location: {
+        latitude: parseFloat(coordinates.latitude, 10),
+        longitude: parseFloat(coordinates.longitude, 10)
+      }
     })
   } catch(err) {
     req.logger.error("Unhandled error in %s: %j", req.url, err);
@@ -57,8 +59,13 @@ async function createAmbassador(req, res) {
 }
 
 async function countAmbassadors(req, res) {
-  const collection = await req.neode.model('Ambassador').all();
-  return res.json({ count: collection.length });
+
+  let count = await req.neode.query()
+    .match('a', 'Ambassador')
+    .return('count(a) as count')
+    .execute()
+
+  return res.json({ count: count.records[0]._fields[0].low });
 }
 
 async function fetchAmbassadors(req, res) {
@@ -98,6 +105,19 @@ async function approveAmbassador(req, res) {
   return res.json(_serializeAmbassador(updated));
 }
 
+async function disapproveAmbassador(req, res) {
+  let found = null;
+  found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
+
+  if (!found) {
+    return _404(res, "Ambassador not found");
+  }
+
+  let json = {...{approved: false}};
+  let updated = await found.update(json);
+  return res.json(_serializeAmbassador(updated));
+}
+
 async function signup(req, res) {
   let new_ambassador = null;
   try {
@@ -126,8 +146,10 @@ async function signup(req, res) {
       approved: false,
       locked: false,
       signup_completed: true,
-      latitude: coordinates.latitude,
-      longitude: coordinates.longitude,
+      location: {
+        latitude: parseFloat(coordinates.latitude, 10),
+        longitude: parseFloat(coordinates.longitude, 10)
+      },
       external_id: req.external_id
     });
   } catch(err) {
@@ -144,10 +166,16 @@ async function updateAmbassador(req, res) {
   if (!found) {
     return _404(res, "Ambassador not found");
   }
-    
+
+  let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
+  if(existing_ambassador.get('id') !== found.get('id')) {
+    return _400(res, "Ambassador with this data already exists");
+  }
+
   let json = {};
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone',
                           'email', 'quiz_results'];
+
   for (prop of req.body) {
     if (whitelistedAttrs.indexOf(prop) !== -1) json[prop] = req.body[prop]
   }
@@ -163,9 +191,11 @@ async function updateAmbassador(req, res) {
       return _400(res, "Invalid address, ambassador cannot be updated");
     }
     json['address'] = JSON.stringify(req.body.address);
+    json['location'] = {
+      latitude: parseFloat(coordinates.latitude, 10),
+      longitude: parseFloat(coordinates.longitude, 10)
+    };
   }
-
-  json = {...json, ...coordinates};
 
   let updated = await found.update(json);
   return res.json(_serializeAmbassador(updated));
@@ -174,20 +204,20 @@ async function updateAmbassador(req, res) {
 async function updateCurrentAmbassador(req, res) {
   let ambassador = req.user;
 
+  let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
+  if(existing_ambassador.get('id') !== ambassador.get('id')) {
+    return _400(res, "Ambassador with this data already exists");
+  }
+
   let json = {};
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone',
                           'email', 'quiz_results'];
-
-  // TODO check phone that its unique
 
   for (let prop in req.body) {
     if (whitelistedAttrs.indexOf(prop) !== -1) json[prop] = req.body[prop]
   }
 
-  let coordinates = {
-    latitude: ambassador.latitude,
-    longitude: ambassador.longitude
-  };
+  let coordinates = ambassador.location;
 
   if (req.body.address) {
     coordinates = await geoCode(req.body.address);
@@ -195,9 +225,11 @@ async function updateCurrentAmbassador(req, res) {
       return _400(res, "Invalid address, ambassador cannot be updated");
     }
     json['address'] = JSON.stringify(req.body.address);
+    json['location'] = {
+      latitude: parseFloat(coordinates.latitude, 10),
+      longitude: parseFloat(coordinates.longitude, 10)
+    };
   }
-
-  json = {...json, ...coordinates};
 
   let updated = await ambassador.update(json);
   return res.json(_serializeAmbassador(updated));
@@ -245,31 +277,36 @@ module.exports = Router({mergeParams: true})
 
 .post('/ambassadors', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return createAmbassador(req, res);
 })
 .get('/ambassadors', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return fetchAmbassadors(req, res);
 })
 .get('/ambassadors/count', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return countAmbassadors(req, res);
 })
 .get('/ambassadors/:ambassadorId', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return fetchAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId/approve', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return approveAmbassador(req, res);
+})
+.put('/ambassadors/:ambassadorId/disapprove', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.')
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
+  return disapproveAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return updateAmbassador(req, res);
 })

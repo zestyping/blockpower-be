@@ -107,13 +107,12 @@ export function doExpressInit(log, db, qq, neode) {
       else u = jwt.verify(req.header('authorization').split(' ')[1], public_key);
 
       // verify props
-      /*
       if (!u.id) return _401(res, "Your token is missing a required parameter.");
       if (u.iss !== jwt_iss) return _401(res, "Your token was issued for a different domain.");
       if (u.aud && (
         (ov_config.jwt_aud && u.aud !== ov_config.jwt_aud) ||
         (!ov_config.jwt_aud && u.aud !== req.header('host'))
-      )) return _401(res, "Your token has an incorrect audience.");*/
+      )) return _401(res, "Your token has an incorrect audience.");
 
       req.external_id = u.id;
 
