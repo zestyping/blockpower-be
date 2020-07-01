@@ -6,14 +6,19 @@ import {
   _400, _401, _403, _404, _500, geoCode, validateEmpty
 } from '../../../../lib/utils';
 
-import sampleTripler from './fixtures/tripler.json';
-import triplersList from './fixtures/triplers.json';
-
 function _serializeTripler(tripler) {
   let obj = {};
-  ['id', 'first_name', 'last_name', 'status', 'ambassador_id', 'phone', 'email', 'latitude', 'longitude'].forEach(x => obj[x] = tripler.get(x));
+  ['id', 'first_name', 'last_name', 'status', 'ambassador_id', 'phone', 'email', 'location'].forEach(x => obj[x] = tripler.get(x));
   obj['address'] = tripler.get('address') !== null ? JSON.parse(tripler.get('address')) : null;
   obj['triplees'] = tripler.get('triplees') !== null ? JSON.parse(tripler.get('triplees')) : null;
+  return obj
+}
+
+function _serializeNeo4JTripler(tripler) {
+  let obj = {};
+  // ['id', 'first_name', 'last_name', 'status', 'ambassador_id', 'phone', 'email', 'location'].forEach(x => obj[x] = tripler.get(x));
+  // obj['address'] = tripler.get('address') !== null ? JSON.parse(tripler.get('address')) : null;
+  // obj['triplees'] = tripler.get('triplees') !== null ? JSON.parse(tripler.get('triplees')) : null;
   return obj
 }
 
@@ -46,8 +51,10 @@ async function createTripler(req, res) {
       address: JSON.stringify(req.body.address),
       status: req.body.status || null,
       triplees: !req.body.triplees ? null : JSON.stringify(req.body.triplees),
-      latitude: coordinates.latitude,
-      longitude: coordinates.longitude
+      location: {
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude
+      }
     }
 
     new_tripler = await req.neode.create('Tripler', obj);
@@ -74,13 +81,10 @@ function fetchTriplersByLocation(req, res) {
   }
 }
 
-async function fetchTriplersByAmbassadorId(req, res) {
+async function fetchClaimedTriplers(req, res) {
   // Find all triplers claimed by the ambassador
 
-  let ambassador = await req.neode.first('Ambassador', 'id', req.query.ambassador_id);
-  if (!ambassador) {
-    return _404(res, 'Ambassador not found');
-  }
+  let ambassador = req.user;
 
   let triplers = [];
   ambassador.get('claims').forEach((entry) => triplers.push(_serializeTripler(entry.otherNode())));
@@ -97,17 +101,22 @@ async function fetchAllTriplers(req, res) {
   return res.json(models);
 }
 
-function fetchTriplers(req, res) {
-  if (req.query.ambassador_id) {
-    return fetchTriplersByAmbassadorId(req, res);
-  }
-  else {
-    return fetchAllTriplers(req, res);
-  }
-}
+async function suggestTriplers(req, res) {
+  let collection = await req.neode.query()
+    .match('a', 'Ambassador')
+    .where('a.id', req.user.get('id'))
+    .relationship('CLAIMS')
+    .to('t', 'Tripler')
+    .whereRaw('distance(t.location, a.location) <= 10')
+    .return('t')
+    .execute()
 
-function suggestTriplers(req, res) {
-  return fetchTriplersByLocation(req, res);
+  let models = [];
+  for (var index = 0; index < collection.records.length; index++) {
+    let entry = collection.records[index]._fields[0].properties;
+    models.push(_serializeNeo4JTripler(entry));
+  }
+  return res.json(models);
 }
 
 
@@ -138,7 +147,10 @@ async function updateTripler(req, res) {
 
       json = {
         ...req.body,
-        ...coordinates,
+        ...{ location: {
+          latitude: parseFloat(coordinates.latitude),
+          longitude: parseFloat(coordinates.longitude)
+        } },
         ...{ address: JSON.stringify(req.body.address)},
         ...{ triplees: JSON.stringify(req.body.triplees)}
       };
@@ -171,7 +183,7 @@ module.exports = Router({mergeParams: true})
 
 .get('/triplers', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
-  return fetchTriplers(req, res);
+  return fetchAllTriplers(req, res);
 })
 .get('/suggest-triplers', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');

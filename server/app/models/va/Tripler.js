@@ -20,12 +20,8 @@ module.exports = {
     type: 'string',
     required: true
   },
-  latitude: {
-    type: 'float',
-    required: true
-  },
-  longitude: {
-    type: 'float',
+  location: {
+    type: 'point',
     required: true
   },
   triplees: 'string',
