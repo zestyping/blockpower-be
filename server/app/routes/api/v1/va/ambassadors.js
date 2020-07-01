@@ -4,14 +4,12 @@ import {
   _204, _400, _401, _403, _404, _500, geoCode, validateEmpty
 } from '../../../../lib/utils';
 
-import sampleAmbassador from './fixtures/ambassador.json';
-import ambassadorsList from './fixtures/ambassadors.json';
-
 import { v4 as uuidv4 } from 'uuid';
+import { serializeTripler } from './common';
 
 function _serializeAmbassador(ambassador) {
   let obj = {};
-  ['id', 'first_name', 'last_name', 'phone', 'email', 'latitude', 'longitude', 'signup_completed', 'approved'].forEach(x => obj[x] = ambassador.get(x));
+  ['id', 'first_name', 'last_name', 'phone', 'email', 'latitude', 'longitude', 'signup_completed', 'approved', 'admin', 'locked'].forEach(x => obj[x] = ambassador.get(x));
   obj['address'] = ambassador.get('address') !== null ? JSON.parse(ambassador.get('address')) : null;
   obj['quiz_results'] = ambassador.get('quiz_results') !== null ? JSON.parse(ambassador.get('quiz_results')) : null;
 
@@ -98,6 +96,19 @@ async function approveAmbassador(req, res) {
   return res.json(_serializeAmbassador(updated));
 }
 
+async function makeAdmin(req, res) {
+  let found = null;
+  found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
+
+  if (!found) {
+    return _404(res, "Ambassador not found");
+  }
+
+  let json = {...{admin: true}};
+  await found.update(json);
+  return res.json(_204);
+}
+
 async function signup(req, res) {
   let new_ambassador = null;
   try {
@@ -144,17 +155,20 @@ async function updateAmbassador(req, res) {
   if (!found) {
     return _404(res, "Ambassador not found");
   }
-    
+
   let json = {};
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone',
                           'email', 'quiz_results'];
-  for (prop of req.body) {
+
+  // TODO check phone that its unique
+
+  for (let prop in req.body) {
     if (whitelistedAttrs.indexOf(prop) !== -1) json[prop] = req.body[prop]
   }
 
   let coordinates = {
-    latitude: found.latitude,
-    longitude: found.longitude
+    latitude: found.get('latitude'),
+    longitude: found.get('longitude')
   };
 
   if (req.body.address) {
@@ -185,8 +199,8 @@ async function updateCurrentAmbassador(req, res) {
   }
 
   let coordinates = {
-    latitude: ambassador.latitude,
-    longitude: ambassador.longitude
+    latitude: found.get('latitude'),
+    longitude: found.get('longitude')
   };
 
   if (req.body.address) {
@@ -226,6 +240,14 @@ async function claimTriplers(req, res) {
   return _204(res);
 }
 
+async function claimedTriplers(req, res) {
+  let ambassador = req.user;
+
+  let triplers = [];
+  ambassador.get('claims').forEach((entry) => triplers.push(serializeTripler(entry.otherNode())));
+  return res.json(triplers);
+}
+
 module.exports = Router({mergeParams: true})
 .post('/ambassadors/signup', (req, res) => {
   return signup(req, res);
@@ -242,34 +264,42 @@ module.exports = Router({mergeParams: true})
   if (!req.user) return _401(res, 'Permission denied.')
   return claimTriplers(req, res);
 })
+.get('/ambassadors/current/triplers', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.')
+  return claimedTriplers(req, res);
+})
 
 .post('/ambassadors', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return createAmbassador(req, res);
 })
 .get('/ambassadors', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return fetchAmbassadors(req, res);
 })
 .get('/ambassadors/count', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return countAmbassadors(req, res);
 })
 .get('/ambassadors/:ambassadorId', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return fetchAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId/approve', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return approveAmbassador(req, res);
+})
+.put('/ambassadors/:ambassadorId/admin', (req, res) => {
+  // TODO allow only from local
+  return makeAdmin(req, res);
 })
 .put('/ambassadors/:ambassadorId', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return updateAmbassador(req, res);
 })

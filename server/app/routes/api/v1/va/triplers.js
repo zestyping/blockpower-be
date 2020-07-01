@@ -3,19 +3,10 @@ import { Router } from 'express';
 import { ov_config } from '../../../../lib/ov_config';
 
 import {
-  _400, _401, _403, _404, _500, geoCode, validateEmpty
+  _204, _400, _401, _403, _404, _500, geoCode, validateEmpty
 } from '../../../../lib/utils';
 
-import sampleTripler from './fixtures/tripler.json';
-import triplersList from './fixtures/triplers.json';
-
-function _serializeTripler(tripler) {
-  let obj = {};
-  ['id', 'first_name', 'last_name', 'status', 'ambassador_id', 'phone', 'email', 'latitude', 'longitude'].forEach(x => obj[x] = tripler.get(x));
-  obj['address'] = tripler.get('address') !== null ? JSON.parse(tripler.get('address')) : null;
-  obj['triplees'] = tripler.get('triplees') !== null ? JSON.parse(tripler.get('triplees')) : null;
-  return obj
-}
+import { serializeTripler } from './common';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -47,7 +38,8 @@ async function createTripler(req, res) {
       status: req.body.status || null,
       triplees: !req.body.triplees ? null : JSON.stringify(req.body.triplees),
       latitude: coordinates.latitude,
-      longitude: coordinates.longitude
+      longitude: coordinates.longitude,
+      status: 'unconfirmed'
     }
 
     new_tripler = await req.neode.create('Tripler', obj);
@@ -55,7 +47,7 @@ async function createTripler(req, res) {
     req.logger.error("Unhandled error in %s: %j", req.url, err);
     return _500(res, 'Unable to create tripler');
   }
-  return res.json(_serializeTripler(new_tripler));
+  return res.json(serializeTripler(new_tripler));
 }
 
 function fetchTriplersByLocation(req, res) {
@@ -63,28 +55,7 @@ function fetchTriplersByLocation(req, res) {
   // NOTE: later we will use: spatial.withinDistance
   // TODO fire actual query
 
-  let filteredList = triplersList.filter((tripler) => {
-    return inBounds(tripler, req.user.latitude, req.user.longitude, req.query.radius || 10)
-  })
-
-  if (filteredList.length === 0) {
-    return _404(res, "No triplers found within that location's radius");
-  } else {
-    return res.json(filteredList);
-  }
-}
-
-async function fetchTriplersByAmbassadorId(req, res) {
-  // Find all triplers claimed by the ambassador
-
-  let ambassador = await req.neode.first('Ambassador', 'id', req.query.ambassador_id);
-  if (!ambassador) {
-    return _404(res, 'Ambassador not found');
-  }
-
-  let triplers = [];
-  ambassador.get('claims').forEach((entry) => triplers.push(_serializeTripler(entry.otherNode())));
-  return res.json(triplers);
+  return res.json([]);
 }
 
 async function fetchAllTriplers(req, res) {
@@ -92,33 +63,20 @@ async function fetchAllTriplers(req, res) {
   let models = [];
   for (var index = 0; index < collection.length; index++) {
     let entry = collection.get(index);
-    models.push(_serializeTripler(entry))
+    models.push(serializeTripler(entry))
   }
   return res.json(models);
 }
 
-function fetchTriplers(req, res) {
-  if (req.query.ambassador_id) {
-    return fetchTriplersByAmbassadorId(req, res);
-  }
-  else {
-    return fetchAllTriplers(req, res);
-  }
-}
-
-function suggestTriplers(req, res) {
-  return fetchTriplersByLocation(req, res);
-}
-
-
 async function fetchTripler(req, res) {
-  let found = await req.neode.first('Tripler', 'id', req.params.triplerId)
-  if (found) {
-    return res.json(serializeTripler(found));
+  let ambassador = req.user;
+  let tripler = null;
+  ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
+  
+  if (!tripler) {
+    return _400(res, "Invalid triper id");
   }
-  else {
-    return _404(res, "Tripler not found");
-  }
+  return res.json(serializeTripler(tripler));
 }
 
 async function updateTripler(req, res) {
@@ -145,11 +103,51 @@ async function updateTripler(req, res) {
     }
 
     let updated = await found.update(json);
-    return res.json(_serializeTripler(updated));
+    return res.json(serializeTripler(updated));
   }
   else {
     return _404(res, "Tripler not found");
   }
+}
+
+async function startTriplerConfirmation(req, res) {
+  let ambassador = req.user;
+  let tripler = null;
+  ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
+  
+  if (!tripler) {
+    return _400(res, "Invalid triper id");
+  }
+  else if (tripler.get('status') !== 'unconfirmed') {
+    return _400(res, "Invalid status, cannot proceed")
+  }
+
+  let triplees = req.body.triplees;
+  if (!triplees || triplees.length !== 3) {
+    return _400(res, 'Insufficient triplees, cannot start confirmation')
+  }
+
+  let phone = req.body.phone || tripler.get('phone');
+
+  // TODO send SMS
+  await tripler.update({ triplees: JSON.stringify(triplees), status: 'pending', phone: phone });
+  return _204(res);
+}
+
+async function remindTripler(req, res) {
+  let ambassador = req.user;
+  let tripler = null;
+  ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
+  
+  if (!tripler) {
+    return _400(res, "Invalid triper id");
+  }
+  else if (tripler.get('status') !== 'pending') {
+    return _400(res, "Invalid status, cannot proceed")
+  }
+
+  // TODO send SMS
+  return _204(res);
 }
 
 function inBounds(tripler, latitude, longitude, radius) {
@@ -165,25 +163,34 @@ module.exports = Router({mergeParams: true})
 // TODO admin api
 .post('/triplers', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
-  //if (!req.user.admin) return _403(res, "Permission denied.");;
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");;
   return createTripler(req, res);
 })
-
+.put('/triplers/:triplerId', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.');
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");;
+  return updateTripler(req, res);
+})
 .get('/triplers', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
-  return fetchTriplers(req, res);
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");;
+  return fetchAllTriplers(req, res);
 })
+
 .get('/suggest-triplers', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
-  return suggestTriplers(req, res);
+  // David working on it
+  return fetchTriplersByLocation(req, res);
+})
+.put('/triplers/:triplerId/start-confirm', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.');
+  return startTriplerConfirmation(req, res);
+})
+.put('/triplers/:triplerId/remind', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.');
+  return remindTripler(req, res);
 })
 .get('/triplers/:triplerId', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
   return fetchTripler(req, res);
-})
-.put('/triplers/:triplerId', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.');
-  // allow update only of current amabassador's triplers
-  // only triplee should be updatable
-  return updateTripler(req, res);
 })
