@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import neo4j from 'neo4j-driver';
 
 import { ov_config } from '../../../../lib/ov_config';
 
@@ -6,7 +7,7 @@ import {
   _204, _400, _401, _403, _404, _500, geoCode, validateEmpty
 } from '../../../../lib/utils';
 
-import { serializeTripler, serializeNeo4JTripler } from './common';
+import { serializeTripler, serializeNeo4JTripler } from './serializers';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -94,8 +95,6 @@ async function updateTripler(req, res) {
   found = await req.neode.first('Tripler', 'id', req.params.triplerId);
   if (!found) return _404(res, "Tripler not found");
 
-  let json = req.body;
-
   if (req.body.phone) {
     let existing_tripler = await req.neode.first('Tripler', 'phone', req.body.phone);
     if(existing_tripler && existing_tripler.get('id') !== found.get('id')) {
@@ -103,13 +102,12 @@ async function updateTripler(req, res) {
     }
   }
 
-  let query = `MATCH (t:Tripler) WHERE t.id = "${req.params.triplerId}"\n`
-
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone', 'email'];
 
+  let json = {};
   for (let prop in req.body) {
     if (whitelistedAttrs.indexOf(prop) !== -1) {
-      query += `SET t.${prop} = "${req.body[prop]}"\n`;
+      json[prop] = req.body[prop];
     }
   }
 
@@ -118,18 +116,18 @@ async function updateTripler(req, res) {
     if (coordinates === null) {
       return _400(res, "Invalid address, tripler cannot be updated");
     }
-    query += `SET t.address = '${JSON.stringify(req.body.address)}'\n`;
-    query += `SET t.location = point({latitude:${coordinates.latitude}, longitude:${coordinates.longitude}})\n`;
+    json.address = JSON.stringify(req.body.address);
+    json.location = new neo4j.types.Point(4326, // WGS 84 2D
+                                           parseFloat(coordinates.longitude, 10),
+                                           parseFloat(coordinates.latitude, 10));
   }
 
   if (req.body.triplees) {
-    query += `SET t.triplees = '${JSON.stringify(req.body.triplees)}'\n`;
+    json.triplees = JSON.stringify(req.body.triplees);
   }
 
-  query += `RETURN (t)`
-  let updated = await req.neode.cypher(query)
-
-  return res.json(serializeNeo4JTripler(updated.records[0]._fields[0].properties));
+  let updated = await found.update(json);
+  return res.json(serializeTripler(updated));
 }
 
 async function startTriplerConfirmation(req, res) {

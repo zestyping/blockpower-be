@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "efb01b25-d1c0-4d08-86c5-572f397cf3eb",
+		"_postman_id": "f5fe1909-b7c5-49d5-9623-893c108fd77e",
 		"name": "VoterAmbassador",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -115,7 +115,7 @@
 			"response": []
 		},
 		{
-			"name": "4. Claim triplers",
+			"name": "3. Claim triplers",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -127,7 +127,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"triplers\": [\"42d1ed21-bedf-4c98-a15b-476c2a441cc0\", \"9766590f-a02e-4c6d-b63d-722ea4bbc5da\"]\n}",
+					"raw": "{\n\t\"triplers\": [\"2479f63c-42a8-4b3f-89d5-2cee323caae6\"]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -152,7 +152,7 @@
 			"response": []
 		},
 		{
-			"name": "5. Fetch claimed triplers",
+			"name": "4. Fetch claimed triplers",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -180,7 +180,7 @@
 			"response": []
 		},
 		{
-			"name": "6. Fetch current ambassador",
+			"name": "5. Fetch current ambassador",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -207,7 +207,7 @@
 			"response": []
 		},
 		{
-			"name": "7. Update current ambassador",
+			"name": "6. Update current ambassador",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -219,7 +219,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"the admin\",\n\t\"phone\": \"+1 100-000-0091\",\n\t\"address\": {\n        \"address1\": \"1653 Logan St\",\n        \"city\": \"Denver\",\n        \"state\": \"CO\",\n        \"zip\": 80203\n    }\n}",
+					"raw": "{\n\t\"first_name\": \"the admin\",\n\t\"phone\": \"+1 100-000-0009\",\n\t\"address\": {\n        \"address1\": \"1653 Logan St\",\n        \"city\": \"Denver\",\n        \"state\": \"CO\",\n        \"zip\": 80203\n    }\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -243,7 +243,7 @@
 			"response": []
 		},
 		{
-			"name": "8. Suggest triplers",
+			"name": "7. Suggest triplers",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -269,7 +269,7 @@
 			"response": []
 		},
 		{
-			"name": "9. Start confirmation process for claimed tripler",
+			"name": "8. Start confirmation process for claimed tripler",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -325,7 +325,7 @@
 			"response": []
 		},
 		{
-			"name": "10. Remind tripler",
+			"name": "9. Remind tripler",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -381,10 +381,29 @@
 			"response": []
 		},
 		{
-			"name": "11. Fetch a tripler",
+			"name": "10. Fetch a tripler",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
 			"request": {
 				"method": "GET",
 				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
 					{
 						"key": "Authorization",
 						"type": "text",
@@ -392,7 +411,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/triplers/9766590f-a02e-4c6d-b63d-722ea4bbc5da",
+					"raw": "{{base_url}}/api/v1/va/triplers/2479f63c-42a8-4b3f-89d5-2cee323caae6",
 					"host": [
 						"{{base_url}}"
 					],
@@ -401,7 +420,7 @@
 						"v1",
 						"va",
 						"triplers",
-						"9766590f-a02e-4c6d-b63d-722ea4bbc5da"
+						"2479f63c-42a8-4b3f-89d5-2cee323caae6"
 					]
 				}
 			},
@@ -438,7 +457,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/67bfda0e-6b9f-4de9-b0bc-56c6950498dd/admin",
+					"raw": "{{base_url}}/api/v1/va/ambassadors/d965bf89-9226-4494-92da-5ef9924b4bf1/admin",
 					"host": [
 						"{{base_url}}"
 					],
@@ -447,7 +466,7 @@
 						"v1",
 						"va",
 						"ambassadors",
-						"67bfda0e-6b9f-4de9-b0bc-56c6950498dd",
+						"d965bf89-9226-4494-92da-5ef9924b4bf1",
 						"admin"
 					]
 				}
@@ -486,7 +505,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"address\": {\"address1\": \"1365 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"triplees\": [\"Luke\", \"Leia\", \"Han\"]\n}",
+					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 100-000-0005\",\n\t\"status\": \"god\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -494,7 +513,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/triplers/8c21efb2-b93d-4cb9-800b-c06d1beef1a8",
+					"raw": "{{base_url}}/api/v1/va/triplers/2479f63c-42a8-4b3f-89d5-2cee323caae6",
 					"host": [
 						"{{base_url}}"
 					],
@@ -503,7 +522,7 @@
 						"v1",
 						"va",
 						"triplers",
-						"8c21efb2-b93d-4cb9-800b-c06d1beef1a8"
+						"2479f63c-42a8-4b3f-89d5-2cee323caae6"
 					]
 				}
 			},
@@ -567,7 +586,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"address\": {\"address1\": \"1201 E 13th Ave\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80218},\n\t\"phone\": \"+1 100-000-0032\"\n}",
+					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 100-000-0032\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

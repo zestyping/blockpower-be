@@ -1,11 +1,12 @@
 import { Router } from 'express';
+import neo4j from 'neo4j-driver';
 
 import {
   _204, _400, _401, _403, _404, _500, geoCode, validateEmpty
 } from '../../../../lib/utils';
 
 import { v4 as uuidv4 } from 'uuid';
-import { serializeAmbassador, serializeNeo4JAmbassador, serializeTripler } from './common';
+import { serializeAmbassador, serializeTripler } from './serializers';
 
 async function createAmbassador(req, res) {
   let new_ambassador = null;
@@ -148,12 +149,7 @@ async function signup(req, res) {
 }
 
 async function updateAmbassador(req, res) {
-  let found = null;
-  found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
-
-  if (!found) {
-    return _404(res, "Ambassador not found");
-  }
+  let found = req.user;
 
   if (req.body.phone) {
     let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
@@ -162,54 +158,13 @@ async function updateAmbassador(req, res) {
     }
   }
 
-  let query = `MATCH (a:Ambassador) WHERE a.id = "${req.params.ambassadorId}"\n`
-
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone',
                           'email'];
 
+  let json = {};
   for (let prop in req.body) {
     if (whitelistedAttrs.indexOf(prop) !== -1) {
-      query += `SET a.${prop} = "${req.body[prop]}"\n`;
-    }
-  }
-
-  if (req.body.address) {
-    coordinates = await geoCode(req.body.address);
-    if (coordinates === null) {
-      return _400(res, "Invalid address, ambassador cannot be updated");
-    }
-    query += `SET a.address = '${JSON.stringify(req.body.address)}'\n`;
-    query += `SET a.location = point({latitude:${coordinates.latitude}, longitude:${coordinates.longitude}})\n`;
-  }
-
-  if (req.body.quiz_results) {
-    query += `SET a.quiz_results = '${JSON.stringify(req.body.quiz_results)}'\n`;
-  }
-
-  query += `RETURN (a)`
-  let updated = await req.neode.cypher(query)
-
-  return res.json(serializeNeo4JAmbassador(updated.records[0]._fields[0].properties));
-}
-
-async function updateCurrentAmbassador(req, res) {
-  let ambassador = req.user;
-
-  if (req.body.phone) {
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
-    if(existing_ambassador && existing_ambassador.get('id') !== ambassador.get('id')) {
-      return _400(res, "Ambassador with this phone number already exists");
-    }
-  }
-  
-  let query = `MATCH (a:Ambassador) WHERE a.id = "${ambassador.get('id')}"\n`
-
-  let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone',
-                          'email'];
-
-  for (let prop in req.body) {
-    if (whitelistedAttrs.indexOf(prop) !== -1) {
-      query += `SET a.${prop} = "${req.body[prop]}"\n`;
+      json[prop] = req.body[prop];
     }
   }
 
@@ -218,18 +173,55 @@ async function updateCurrentAmbassador(req, res) {
     if (coordinates === null) {
       return _400(res, "Invalid address, ambassador cannot be updated");
     }
-    query += `SET a.address = '${JSON.stringify(req.body.address)}'\n`;
-    query += `SET a.location = point({latitude:${coordinates.latitude}, longitude:${coordinates.longitude}})\n`;
+    json.address = JSON.stringify(req.body.address);
+    json.location = new neo4j.types.Point(4326, // WGS 84 2D
+                                           parseFloat(coordinates.longitude, 10),
+                                           parseFloat(coordinates.latitude, 10));
   }
 
   if (req.body.quiz_results) {
-    query += `SET a.quiz_results = '${JSON.stringify(req.body.quiz_results)}'\n`;
+    json.quiz_results = JSON.stringify(res.body.quiz_results);
+  }
+  let updated = await found.update(json);
+  return res.json(serializeAmbassador(updated));
+}
+
+async function updateCurrentAmbassador(req, res) {
+  let found = req.user;
+
+  if (req.body.phone) {
+    let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
+    if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
+      return _400(res, "Ambassador with this data already exists");
+    }
   }
 
-  query += `RETURN (a)`
-  let updated = await req.neode.cypher(query)
+  let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone',
+                          'email'];
 
-  return res.json(serializeNeo4JAmbassador(updated.records[0]._fields[0].properties));
+  let json = {};
+  for (let prop in req.body) {
+    if (whitelistedAttrs.indexOf(prop) !== -1) {
+      json[prop] = req.body[prop];
+    }
+  }
+
+  if (req.body.address) {
+    let coordinates = await geoCode(req.body.address);
+    if (coordinates === null) {
+      return _400(res, "Invalid address, ambassador cannot be updated");
+    }
+    json.address = JSON.stringify(req.body.address);
+    json.location = new neo4j.types.Point(4326, // WGS 84 2D
+                                           parseFloat(coordinates.longitude, 10),
+                                           parseFloat(coordinates.latitude, 10));
+  }
+
+  if (req.body.quiz_results) {
+    json.quiz_results = JSON.stringify(res.body.quiz_results);
+  }
+  let updated = await found.update(json);
+  return res.json(serializeAmbassador(updated));
 }
 
 async function claimTriplers(req, res) {
