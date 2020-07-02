@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import neo4j from 'neo4j-driver';
 
+import interpole from 'string-interpolation-js';
+
+import { v4 as uuidv4 } from 'uuid';
+
 import { ov_config } from '../../../../lib/ov_config';
 
 import {
@@ -9,7 +13,8 @@ import {
 
 import { serializeTripler, serializeNeo4JTripler } from './serializers';
 
-import { v4 as uuidv4 } from 'uuid';
+import sms from '../../../../lib/sms';
+
 
 async function createTripler(req, res) {
   let new_tripler = null
@@ -102,7 +107,7 @@ async function updateTripler(req, res) {
     }
   }
 
-  let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone', 'email'];
+  let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone', 'email', 'status'];
 
   let json = {};
   for (let prop in req.body) {
@@ -149,7 +154,11 @@ async function startTriplerConfirmation(req, res) {
 
   let phone = req.body.phone || tripler.get('phone');
 
-  // TODO send SMS
+  try {
+    await sms(phone, interpole(process.env.TRIPLER_CONFIRMATION_MESSAGE, [tripler.get('first_name')]));
+  } catch (err) {
+    return _500(res, 'Error sending confirmation sms to the tripler');
+  }
   await tripler.update({ triplees: JSON.stringify(triplees), status: 'pending', phone: phone });
   return _204(res);
 }

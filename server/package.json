@@ -61,7 +61,9 @@
     "plaid": "^5.1.0",
     "stripe": "^8.63.0",
     "uuid": "^8.2.0",
-    "wkx": "^0.5.0"
+    "wkx": "^0.5.0",
+    "twilio": "^3.47.0",
+    "string-interpolation-js": "^1.0.1"
   },
   "optionalDependencies": {
     "jmx": "github:OurVoiceUSA/node-jmx"
