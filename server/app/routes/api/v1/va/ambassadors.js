@@ -5,15 +5,7 @@ import {
 } from '../../../../lib/utils';
 
 import { v4 as uuidv4 } from 'uuid';
-
-function _serializeAmbassador(ambassador) {
-  let obj = {};
-  ['id', 'first_name', 'last_name', 'phone', 'email', 'location', 'signup_completed', 'approved'].forEach(x => obj[x] = ambassador.get(x));
-  obj['address'] = ambassador.get('address') !== null ? JSON.parse(ambassador.get('address')) : null;
-  obj['quiz_results'] = ambassador.get('quiz_results') !== null ? JSON.parse(ambassador.get('quiz_results')) : null;
-
-  return obj
-}
+import { serializeAmbassador, serializeNeo4JAmbassador, serializeTripler } from './common';
 
 async function createAmbassador(req, res) {
   let new_ambassador = null;
@@ -44,15 +36,15 @@ async function createAmbassador(req, res) {
       locked: false,
       signup_completed: false,
       location: {
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude
+        latitude: parseFloat(coordinates.latitude, 10),
+        longitude: parseFloat(coordinates.longitude, 10)
       }
     })
   } catch(err) {
     req.logger.error("Unhandled error in %s: %j", req.url, err);
     return _500(res, 'Unable to create ambassador');
   }
-  return res.json(_serializeAmbassador(new_ambassador));
+  return res.json(serializeAmbassador(new_ambassador));
 }
 
 async function countAmbassadors(req, res) {
@@ -69,7 +61,7 @@ async function fetchAmbassadors(req, res) {
   let models = [];
   for (var index = 0; index < collection.length; index++) {
     let entry = collection.get(index);
-    models.push(_serializeAmbassador(entry))
+    models.push(serializeAmbassador(entry))
   }
   return res.json(models);
 }
@@ -77,7 +69,7 @@ async function fetchAmbassadors(req, res) {
 async function fetchAmbassador(req, res) {
   let ambassador = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
   if (ambassador) {
-    return res.json(_serializeAmbassador(ambassador));
+    return res.json(serializeAmbassador(ambassador));
   }
   else {
     return _404(res, "Ambassador not found");
@@ -85,7 +77,7 @@ async function fetchAmbassador(req, res) {
 }
 
 async function fetchCurrentAmbassador(req, res) {
-  return res.json(_serializeAmbassador(req.user));
+  return res.json(serializeAmbassador(req.user));
 }
 
 async function approveAmbassador(req, res) {
@@ -98,10 +90,10 @@ async function approveAmbassador(req, res) {
 
   let json = {...{approved: true}};
   let updated = await found.update(json);
-  return res.json(_serializeAmbassador(updated));
+  return res.json(serializeAmbassador(updated));
 }
 
-async function disapproveAmbassador(req, res) {
+async function makeAdmin(req, res) {
   let found = null;
   found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
 
@@ -109,9 +101,9 @@ async function disapproveAmbassador(req, res) {
     return _404(res, "Ambassador not found");
   }
 
-  let json = {...{approved: false}};
-  let updated = await found.update(json);
-  return res.json(_serializeAmbassador(updated));
+  let json = {...{admin: true}};
+  await found.update(json);
+  return res.json(_204);
 }
 
 async function signup(req, res) {
@@ -143,8 +135,8 @@ async function signup(req, res) {
       locked: false,
       signup_completed: true,
       location: {
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude
+        latitude: parseFloat(coordinates.latitude, 10),
+        longitude: parseFloat(coordinates.longitude, 10)
       },
       external_id: req.external_id
     });
@@ -152,7 +144,7 @@ async function signup(req, res) {
     req.logger.error("Unhandled error in %s: %j", req.url, err);
     return _500(res, 'Unable to update ambassador form data');
   }
-  return res.json(_serializeAmbassador(new_ambassador));
+  return res.json(serializeAmbassador(new_ambassador));
 }
 
 async function updateAmbassador(req, res) {
@@ -162,74 +154,82 @@ async function updateAmbassador(req, res) {
   if (!found) {
     return _404(res, "Ambassador not found");
   }
-    
-  let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
-  if(existing_ambassador.get('id') !== found.get('id')) {
-    return _400(res, "Ambassador with this data already exists");
+
+  if (req.body.phone) {
+    let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
+    if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
+      return _400(res, "Ambassador with this data already exists");
+    }
   }
 
-  let json = {};
+  let query = `MATCH (a:Ambassador) WHERE a.id = "${req.params.ambassadorId}"\n`
+
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone',
-                          'email', 'quiz_results'];
+                          'email'];
 
-  for (prop of req.body) {
-    if (whitelistedAttrs.indexOf(prop) !== -1) json[prop] = req.body[prop]
+  for (let prop in req.body) {
+    if (whitelistedAttrs.indexOf(prop) !== -1) {
+      query += `SET a.${prop} = "${req.body[prop]}"\n`;
+    }
   }
-
-  let coordinates = {
-    latitude: found.latitude,
-    longitude: found.longitude
-  };
 
   if (req.body.address) {
     coordinates = await geoCode(req.body.address);
     if (coordinates === null) {
       return _400(res, "Invalid address, ambassador cannot be updated");
     }
-    json['address'] = JSON.stringify(req.body.address);
-    json['location'] = {
-      latitude: parseFloat(coordinates.latitude, 10),
-      longitude: parseFloat(coordinates.longitude, 10)
-    }
+    query += `SET a.address = '${JSON.stringify(req.body.address)}'\n`;
+    query += `SET a.location = point({latitude:${coordinates.latitude}, longitude:${coordinates.longitude}})\n`;
   }
 
-  let updated = await found.update(json);
-  return res.json(_serializeAmbassador(updated));
+  if (req.body.quiz_results) {
+    query += `SET a.quiz_results = '${JSON.stringify(req.body.quiz_results)}'\n`;
+  }
+
+  query += `RETURN (a)`
+  let updated = await req.neode.cypher(query)
+
+  return res.json(serializeNeo4JAmbassador(updated.records[0]._fields[0].properties));
 }
 
 async function updateCurrentAmbassador(req, res) {
   let ambassador = req.user;
 
-  let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
-  if(existing_ambassador.get('id') !== ambassador.get('id')) {
-    return _400(res, "Ambassador with this data already exists");
+  if (req.body.phone) {
+    let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
+    if(existing_ambassador && existing_ambassador.get('id') !== ambassador.get('id')) {
+      return _400(res, "Ambassador with this phone number already exists");
+    }
   }
+  
+  let query = `MATCH (a:Ambassador) WHERE a.id = "${ambassador.get('id')}"\n`
 
-  let json = {};
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone',
-                          'email', 'quiz_results'];
+                          'email'];
 
   for (let prop in req.body) {
-    if (whitelistedAttrs.indexOf(prop) !== -1) json[prop] = req.body[prop]
+    if (whitelistedAttrs.indexOf(prop) !== -1) {
+      query += `SET a.${prop} = "${req.body[prop]}"\n`;
+    }
   }
 
-  let coordinates = ambassador.location;
-
   if (req.body.address) {
-    coordinates = await geoCode(req.body.address);
+    let coordinates = await geoCode(req.body.address);
     if (coordinates === null) {
       return _400(res, "Invalid address, ambassador cannot be updated");
     }
-    json['address'] = JSON.stringify(req.body.address);
-    json['location'] = {
-      latitude: parseFloat(coordinates.latitude, 10),
-      longitude: parseFloat(coordinates.longitude, 10)
-    };
+    query += `SET a.address = '${JSON.stringify(req.body.address)}'\n`;
+    query += `SET a.location = point({latitude:${coordinates.latitude}, longitude:${coordinates.longitude}})\n`;
   }
 
+  if (req.body.quiz_results) {
+    query += `SET a.quiz_results = '${JSON.stringify(req.body.quiz_results)}'\n`;
+  }
 
-  let updated = await ambassador.update(json);
-  return res.json(_serializeAmbassador(updated));
+  query += `RETURN (a)`
+  let updated = await req.neode.cypher(query)
+
+  return res.json(serializeNeo4JAmbassador(updated.records[0]._fields[0].properties));
 }
 
 async function claimTriplers(req, res) {
@@ -255,6 +255,14 @@ async function claimTriplers(req, res) {
   return _204(res);
 }
 
+async function claimedTriplers(req, res) {
+  let ambassador = req.user;
+
+  let triplers = [];
+  ambassador.get('claims').forEach((entry) => triplers.push(serializeTripler(entry.otherNode())));
+  return res.json(triplers);
+}
+
 module.exports = Router({mergeParams: true})
 .post('/ambassadors/signup', (req, res) => {
   return signup(req, res);
@@ -271,10 +279,14 @@ module.exports = Router({mergeParams: true})
   if (!req.user) return _401(res, 'Permission denied.')
   return claimTriplers(req, res);
 })
+.get('/ambassadors/current/triplers', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.')
+  return claimedTriplers(req, res);
+})
 
 .post('/ambassadors', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.admin) return _403(res, "Permission denied.");
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return createAmbassador(req, res);
 })
 .get('/ambassadors', (req, res) => {
@@ -301,6 +313,10 @@ module.exports = Router({mergeParams: true})
   if (!req.user) return _401(res, 'Permission denied.')
   if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return disapproveAmbassador(req, res);
+})
+.put('/ambassadors/:ambassadorId/admin', (req, res) => {
+  // TODO allow only from local
+  return makeAdmin(req, res);
 })
 .put('/ambassadors/:ambassadorId', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')

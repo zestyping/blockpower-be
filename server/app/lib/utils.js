@@ -197,7 +197,7 @@ export async function geoCode(address) {
   let pp = papa.parse(await res.text());
 
   // if invalid address, return no match
-  if (pp.data[0][2] === "No_Match" ) {
+  if (pp.data[0][2] === "No_Match" || !pp.data[0][5]) {
     return null;
   }
 

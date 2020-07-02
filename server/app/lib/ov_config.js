@@ -10,6 +10,7 @@ export const ov_config = {
   server_ssl_key: getConfig("server_ssl_key", false, null),
   server_ssl_cert: getConfig("server_ssl_cert", false, null),
   ip_header: getConfig("client_ip_header", false, null),
+  neo4j_protocol: getConfig("neo4j_protocol", false, 'bolt'),
   neo4j_host: getConfig("neo4j_host", false, 'localhost'),
   neo4j_port: getConfig("neo4j_port", false, 7687),
   neo4j_user: getConfig("neo4j_user", false, 'neo4j'),
