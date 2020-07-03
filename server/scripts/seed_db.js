@@ -1,58 +1,142 @@
 import dotenv from 'dotenv';
+import faker from 'faker';
 import { getConfig } from '../app/lib/common';
 import { geoCode } from '../app/lib/utils.js';
-import faker from 'faker';
+import { v4 as uuidv4 } from 'uuid';
+import neode from  '../app/lib/neode.js';
 import addresses from './seed_data/addresses.json';
+
 import fetch from 'node-fetch';
 
 dotenv.config();
+faker.seed(2020);
 
-const API_BASE = '/api/v1/va/';
-const MAX_TRIPLERS = 30;
-const HEADERS = {
-  'Content-Type': 'application/json',
-  'Authorization': getConfig("SEED_TOKEN")
+async function randomPhone(model) {
+  while (true) {
+    let phone = faker.phone.phoneNumber();  
+    let entry = await neode.first(model, 'phone', phone);
+    if (!entry) return phone;
+  }  
 }
-async function seed() {
-  let adminJson = {
-    first_name: faker.name.findName(),
-    address: addresses[0],
-    phone: "+11001001000"
+
+async function emptyDatabase() {
+  await neode.deleteAll('Ambassador');
+  await neode.deleteAll('Tripler');
+}
+
+async function createTripler(opts) {
+  let firstName = faker.name.firstName();
+  let lastName = faker.name.lastName();
+  let phone = await randomPhone('Ambassador');
+  let email = faker.internet.email();
+  let address = addresses[faker.random.number({min: 0, max: addresses.length - 1})];
+  let coordinates = await geoCode(address);
+  let triplees = [faker.name.findName(), faker.name.findName(), faker.name.findName()];
+
+  let json = {
+    id: uuidv4(),
+    first_name: firstName,
+    last_name: lastName,
+    phone: phone,
+    email: email,
+    address: JSON.stringify(address),
+    location: {
+      latitude: parseFloat(coordinates.latitude, 10),
+      longitude: parseFloat(coordinates.longitude, 10)
+    },
+    status: opts.status,
+    triplees: JSON.stringify(triplees)
+  }
+  return await neode.create('Tripler', json);
+}
+
+async function createAmbassador(opts) {
+  let firstName = faker.name.firstName();
+  let lastName = faker.name.lastName();
+  let phone = await randomPhone('Ambassador');
+  let email = faker.internet.email();
+  let address = addresses[faker.random.number({min: 0, max: addresses.length - 1})];
+  let coordinates = await geoCode(address);
+
+  let json = {
+    id: uuidv4(),
+    first_name: firstName,
+    last_name: lastName,
+    phone: phone,
+    email: email,
+    address: JSON.stringify(address),
+    quiz_results: null,
+    approved: !!opts.approved,
+    locked: !!opts.locked,
+    signup_completed: !!opts.signup_completed,
+    admin: !!opts.admin,
+    location: {
+      latitude: parseFloat(coordinates.latitude, 10),
+      longitude: parseFloat(coordinates.longitude, 10)
+    }
   };
 
-  let response = await fetch(getConfig("SEED_HOST") + API_BASE + 'ambassadors/signup', {
-    method: 'post',
-    body: JSON.stringify(adminJson),
-    headers: HEADERS
-  });
-
-  let admin = await response.json();
-
-  await fetch(getConfig("SEED_HOST") + API_BASE + 'ambassadors/' + admin.id + '/admin', {
-    method: 'put',
-    body: JSON.stringify(admin),
-    headers: HEADERS
-  });
-
-  for (let x = 0; x < MAX_TRIPLERS; x++) {
-    let randomName = faker.name.findName();
-    let randomEmail = faker.internet.email();
-    let randomAddress = addresses[x%MAX_TRIPLERS];
-    let coordinates = await geoCode(randomAddress);
-    let tripler = {
-      first_name: randomName,
-      email: randomEmail,
-      address: randomAddress,
-      status: "unconfirmed",
-      phone: "replace this with a valid phone #" + Math.random()
+  let new_ambassador = await neode.create('Ambassador', json);
+  if (opts.createTriplers) {
+    let statuses = ['pending', 'unconfirmed', 'confirmed'];
+    let status = statuses[faker.random.number({min: 0, max: 2})];
+    let max = faker.random.number({min: 1, max: 2});
+    for (let index = 0; index < max; index++) {
+      console.log(`Creating ${status} tripler ${index + 1} of ${max} ...`);
+      let tripler = await createTripler({ status: status });
+      new_ambassador.relateTo(tripler, 'claims');
     }
+  }
+  return new_ambassador;
+}
 
-    await fetch(getConfig("SEED_HOST") + API_BASE + 'triplers', {
-      method: 'post',
-      body: JSON.stringify(tripler),
-      headers: HEADERS
-    })
+async function createAdmin() {
+  return await createAmbassador({admin: true});
+}
+
+async function seed() {
+  console.log("Emptying database...");
+  await emptyDatabase();
+
+  console.log("Creating admin...");
+  let admin = await createAdmin();
+  console.log(`Admin created with email ${admin.get('email')}`);
+
+  console.log("Creating approved ambassador...");
+  let ambassador = await createAmbassador({approved: true, signupCompleted: true, createTriplers: true});
+  console.log(`Ambassador created with email ${ambassador.get('email')}`);
+
+  console.log("Creating unapproved ambassador...");
+  ambassador = await createAmbassador({approved: false, signupCompleted: false, createTriplers: false});
+  console.log(`Ambassador created with email ${ambassador.get('email')}`);  
+
+  console.log("Creating locked ambassador...");
+  ambassador = await createAmbassador({locked: true, approved: true, signupCompleted: true, createTriplers: true});
+  console.log(`Ambassador created with email ${ambassador.get('email')}`);
+
+  let max = faker.random.number({min: 1, max: 10});
+  for (let index = 0; index < max; index++) {
+    let approved = faker.random.boolean();
+    let locked = faker.random.boolean();
+    let signupCompleted = faker.random.boolean();
+
+    console.log(`Creating {locked: ${locked}, approved: ${approved}, signup_completed: ${signupCompleted}} ambassador ${index + 1} of ${max} ...`);
+    let ambassador = await createAmbassador({createTriplers: true});
+    
+    console.log(`Ambassador created with email ${ambassador.get('email')}`);
+  }
+
+  max = faker.random.number({min: 1, max: 30});
+  let statuses = ['pending', 'unconfirmed', 'confirmed'];
+  let status = statuses[faker.random.number({min: 0, max: 2})];
+  for (let index = 0; index < max; index++) {
+    console.log(`Creating ${status} tripler ${index + 1} of ${max} ...`);
+    let tripler = await createTripler({ status: status } );
   }
 }
 
 seed()
+  .then( () => { process.exit(0) } )
+  .catch( (err)=>{ console.log(err); process.exit(1); } );
+
+// console arguments --empty --max-ambassadors=n --max-triplers=n
