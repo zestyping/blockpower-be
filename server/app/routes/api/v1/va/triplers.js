@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import neo4j from 'neo4j-driver';
+import phone from '../../../../lib/phone';
 
 import interpole from 'string-interpolation-js';
 
@@ -20,13 +21,13 @@ async function createTripler(req, res) {
   let new_tripler = null
 
   try {
-    let existing_tripler = await req.neode.first('Tripler', 'phone', req.body.phone);
-    if (existing_tripler) {
-      return _400(res, "Tripler with this data already exists");
-    }
-
     if (!validateEmpty(req.body, ['first_name', 'phone', 'address'])) {
       return _400(res, "Invalid payload, tripler cannot be created");
+    }
+
+    let existing_tripler = await req.neode.first('Tripler', 'phone', phone(req.body.phone));
+    if (existing_tripler) {
+      return _400(res, "Tripler with this data already exists");
     }
 
     let coordinates = await geoCode(req.body.address);
@@ -38,7 +39,7 @@ async function createTripler(req, res) {
       id: uuidv4(),
       first_name: req.body.first_name,
       last_name: req.body.last_name || null,
-      phone: req.body.phone,
+      phone: phone(req.body.phone),
       email: req.body.email || null,
       address: JSON.stringify(req.body.address),
       triplees: !req.body.triplees ? null : JSON.stringify(req.body.triplees),
@@ -101,19 +102,23 @@ async function updateTripler(req, res) {
   if (!found) return _404(res, "Tripler not found");
 
   if (req.body.phone) {
-    let existing_tripler = await req.neode.first('Tripler', 'phone', req.body.phone);
+    let existing_tripler = await req.neode.first('Tripler', 'phone', phone(req.body.phone));
     if(existing_tripler && existing_tripler.get('id') !== found.get('id')) {
       return _400(res, "Tripler with this phone number already exists");
     }
   }
 
-  let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone', 'email', 'status'];
+  let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'email', 'status'];
 
   let json = {};
   for (let prop in req.body) {
     if (whitelistedAttrs.indexOf(prop) !== -1) {
       json[prop] = req.body[prop];
     }
+  }
+
+  if (req.body.phone) {
+    json.phone = phone(req.body.phone);
   }
 
   if (req.body.address) {
@@ -152,14 +157,14 @@ async function startTriplerConfirmation(req, res) {
     return _400(res, 'Insufficient triplees, cannot start confirmation')
   }
 
-  let phone = req.body.phone || tripler.get('phone');
+  let triplerPhone = req.body.phone ? phone(req.body.phone): tripler.get('phone');
 
   try {
-    await sms(phone, interpole(process.env.TRIPLER_CONFIRMATION_MESSAGE, [tripler.get('first_name')]));
+    await sms(triplerPhone, interpole(process.env.TRIPLER_CONFIRMATION_MESSAGE, [tripler.get('first_name')]));
   } catch (err) {
     return _500(res, 'Error sending confirmation sms to the tripler');
   }
-  await tripler.update({ triplees: JSON.stringify(triplees), status: 'pending', phone: phone });
+  await tripler.update({ triplees: JSON.stringify(triplees), status: 'pending', phone: triplerPhone });
   return _204(res);
 }
 

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import phone from '../../../../lib/phone';
 import neo4j from 'neo4j-driver';
 
 import {
@@ -11,13 +12,13 @@ import { serializeAmbassador, serializeTripler } from './serializers';
 async function createAmbassador(req, res) {
   let new_ambassador = null;
   try {
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
-    if(existing_ambassador) {
-      return _400(res, "Ambassador with this data already exists");
-    }
-
     if (!validateEmpty(req.body, ['first_name', 'phone', 'address'])) {
       return _400(res, "Invalid payload, ambassador cannot be created");
+    }
+
+    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phone(req.body.phone));
+    if(existing_ambassador) {
+      return _400(res, "Ambassador with this data already exists");
     }
 
     let coordinates = await geoCode(req.body.address);
@@ -29,7 +30,7 @@ async function createAmbassador(req, res) {
       id: uuidv4(),
       first_name: req.body.first_name,
       last_name: req.body.last_name || null,
-      phone: req.body.phone,
+      phone: phone(req.body.phone),
       email: req.body.email || null,
       address: JSON.stringify(req.body.address),
       quiz_results: JSON.stringify(req.body.quiz_results) || null,
@@ -110,13 +111,13 @@ async function makeAdmin(req, res) {
 async function signup(req, res) {
   let new_ambassador = null;
   try {
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
-    if(existing_ambassador) {
-      return _400(res, "Ambassador with this data already exists");
-    }
-
     if (!validateEmpty(req.body, ['first_name', 'phone', 'address'])) {
       return _400(res, "Invalid payload, ambassador cannot be created");
+    }
+
+    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phone(req.body.phone));
+    if(existing_ambassador) {
+      return _400(res, "Ambassador with this data already exists");
     }
 
     let coordinates = await geoCode(req.body.address);
@@ -128,7 +129,7 @@ async function signup(req, res) {
       id: uuidv4(),
       first_name: req.body.first_name,
       last_name: req.body.last_name || null,
-      phone: req.body.phone,
+      phone: phone(req.body.phone),
       email: req.body.email || null,
       address: JSON.stringify(req.body.address),
       quiz_results: JSON.stringify(req.body.quiz_results) || null,
@@ -152,20 +153,23 @@ async function updateAmbassador(req, res) {
   let found = req.user;
 
   if (req.body.phone) {
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
+    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phone(req.body.phone));
     if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
       return _400(res, "Ambassador with this data already exists");
     }
   }
 
-  let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone',
-                          'email'];
+  let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'email'];
 
   let json = {};
   for (let prop in req.body) {
     if (whitelistedAttrs.indexOf(prop) !== -1) {
       json[prop] = req.body[prop];
     }
+  }
+
+  if (req.body.phone) {
+    json.phone = phone(req.body.phone);
   }
 
   if (req.body.address) {
@@ -190,20 +194,23 @@ async function updateCurrentAmbassador(req, res) {
   let found = req.user;
 
   if (req.body.phone) {
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', req.body.phone);
+    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phone(req.body.phone));
     if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
       return _400(res, "Ambassador with this data already exists");
     }
   }
 
-  let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'phone',
-                          'email'];
+  let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'email'];
 
   let json = {};
   for (let prop in req.body) {
     if (whitelistedAttrs.indexOf(prop) !== -1) {
       json[prop] = req.body[prop];
     }
+  }
+
+  if (req.body.phone) {
+    json.phone = phone(req.body.phone);
   }
 
   if (req.body.address) {

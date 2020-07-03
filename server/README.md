@@ -31,6 +31,10 @@ For this server, configure an `.env` file. The following is a complete list of v
     PLAID_SECRET=
     PLAID_PUBLIC_KEY=
     STRIPE_SECRET_KEY=
+    TWILIO_DISABLE=
+    TWILIO_ACCOUNT_SID=
+    TWILIO_AUTH_TOKEN=
+    TWILIO_FROM=
 
 The meaning of each config item is as follows:
 
@@ -62,3 +66,7 @@ The meaning of each config item is as follows:
 * `PLAID_SECRET`: The secret from your Plaid developer account. Needed for ambassador payouts.
 * `PLAID_PUBLIC_KEY`: The public key from your Plaid developer account. Needed for ambassador payouts.
 * `STRIPE_SECRET_KEY`: The secret key from your Stripe developer account. Needed for ambassador payouts.
+* `TWILIO_DISABLE`: Setting it to true will disable twilio.
+* `TWILIO_ACCOUNT_SID`: SID of twilio account.
+* `TWILIO_AUTH_TOKEN`: Auth token of twilio account.
+* `TWILIO_FROM`: Number to send SMSes from.

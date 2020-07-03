@@ -6,7 +6,20 @@
 	},
 	"item": [
 		{
-			"name": "1. Signup",
+			"name": "Signup",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "32157c40-ceaa-4bac-ab4a-7a68d3bdbfa6",
+						"exec": [
+							"let jsonData = pm.response.json()",
+							"pm.globals.set('ambassador_id', jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -61,7 +74,67 @@
 			"response": []
 		},
 		{
-			"name": "2. Create tripler",
+			"name": "Make admin (localhost api)",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{ambassador_id}}/admin",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"{{ambassador_id}}",
+						"admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b1fe36fb-02dd-48c1-9412-5d6fcb42acb3",
+						"exec": [
+							"let jsonData = pm.response.json()",
+							"pm.globals.set('tripler_id', jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -115,7 +188,7 @@
 			"response": []
 		},
 		{
-			"name": "3. Claim triplers",
+			"name": "Claim triplers",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -127,7 +200,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"triplers\": [\"2479f63c-42a8-4b3f-89d5-2cee323caae6\"]\n}",
+					"raw": "{\n\t\"triplers\": [\"{{tripler_id}}\"]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -152,7 +225,7 @@
 			"response": []
 		},
 		{
-			"name": "4. Fetch claimed triplers",
+			"name": "Fetch claimed triplers",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -180,7 +253,7 @@
 			"response": []
 		},
 		{
-			"name": "5. Fetch current ambassador",
+			"name": "Fetch current ambassador",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -207,7 +280,7 @@
 			"response": []
 		},
 		{
-			"name": "6. Update current ambassador",
+			"name": "Update current ambassador",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -243,7 +316,7 @@
 			"response": []
 		},
 		{
-			"name": "7. Suggest triplers",
+			"name": "Suggest triplers",
 			"request": {
 				"method": "GET",
 				"header": [
@@ -269,7 +342,7 @@
 			"response": []
 		},
 		{
-			"name": "8. Start confirmation process for claimed tripler",
+			"name": "Start confirmation process for claimed tripler",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -308,7 +381,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/triplers/9766590f-a02e-4c6d-b63d-722ea4bbc5da/start-confirm",
+					"raw": "{{base_url}}/api/v1/va/triplers/{{tripler_id}}/start-confirm",
 					"host": [
 						"{{base_url}}"
 					],
@@ -317,7 +390,7 @@
 						"v1",
 						"va",
 						"triplers",
-						"9766590f-a02e-4c6d-b63d-722ea4bbc5da",
+						"{{tripler_id}}",
 						"start-confirm"
 					]
 				}
@@ -325,7 +398,7 @@
 			"response": []
 		},
 		{
-			"name": "9. Remind tripler (not working yet)",
+			"name": "Remind tripler (not working yet)",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -364,7 +437,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/triplers/9766590f-a02e-4c6d-b63d-722ea4bbc5da/remind",
+					"raw": "{{base_url}}/api/v1/va/triplers/{{tripler_id}}/remind",
 					"host": [
 						"{{base_url}}"
 					],
@@ -373,7 +446,7 @@
 						"v1",
 						"va",
 						"triplers",
-						"9766590f-a02e-4c6d-b63d-722ea4bbc5da",
+						"{{tripler_id}}",
 						"remind"
 					]
 				}
@@ -381,7 +454,7 @@
 			"response": []
 		},
 		{
-			"name": "10. Fetch a tripler",
+			"name": "Fetch a tripler",
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -411,7 +484,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/triplers/2479f63c-42a8-4b3f-89d5-2cee323caae6",
+					"raw": "{{base_url}}/api/v1/va/triplers/{{tripler_id}}",
 					"host": [
 						"{{base_url}}"
 					],
@@ -420,110 +493,7 @@
 						"v1",
 						"va",
 						"triplers",
-						"2479f63c-42a8-4b3f-89d5-2cee323caae6"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "11. Start tripler confirmation",
-			"protocolProfileBehavior": {
-				"disabledSystemHeaders": {
-					"accept": true,
-					"accept-encoding": true,
-					"connection": true,
-					"host": true,
-					"user-agent": true
-				}
-			},
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "x-client-ip",
-						"type": "text",
-						"value": "127.0.0.1"
-					},
-					{
-						"key": "Content-Type",
-						"type": "text",
-						"value": "application/json"
-					},
-					{
-						"key": "Authorization",
-						"type": "text",
-						"value": "Bearer {{token}}"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\t\"triplees\": [\"Aman\", \"David\", \"Ethan\"],\n\t\"phone\": \"+1 111-111-1111\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/api/v1/va/triplers/2479f63c-42a8-4b3f-89d5-2cee323caae6/start-confirm",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"v1",
-						"va",
-						"triplers",
-						"2479f63c-42a8-4b3f-89d5-2cee323caae6",
-						"start-confirm"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Make admin (localhost api)",
-			"protocolProfileBehavior": {
-				"disabledSystemHeaders": {
-					"accept": true,
-					"accept-encoding": true,
-					"connection": true,
-					"host": true,
-					"user-agent": true
-				}
-			},
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "x-client-ip",
-						"type": "text",
-						"value": "127.0.0.1"
-					},
-					{
-						"key": "Content-Type",
-						"type": "text",
-						"value": "application/json"
-					},
-					{
-						"key": "Authorization",
-						"type": "text",
-						"value": "Bearer {{token}}"
-					}
-				],
-				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/d965bf89-9226-4494-92da-5ef9924b4bf1/admin",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"v1",
-						"va",
-						"ambassadors",
-						"d965bf89-9226-4494-92da-5ef9924b4bf1",
-						"admin"
+						"{{tripler_id}}"
 					]
 				}
 			},
@@ -569,7 +539,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/triplers/2479f63c-42a8-4b3f-89d5-2cee323caae6",
+					"raw": "{{base_url}}/api/v1/va/triplers/{{tripler_id}}",
 					"host": [
 						"{{base_url}}"
 					],
@@ -578,7 +548,7 @@
 						"v1",
 						"va",
 						"triplers",
-						"2479f63c-42a8-4b3f-89d5-2cee323caae6"
+						"{{tripler_id}}"
 					]
 				}
 			},
@@ -729,7 +699,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/67bfda0e-6b9f-4de9-b0bc-56c6950498dd",
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{ambassador_id}}",
 					"host": [
 						"{{base_url}}"
 					],
@@ -738,7 +708,7 @@
 						"v1",
 						"va",
 						"ambassadors",
-						"67bfda0e-6b9f-4de9-b0bc-56c6950498dd"
+						"{{ambassador_id}}"
 					]
 				}
 			},
@@ -765,7 +735,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/67bfda0e-6b9f-4de9-b0bc-56c6950498dd",
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{ambassador_id}}",
 					"host": [
 						"{{base_url}}"
 					],
@@ -774,7 +744,7 @@
 						"v1",
 						"va",
 						"ambassadors",
-						"67bfda0e-6b9f-4de9-b0bc-56c6950498dd"
+						"{{ambassador_id}}"
 					]
 				}
 			},
@@ -801,7 +771,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/67bfda0e-6b9f-4de9-b0bc-56c6950498dd/approve",
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{ambassador_id}}/approve",
 					"host": [
 						"{{base_url}}"
 					],
@@ -810,7 +780,7 @@
 						"v1",
 						"va",
 						"ambassadors",
-						"67bfda0e-6b9f-4de9-b0bc-56c6950498dd",
+						"{{ambassador_id}}",
 						"approve"
 					]
 				}
