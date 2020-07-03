@@ -9,6 +9,41 @@ releases:
         image:
           tag: {{ requiredEnv "DOCKER_TAG_API" }}
           port: 80
+          env:
+            - name: NEO4J_PROTOCOL=bolt
+              value: bolt
+            - name: NEO4J_HOST
+              value: localhost
+            - name: NEO4J_USERNAME
+              value: neo4j
+            - name: NEO4J_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hello-voter-secrets
+                  key: neo4j_password
+            - name: NEO4J_PORT
+              value: 7687
+            - name: NEO4J_DATABASE
+              value: neo4j
+            - name: JWT_AUD
+              value: blockpower.us
+            - name: TWILIO_ACCOUNT_SID
+              valueFrom:
+                secretKeyRef:
+                  name: hello-voter-secrets
+                  key: twilio_account_sid
+            - name: TWILIO_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hello-voter-secrets
+                  key: twilio_auth_token
+            - name: TWILIO_FROM
+              valueFrom:
+                secretKeyRef:
+                  name: hello-voter-secrets
+                  key: twilio_from
+           - name: TRIPLER_CONFIRMATION_MESSAGE
+             value: "Dear :0, reply Yes if you are happy"
   - name: hello-voter-db
     namespace: hello-voter
     chart: ./db

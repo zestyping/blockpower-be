@@ -1,5 +1,5 @@
 apiVersion: v2
-name: coopernetes-chart
-description: A simple helm chart for deploying simple apps to coopernetes.
+name: hello-voter-db
+description: A simple helm chart for deploying hello-voter-db to coopernetes.
 type: application
 version: 0.1.1
