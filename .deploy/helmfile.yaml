@@ -1,0 +1,21 @@
+releases:
+  - name: hello-voter-api
+    namespace: hello-voter
+    chart: ./api
+    values:
+      - name: hello-voter-api
+        issuer: "letsencrypt-prod"
+        host: hello-voter-api.coopernetes.colab.coop
+        image:
+          tag: {{ requiredEnv "DOCKER_TAG" }}
+          port: 80
+  - name: hello-voter-db
+    namespace: hello-voter
+    chart: ./db
+    values:
+      - name: hello-voter-db
+        issuer: "letsencrypt-prod"
+        host: hello-voter-db.coopernetes.colab.coop
+        image:
+          tag: {{ requiredEnv "DOCKER_TAG" }}
+          port: 80
