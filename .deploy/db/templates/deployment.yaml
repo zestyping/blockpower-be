@@ -14,19 +14,6 @@ spec:
       labels:
         app: neo4j-db
     spec:
-      initContainers:
-        - name: init-jmx
-          image: "appropriate/curl:latest"
-          imagePullPolicy: "IfNotPresent"
-          volumeMounts:
-          - name: neo4j-root
-            mountPath: /
-          command:
-            - "/bin/sh"
-            - "-c"
-            - |
-
-              sudo mkdir -p /{data,import,plugins,logs}
       containers:
       - image: {{ .Values.image.tag }}
         name: neo4j
@@ -53,9 +40,14 @@ spec:
             - containerPort: 7473
               name: https
         volumeMounts:
-            - name: neo4j-root
-              mountPath: /
+            - name: neo4j-logs
+              mountPath: /logs
+            - name: neo4j-data
+              mountPath: /data
       volumes:
-          - name: neo4j-root
+          - name: neo4j-data
             persistentVolumeClaim:
-              claimName: neo4j-db-claim
+              claimName: neo4j-db-data
+          - name: neo4j-logs
+            persistentVolumeClaim:
+              claimName: neo4j-db-logs

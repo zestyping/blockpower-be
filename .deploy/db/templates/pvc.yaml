@@ -1,7 +1,7 @@
 kind: "PersistentVolumeClaim"
 apiVersion: "v1"
 metadata:
-  name: neo4j-db-claim
+  name: neo4j-db-data
   labels:
     app: neo4j-db
 spec:
@@ -11,3 +11,17 @@ spec:
   resources:
     requests:
       storage: 10Gi
+---
+kind: "PersistentVolumeClaim"
+apiVersion: "v1"
+metadata:
+  name: neo4j-db-logs
+  labels:
+    app: neo4j-db
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp2
+  resources:
+    requests:
+      storage: 2Gi
