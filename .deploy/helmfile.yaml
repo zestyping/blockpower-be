@@ -48,9 +48,6 @@ releases:
     namespace: hello-voter
     chart: ./db
     values:
-      - name: hello-voter-db
-        issuer: "letsencrypt-prod"
-        host: hello-voter-db.coopernetes.colab.coop
-        image:
-          tag: {{ requiredEnv "DOCKER_TAG_DB" }}
-          port: 80
+      heap_size: 4G
+      page_size: 12G
+      neo4j_password: {{ requiredEnv "NEO4J_PASSWORD" }}

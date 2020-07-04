@@ -1,24 +1,61 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.name }}
+  labels:
+    app: neo4j-db
+  name: neo4j-db
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: {{ .Values.name }}
-  replicas: 1
+      app: neo4j-db
   template:
     metadata:
       labels:
-        app: {{ .Values.name }}
+        app: neo4j-db
     spec:
+      initContainers:
+        - name: init-jmx
+          image: "appropriate/curl:latest"
+          imagePullPolicy: "IfNotPresent"
+          volumeMounts:
+          - name: neo4j-root
+            mountPath: /
+          command:
+            - "/bin/sh"
+            - "-c"
+            - |
+
+              sudo mkdir -p /{data,import,plugins,logs}
       containers:
-      - name: {{ .Values.name }}
-        image: {{ .Values.image.tag }}
-        imagePullPolicy: Always
-        ports:
-        - containerPort: {{ .Values.image.port }}
-        {{- with .Values.image.env}}
+      - image: ourvoiceusa/neo4j-hv
+        name: neo4j
         env:
-          {{- toYaml . | nindent 10 }}
-        {{- end }}
+          - name: NEO4J_dbms_security_procedures_unrestricted
+            value: "apoc.*"
+          - name: NEO4J_dbms_memory_pagecache_size
+            value: {{ .Values.page_size }}
+          - name: NEO4J_dbms_memory_heap_initial__size
+            value: {{ .Values.heap_size }}
+          - name: NEO4J_dbms_memory_heap_max__size
+            value: {{ .Values.heap_size }}
+          - name: NEO4J_dbms_directories_tx__log
+            value: "/logs"
+          - name: NEO4J_dbms_jvm_additional
+            value: "-dcom.sun.management.jmxremote.authenticate=true -dcom.sun.management.jmxremote.ssl=false -dcom.sun.management.jmxremote.password.file=/logs/jmx.password -dcom.sun.management.jmxremote.access.file=/logs/jmx.access -dcom.sun.management.jmxremote.port=9999 -djava.rmi.server.hostname=hello-voter-db"
+          - name: NEO4J_AUTH
+            value: neo4j/{{ .Values.neo4j_password }}
+        ports: ## Ports to map
+            - containerPort: 7474
+              name: http
+            - containerPort: 7687
+              name: bolt
+            - containerPort: 7473
+              name: https
+        volumeMounts:
+            - name: neo4j-root
+              mountPath: /
+      volumes:
+          - name: neo4j-root
+            persistentVolumeClaim:
+              claimName: neo4j-db-claim
