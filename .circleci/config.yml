@@ -19,7 +19,7 @@ jobs:
           environment:
             DOCKERFILE: server/Dockerfile
             DOCKER_CONTEXT: server
-            DOCKER_REPO: hello-voter-api
+            DOCKER_REPO: colabcoop/hello-voter-api
       - run:
           name: Build db container
           command: |
@@ -28,7 +28,7 @@ jobs:
           environment:
             DOCKERFILE: database/Dockerfile
             DOCKER_CONTEXT: database
-            DOCKER_REPO: hello-voter-db
+            DOCKER_REPO: colabcoop/hello-voter-db
 
 workflows:
    deploy:
