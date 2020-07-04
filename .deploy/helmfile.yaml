@@ -7,7 +7,7 @@ releases:
         issuer: "letsencrypt-prod"
         host: hello-voter-api.coopernetes.colab.coop
         image:
-          tag: {{ requiredEnv "DOCKER_TAG_API" }}
+          tag: {{ requiredEnv "DOCKER_TAG_API" | quote }}
           port: 80
           env:
             - name: NEO4J_PROTOCOL
@@ -17,19 +17,19 @@ releases:
             - name: NEO4J_USERNAME
               value: neo4j
             - name: NEO4J_PASSWORD
-              value: {{ requiredEnv "NEO4J_PASSWORD" }}
+              value: {{ requiredEnv "NEO4J_PASSWORD" | quote }}
             - name: NEO4J_PORT
-              value: 7687
+              value: "7687"
             - name: NEO4J_DATABASE
               value: neo4j
             - name: JWT_AUD
               value: blockpower.us
             - name: TWILIO_ACCOUNT_SID
-              value: {{ requiredEnv "TWILIO_ACCOUNT_SID" }}
+              value: {{ requiredEnv "TWILIO_ACCOUNT_SID" | quote }}
             - name: TWILIO_AUTH_TOKEN
-              value: {{ requiredEnv "TWILIO_AUTH_TOKEN" }}
+              value: {{ requiredEnv "TWILIO_AUTH_TOKEN" | quote }}
             - name: TWILIO_FROM
-              value: {{ requiredEnv "TWILIO_FROM" }}
+              value: {{ requiredEnv "TWILIO_FROM" | quote }}
             - name: TRIPLER_CONFIRMATION_MESSAGE
               value: "Dear :0, reply Yes if you are happy"
   - name: hello-voter-db
@@ -38,6 +38,6 @@ releases:
     values:
       - heap_size: "4G"
         page_size: "12G"
-        neo4j_password: {{ requiredEnv "NEO4J_PASSWORD" }}
+        neo4j_password: {{ requiredEnv "NEO4J_PASSWORD" | quote }}
         image:
-          tag: {{ requiredEnv "DOCKER_TAG_DB" }}
+          tag: {{ requiredEnv "DOCKER_TAG_DB" | quote }}
