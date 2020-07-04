@@ -41,7 +41,7 @@ spec:
             - name: neo4j-logs
               mountPath: /logs
             - name: neo4j-data
-              mountPath: /data
+              mountPath: /var/lib/neo4j/data
       volumes:
           - name: neo4j-data
             persistentVolumeClaim:
