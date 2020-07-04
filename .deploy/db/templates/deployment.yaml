@@ -28,7 +28,7 @@ spec:
 
               sudo mkdir -p /{data,import,plugins,logs}
       containers:
-      - image: ourvoiceusa/neo4j-hv
+      - image: {{ .Values.image.tag }}
         name: neo4j
         env:
           - name: NEO4J_dbms_security_procedures_unrestricted

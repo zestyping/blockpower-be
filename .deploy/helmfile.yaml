@@ -51,3 +51,5 @@ releases:
       heap_size: 4G
       page_size: 12G
       neo4j_password: {{ requiredEnv "NEO4J_PASSWORD" }}
+      image:
+        tag: {{ requiredEnv "DOCKER_TAG_DB" }}
