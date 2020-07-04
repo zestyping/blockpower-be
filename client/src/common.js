@@ -183,7 +183,7 @@ export async function _loadVolunteer(global, id) {
   try {
     volunteer = await _fetch(
       global,
-      '/volunteer/get?id=' + id
+      '/ambassadors/' + id
     );
   } catch (e) {
     notify_error(e, 'Unable to load volunteer info.');
@@ -196,12 +196,7 @@ export async function _loadVolunteers(global, byType, id) {
   let volunteers = [];
 
   try {
-    let call = 'volunteer/list';
-
-    if (byType === 'turf')
-      call = 'turf/assigned/volunteer/list?turfId=' + id;
-    else if (byType === 'form')
-      call = 'form/assigned/volunteer/list?formId=' + id;
+    let call = 'ambassadors';
 
     volunteers = await _fetch(global, '/' + call);
   } catch (e) {
@@ -230,6 +225,7 @@ export async function _loadTurf(global, id) {
 export async function _loadTurfs(global, flag) {
   let turf = [];
 
+  /*
   try {
     let call = 'turf/list' + (flag ? '?geometry=true' : '');
     let data = await _fetch(global, '/' + call);
@@ -237,6 +233,7 @@ export async function _loadTurfs(global, flag) {
   } catch (e) {
     notify_error(e, 'Unable to load turf data.');
   }
+  */
 
   return turf;
 }
@@ -272,6 +269,7 @@ export async function _loadForm(global, id) {
 export async function _loadForms(global) {
   let forms = [];
 
+  /*
   try {
     let uri = 'form/list';
 
@@ -279,6 +277,7 @@ export async function _loadForms(global) {
   } catch (e) {
     notify_error(e, 'Unable to load form data.');
   }
+  */
 
   return forms;
 }

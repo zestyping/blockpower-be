@@ -92,7 +92,7 @@ export default class App extends Component {
       if (c.locked) {
         denied.push(c);
       } else if (c.invited) invited.push(c);
-      else if (c.ass.ready) ready.push(c);
+      else if (c.ass && c.ass.ready) ready.push(c);
       else unassigned.push(c);
     });
 
@@ -264,7 +264,7 @@ const ListVolunteers = props => {
   return (
     <div>
       <h3>
-        {props.type} Volunteers ({props.volunteers.length})
+        {props.type} Ambassadors ({props.volunteers.length})
       </h3>
       {paginate}
       <List component="nav">{list}</List>

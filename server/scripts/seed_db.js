@@ -1,15 +1,53 @@
-import dotenv from 'dotenv';
+#!/usr/bin/env node
+
 import faker from 'faker';
-import { getConfig } from '../app/lib/common';
 import { geoCode } from '../app/lib/utils.js';
 import { v4 as uuidv4 } from 'uuid';
 import neode from  '../app/lib/neode.js';
 import addresses from './seed_data/addresses.json';
+import yargs from 'yargs';
 
-import fetch from 'node-fetch';
-
-dotenv.config();
-faker.seed(2020);
+const argv = yargs
+               .scriptName("seed_db.js")
+               .usage('$0 <cmd> [options]')
+               .command('seedall', 'seed with random Ambassadors and Triplers, optionally delete all first', async function (argv) {
+                 await seed(argv.argv)
+                         .then( () => { process.exit(0) } )
+                         .catch( (err)=>{ console.log(err); process.exit(1); } );
+               })
+               .command('delete', 'only delete all the Ambassadors and Triplers, do not seed', async function () {
+                 await emptyDatabase()
+                         .then( () => { process.exit(0) } )
+                         .catch( (err)=>{ console.log(err); process.exit(1); } );
+               })
+               .option({
+                 'max-ambassadors': {
+                   alias: 'ma',
+                   describe: 'defines a maximum number of Ambassadors to create',
+                   type: 'number'
+                 }
+               })
+               .option({
+                 'max-triplers': {
+                   alias: 'mt',
+                   describe: 'defines a maximum number of Triplers to create',
+                   type: 'number'
+                 }
+               })
+               .option({
+                 'empty': {
+                   describe: 'empty the database before you seed it',
+                   type: 'boolean'
+                 }
+               })
+               .option({
+                 'seed': {
+                   describe: 'define a random number generation seed to reproduce a state',
+                   type: 'number'
+                 }
+               })
+               .help()
+               .argv
 
 async function randomPhone(model) {
   while (true) {
@@ -20,6 +58,7 @@ async function randomPhone(model) {
 }
 
 async function emptyDatabase() {
+  console.log("Emptying database...");
   await neode.deleteAll('Ambassador');
   await neode.deleteAll('Tripler');
 }
@@ -94,9 +133,15 @@ async function createAdmin() {
   return await createAmbassador({admin: true});
 }
 
-async function seed() {
-  console.log("Emptying database...");
-  await emptyDatabase();
+async function seed(argv) {
+  const randomSeed = argv.seed || 2020;
+  console.log(`starting seed_db with seed: ${randomSeed}`);
+
+  faker.seed(randomSeed);
+
+  if (argv.empty) {
+    await emptyDatabase();
+  }
 
   console.log("Creating admin...");
   let admin = await createAdmin();
@@ -114,7 +159,8 @@ async function seed() {
   ambassador = await createAmbassador({locked: true, approved: true, signupCompleted: true, createTriplers: true});
   console.log(`Ambassador created with email ${ambassador.get('email')}`);
 
-  let max = faker.random.number({min: 1, max: 10});
+  // Create some number of ambassadors (random btw 1 - 10 if not specified in args)
+  let max = argv['max-ambassadors'] || faker.random.number({min: 1, max: 10});
   for (let index = 0; index < max; index++) {
     let approved = faker.random.boolean();
     let locked = faker.random.boolean();
@@ -126,7 +172,8 @@ async function seed() {
     console.log(`Ambassador created with email ${ambassador.get('email')}`);
   }
 
-  max = faker.random.number({min: 1, max: 30});
+  // Create some number of triplers (random btw 1 - 30 if not specified in args)
+  max = argv['max-triplers'] || faker.random.number({min: 1, max: 30});
   let statuses = ['pending', 'unconfirmed', 'confirmed'];
   let status = statuses[faker.random.number({min: 0, max: 2})];
   for (let index = 0; index < max; index++) {
@@ -135,8 +182,3 @@ async function seed() {
   }
 }
 
-seed()
-  .then( () => { process.exit(0) } )
-  .catch( (err)=>{ console.log(err); process.exit(1); } );
-
-// console arguments --empty --max-ambassadors=n --max-triplers=n
