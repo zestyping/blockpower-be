@@ -28,8 +28,6 @@ spec:
             value: {{ .Values.heap_size }}
           - name: NEO4J_dbms_directories_tx__log
             value: "/logs"
-          - name: NEO4J_dbms_jvm_additional
-            value: "-dcom.sun.management.jmxremote.authenticate=true -dcom.sun.management.jmxremote.ssl=false -dcom.sun.management.jmxremote.password.file=/logs/jmx.password -dcom.sun.management.jmxremote.access.file=/logs/jmx.access -dcom.sun.management.jmxremote.port=9999 -djava.rmi.server.hostname=hello-voter-db"
           - name: NEO4J_AUTH
             value: neo4j/{{ .Values.neo4j_password }}
         ports: ## Ports to map
