@@ -4,7 +4,7 @@ version: 2.1
 jobs:
   deploy-to-coopernetes:
     docker:
-      - image: colabcoop/coopernetes-deploy:0.4.0
+      - image: colabcoop/coopernetes-deploy:0.4.1
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASSWORD
@@ -14,7 +14,7 @@ jobs:
       - run:
           name: Build api container
           command: |
-            /docker-build.sh
+            /build-docker.sh
             echo "export DOCKER_TAG_API=$DOCKER_TAG" >> $BASH_ENV
           environment:
             DOCKERFILE: server/Dockerfile
@@ -23,7 +23,7 @@ jobs:
       - run:
           name: Build db container
           command: |
-            /docker-build.sh
+            /build-docker.sh
             echo "export DOCKER_TAG_DB=$DOCKER_TAG" >> $BASH_ENV
           environment:
             DOCKERFILE: database/Dockerfile
