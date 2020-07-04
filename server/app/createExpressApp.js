@@ -138,11 +138,11 @@ export function doExpressInit(log, db, qq, neode) {
     return cqdo(req, res, 'return timestamp()', false)
   });
 
-  // app.get('/HelloVoterHQ/mobile/invite', invite);
-  // app.get('/HelloVoterHQ/[0-9A-Z]+/mobile/invite', invite);
+  app.get('/HelloVoterHQ/mobile/invite', invite);
+  app.get('/HelloVoterHQ/[0-9A-Z]+/mobile/invite', invite);
 
   app.use('/HelloVoterHQ/api/v1', router);
-  // app.use('/HelloVoterHQ/[0-9A-Z]+/api/v1', router);
+  app.use('/HelloVoterHQ/[0-9A-Z]+/api/v1', router);
 
   app.use('/api/v1/va', router);
 

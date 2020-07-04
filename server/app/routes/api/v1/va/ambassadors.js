@@ -95,6 +95,19 @@ async function approveAmbassador(req, res) {
   return res.json(serializeAmbassador(updated));
 }
 
+async function disapproveAmbassador(req, res) {
+  let found = null;
+  found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
+
+  if (!found) {
+    return _404(res, "Ambassador not found");
+  }
+
+  let json = {...{approved: false}};
+  let updated = await found.update(json);
+  return res.json(serializeAmbassador(updated));
+}
+
 async function makeAdmin(req, res) {
   let found = null;
   found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
@@ -225,7 +238,7 @@ async function updateCurrentAmbassador(req, res) {
   }
 
   if (req.body.quiz_results) {
-    json.quiz_results = JSON.stringify(res.body.quiz_results);
+    json.quiz_results = JSON.stringify(req.body.quiz_results);
   }
   let updated = await found.update(json);
   return res.json(serializeAmbassador(updated));
