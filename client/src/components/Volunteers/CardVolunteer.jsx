@@ -340,7 +340,7 @@ const VolunteerBadges = props => {
       />
     );
   else {
-    if (props.volunteer.ass.ready)
+    if (props.volunteer.ass && props.volunteer.ass.ready)
       badges.push(
         <Icon
           icon={faCheckCircle}

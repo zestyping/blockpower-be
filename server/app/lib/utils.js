@@ -41,7 +41,7 @@ export async function onMyTurf(req, ida, idb) {
   if (ov_config.disable_spatial !== false) return false;
   try {
     // TODO: extend to also seach for direct turf assignments with leader:true
-    let ref = await req.db.query('match (v:Volunteer {id:{idb}}) where exists(v.location) call spatial.intersects("turf", v.location) yield node match (:Volunteer {id:{ida}})-[:MEMBERS {leader:true}]-(:Team)-[:ASSIGNED]-(node) return count(v)', {ida: ida, idb: idb});
+    let ref = await req.db.query('match (v:Ambassador {id:{idb}}) where exists(v.location) call spatial.intersects("turf", v.location) yield node match (:Ambassador {id:{ida}})-[:MEMBERS {leader:true}]-(:Team)-[:ASSIGNED]-(node) return count(v)', {ida: ida, idb: idb});
     if (ref.data[0] > 0) return true;
   } catch (e) {
     console.warn(e);
@@ -51,7 +51,7 @@ export async function onMyTurf(req, ida, idb) {
 
 export async function sameTeam(req, ida, idb) {
   try {
-    let ref = await req.db.query('match (a:Volunteer {id:{ida}})-[:MEMBERS]-(:Team)-[:MEMBERS]-(b:Volunteer {id:{idb}}) return b', {ida: ida, idb: idb});
+    let ref = await req.db.query('match (a:Ambassador {id:{ida}})-[:MEMBERS]-(:Team)-[:MEMBERS]-(b:Ambassador {id:{idb}}) return b', {ida: ida, idb: idb});
     if (ref.data.length > 0) return true;
   } catch (e) {
     console.warn(e);
@@ -106,7 +106,7 @@ export async function _volunteersFromCypher(req, query, args) {
   let ref = await req.db.query(query, args)
   for (let i in ref.data) {
     let c = ref.data[i];
-    c.ass = await volunteerAssignments(req, 'Volunteer', c);
+    c.ass = await volunteerAssignments(req, 'Ambassador', c);
     volunteers.push(c);
   }
 
