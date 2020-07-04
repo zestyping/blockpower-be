@@ -3,7 +3,10 @@ module.exports = {
     type: 'uuid',
     primary: true
   },
-  external_id: 'string',
+  external_id: {
+    type: 'string',
+    unique: true
+  },
   first_name: {
     type: 'string',
     required: true

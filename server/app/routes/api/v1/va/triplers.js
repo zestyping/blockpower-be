@@ -2,7 +2,7 @@ import { Router } from 'express';
 import neo4j from 'neo4j-driver';
 import phone from '../../../../lib/phone';
 
-import interpole from 'string-interpolation-js';
+import format from 'string-format';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -73,6 +73,7 @@ async function suggestTriplers(req, res) {
     .match('a', 'Ambassador')
     .where('a.id', req.user.get('id'))
     .match('t', 'Tripler')
+    .whereRaw('NOT (a)-[:CLAIMS]->(t)')
     .whereRaw('distance(t.location, a.location) <= 10000') // distance in meters (10km)
     .return('t')
     .execute()
@@ -160,7 +161,16 @@ async function startTriplerConfirmation(req, res) {
   let triplerPhone = req.body.phone ? phone(req.body.phone): tripler.get('phone');
 
   try {
-    await sms(triplerPhone, interpole(process.env.TRIPLER_CONFIRMATION_MESSAGE, [tripler.get('first_name')]));
+    await sms(triplerPhone, format(process.env.TRIPLER_CONFIRMATION_MESSAGE, 
+                                    {
+                                      ambassador_first_name: ambassador.get('first_name'),
+                                      ambassador_last_name: ambassador.get('last_name') || '',
+                                      organization_name: process.env.ORGANIZATION_NAME,
+                                      tripler: tripler.get('first_name'), 
+                                      triplee_1: triplees[0],
+                                      triplee_2: triplees[1],
+                                      triplee_3: triplees[2]
+                                    }));
   } catch (err) {
     return _500(res, 'Error sending confirmation sms to the tripler');
   }

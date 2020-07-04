@@ -151,6 +151,7 @@ export async function doDbInit(db) {
     }
   }
 
+  /*
   let indexes = [
     {label: 'Attribute', property: 'id', create: 'create constraint on (a:Attribute) assert a.id is unique'},
     {label: 'Person', property: 'id', create: 'create constraint on (a:Person) assert a.id is unique'},
@@ -225,7 +226,7 @@ export async function doDbInit(db) {
       await db.query('create (:Attribute {id:{id},name:{name},order:{order},type:{type},multi:{multi}})', attribute);
       if (attribute.values) await db.query('match (a:Attribute {id:{id}}) set a.values = {values}', attribute);
     }
-  });
+  });*/
 
   let finish = new Date().getTime();
   console.log("doDbInit() finished @ "+finish+" after "+(finish-start)+" milliseconds");

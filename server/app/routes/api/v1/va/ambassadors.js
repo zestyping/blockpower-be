@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import phone from '../../../../lib/phone';
 import neo4j from 'neo4j-driver';
+import format from 'string-format';
 
 import {
   _204, _400, _401, _403, _404, _500, geoCode, validateEmpty
@@ -8,6 +9,7 @@ import {
 
 import { v4 as uuidv4 } from 'uuid';
 import { serializeAmbassador, serializeTripler } from './serializers';
+import sms from '../../../../lib/sms';
 
 async function createAmbassador(req, res) {
   let new_ambassador = null;
@@ -92,6 +94,18 @@ async function approveAmbassador(req, res) {
 
   let json = {...{approved: true}};
   let updated = await found.update(json);
+
+  try {
+    await sms(found.get('phone'), format(process.env.AMBASSADOR_APPROVED_MESSAGE, 
+                                    {
+                                      ambassador_first_name: found.get('first_name'),
+                                      ambassador_last_name: found.get('last_name') || '',
+                                      organization_name: process.env.ORGANIZATION_NAME
+                                    }));
+  } catch (err) {
+    return _500(res, 'Error sending confirmation sms to the ambassador');
+  }
+
   return res.json(serializeAmbassador(updated));
 }
 
