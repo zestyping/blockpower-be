@@ -29,6 +29,7 @@ jobs:
             DOCKERFILE: database/Dockerfile
             DOCKER_CONTEXT: database
             DOCKER_REPO: colabcoop/hello-voter-db
+      - run: /helmfile-apply.sh
 
 workflows:
    deploy:
