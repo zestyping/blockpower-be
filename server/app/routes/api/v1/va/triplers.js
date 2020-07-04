@@ -190,12 +190,42 @@ async function remindTripler(req, res) {
     return _400(res, "Invalid status, cannot proceed")
   }
 
-  // TODO send SMS
+  let triplees = tripler.get('triplees');
+
+  try {
+    await sms(tripler.get('phone'), format(process.env.TRIPLER_REMINDER_MESSAGE,
+                                    {
+                                      ambassador_first_name: ambassador.get('first_name'),
+                                      ambassador_last_name: ambassador.get('last_name') || '',
+                                      organization_name: process.env.ORGANIZATION_NAME,
+                                      tripler: tripler.get('first_name'),
+                                      triplee_1: triplees[0],
+                                      triplee_2: triplees[1],
+                                      triplee_3: triplees[2]
+                                    }));
+  } catch (err) {
+    return _500(res, 'Error sending reminder sms to the tripler');
+  }
+
+  return _204(res);
+}
+
+async function confirmTripler(req, res) {
+  let found = null;
+  found = await req.neode.first('Tripler', 'id', req.params.triplerId);
+
+  if (!tripler) {
+    return _400(res, "Invalid tripler id");
+  }
+  else if (tripler.get('status') !== 'pending') {
+    return _400(res, "Invalid status, cannot confirm")
+  }
+
+  await tripler.update({ status: 'confirmed' });
   return _204(res);
 }
 
 module.exports = Router({mergeParams: true})
-// TODO admin api
 .post('/triplers', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
   if (!req.user.get('admin')) return _403(res, "Permission denied.");;
@@ -215,12 +245,14 @@ module.exports = Router({mergeParams: true})
 
 .get('/suggest-triplers', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
-  // David working on it
   return suggestTriplers(req, res);
 })
 .put('/triplers/:triplerId/start-confirm', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
   return startTriplerConfirmation(req, res);
+})
+.put('/triplers/:triplerId/confirm', (req, res) => {
+  return confirmTripler(req, res);
 })
 .put('/triplers/:triplerId/remind', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');

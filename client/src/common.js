@@ -210,6 +210,7 @@ export async function _loadVolunteers(global, byType, id) {
 export async function _loadTurf(global, id) {
   let turf = {};
 
+  /*
   try {
     turf = await _fetch(
       global,
@@ -218,6 +219,7 @@ export async function _loadTurf(global, id) {
   } catch (e) {
     notify_error(e, 'Unable to load turf data.');
   }
+  */
 
   return turf;
 }
@@ -241,12 +243,14 @@ export async function _loadTurfs(global, flag) {
 export async function _loadNearbyTurfs(global, lng, lat, dist) {
   let turf = [];
 
+  /*
   try {
     let data = await _fetch(global, '/turf/list/byposition?longitude='+lng+'&latitude='+lat+(dist?'&dist='+dist:''));
     turf = data.data ? data.data : [];
   } catch (e) {
     notify_error(e, 'Unable to load turf data.');
   }
+  */
 
   return turf;
 }

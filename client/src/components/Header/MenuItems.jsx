@@ -32,32 +32,6 @@ const MenuItems = ({ assignments, handleClickLogout, experimental }) => (
           <ListItemText primary="Dashboard" />
         </ListItem>
       </Link>
-      <Link to={'/volunteers/'}>
-        <ListItem button>
-          <ListItemIcon>
-            <PersonIcon />
-          </ListItemIcon>
-          <ListItemText primary="Volunteers" />
-        </ListItem>
-      </Link>
-      <Link to={'/turf/'}>
-        <ListItem button>
-          <ListItemIcon>
-            <MapIcon />
-          </ListItemIcon>
-          <ListItemText primary="Turf" />
-        </ListItem>
-      </Link>
-      <Link to={'/forms/'}>
-        <ListItem button>
-          <ListItemIcon>
-            <AssignmentIcon />
-          </ListItemIcon>
-          <ListItemText primary="Forms" />
-        </ListItem>
-      </Link>
-      {assignments.admin&&
-      <div>
       <Link to={'/qrcode/'}>
         <ListItem button>
           <ListItemIcon>
@@ -66,16 +40,6 @@ const MenuItems = ({ assignments, handleClickLogout, experimental }) => (
           <ListItemText primary="QR Codes" />
         </ListItem>
       </Link>
-      <Link to={'/attributes/'}>
-        <ListItem button>
-          <ListItemIcon>
-            <PaperclipIcon />
-          </ListItemIcon>
-          <ListItemText primary="Attributes" />
-        </ListItem>
-      </Link>
-
-      {(experimental)&&
       <Link to={'/import/'}>
         <ListItem button>
           <ListItemIcon>
@@ -84,35 +48,6 @@ const MenuItems = ({ assignments, handleClickLogout, experimental }) => (
           <ListItemText primary="Import Data" />
         </ListItem>
       </Link>
-      }
-      <Link to={'/queue/'}>
-        <ListItem button>
-          <ListItemIcon>
-            <WorkIcon />
-          </ListItemIcon>
-          <ListItemText primary="System Queue" />
-        </ListItem>
-      </Link>
-      <Link to={'/analytics/'}>
-        <ListItem button>
-          <ListItemIcon>
-            <BarChartIcon />
-          </ListItemIcon>
-          <ListItemText primary="Analytics" />
-        </ListItem>
-      </Link>
-{/*
-      <Link to={'/settings/'}>
-        <ListItem button>
-          <ListItemIcon>
-            <SettingsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Settings" />
-        </ListItem>
-      </Link>
-*/}
-    </div>
-    }
     </List>
     <Divider />
     <List>
