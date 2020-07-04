@@ -4,7 +4,7 @@ version: 2.1
 jobs:
   deploy-to-coopernetes:
     docker:
-      - image: colabcoop/coopernetes-deploy:0.4.1
+      - image: colabcoop/coopernetes-deploy:0.4.2
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASSWORD
