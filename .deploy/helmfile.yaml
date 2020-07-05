@@ -18,6 +18,8 @@ releases:
               value: "neo4j"
             - name: NEO4J_PASS
               value: {{ requiredEnv "NEO4J_PASSWORD" | quote }}
+            - name: NEO4J_PASSWORD
+              value: {{ requiredEnv "NEO4J_PASSWORD" | quote }}
             - name: NEO4J_PORT
               value: "7687"
             - name: NEO4J_DATABASE
