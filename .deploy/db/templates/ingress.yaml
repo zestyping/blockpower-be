@@ -12,7 +12,7 @@ spec:
     - {{ .Values.host }}
     secretName: {{ .Values.name }}-tls
   rules:
-  - host: hello-voter-db-admin.coopernetes.colab.coop
+  - host: {{ .Values.admin.host }}
     http:
       paths:
       - path: /

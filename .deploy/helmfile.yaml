@@ -39,6 +39,8 @@ releases:
     chart: ./db
     values:
       - name: neo4j-db
+        admin:
+          host: hello-voter-db-admin.coopernetes.colab.coop
         image:
           # NOTE: I couldn' get the DB container to work. Unsure how to set up
           # a neo4j server according to their instructions, so just calling
