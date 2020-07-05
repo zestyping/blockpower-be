@@ -9,7 +9,7 @@ metadata:
 spec:
   tls:
   - hosts:
-    - {{ .Values.host }}
+    - {{ .Values.admin.host }}
     secretName: {{ .Values.name }}-tls
   rules:
   - host: {{ .Values.admin.host }}
