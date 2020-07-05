@@ -8,7 +8,7 @@ releases:
         host: hello-voter-api.coopernetes.colab.coop
         image:
           tag: {{ requiredEnv "DOCKER_TAG_API" | quote }}
-          port: 80
+          port: 8080
           env:
             - name: NEO4J_PROTOCOL
               value: "bolt"
