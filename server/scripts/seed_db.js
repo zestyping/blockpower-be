@@ -5,7 +5,7 @@ import { geoCode } from '../app/lib/utils.js';
 import { v4 as uuidv4 } from 'uuid';
 import neode from  '../app/lib/neode.js';
 import addresses from './seed_data/addresses.json';
-import phone from '../lib/phone';
+import phone from '../app/lib/phone';
 import yargs from 'yargs';
 
 const argv = yargs
