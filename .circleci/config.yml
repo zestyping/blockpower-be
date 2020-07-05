@@ -20,7 +20,6 @@ jobs:
             DOCKERFILE: server/Dockerfile
             DOCKER_CONTEXT: server
             DOCKER_REPO: colabcoop/hello-voter-api
-      - run:
 
 workflows:
    deploy:
