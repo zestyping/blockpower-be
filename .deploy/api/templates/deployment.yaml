@@ -23,4 +23,4 @@ spec:
           {{- toYaml . | nindent 10 }}
         {{- end }}
         command: ["npm"]
-        args: ["run", "server"]
+        args: ["start"]
