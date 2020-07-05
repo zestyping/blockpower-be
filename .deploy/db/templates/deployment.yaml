@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - image: {{ .Values.image.tag }}
-        name: neo4j
+        name: {{ .Values.name }}
         {{- with .Values.image.env}}
         env:
           {{- toYaml . | nindent 10 }}

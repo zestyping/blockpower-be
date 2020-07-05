@@ -50,4 +50,4 @@ releases:
             - name: NEO4J_dbms_memory_heap_max__size
               value: "4G"
             - name: NEO4J_AUTH
-              value: "neo4j/{{ requiredEnv "NEO4J_PASSWORD" }}"
+              value: neo4j/{{ requiredEnv "NEO4J_PASSWORD" }}
