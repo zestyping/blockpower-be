@@ -4,22 +4,33 @@ import triplersSvc from '../../../../../services/triplers';
 
 module.exports = Router({mergeParams: true})
 .post('/sms/receive', async (req, res) => {
-  let tripler = await triplersSvc.findByPhone(req.body.From);
+  
+  let sender = req.body.From;
+  let response = req.body.Body.toLowerCase();
+  
+  if (process.env.TWILIO_SUPPORT_PROXY_RESPONSE === 'true') {
+    let arr = response.split('=>').map((entry)=>entry.trim()).filter((entry)=>entry.length > 0)
+    response = arr[0];
+    if (arr.length > 1) {
+      sender = arr[1];
+    }
+  }
+
+  let tripler = await triplersSvc.findByPhone(sender);
   if (tripler) {
-    let response = req.body.Body.toLowerCase();
     if (response !== 'yes') {
-      logger.error("Tripler has not responded yes", req.body.From, tripler.get('id'), response);
+      logger.error("Tripler has not responded yes", sender, tripler.get('id'), response);
       return res.send({});
     }
 
     try {
       await triplersSvc.confirmTripler(tripler.get('id'));
     } catch(err) {
-      logger.error("Invalid tripler or status, cannot confirm", req.body.From, tripler.get('id'), err);
+      logger.error("Invalid tripler or status, cannot confirm", sender, tripler.get('id'), err);
     }
   }
   else {
-    logger.error("Tripler not found", req.body.From);
+    logger.error("Tripler not found", sender);
   }
 
   return res.send({});

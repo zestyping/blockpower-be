@@ -35,6 +35,7 @@ For this server, configure an `.env` file. The following is a complete list of v
     TWILIO_ACCOUNT_SID=
     TWILIO_AUTH_TOKEN=
     TWILIO_FROM=
+    TWILIO_SUPPORT_PROXY_RESPONSE=
     ORGANIZATION_NAME=
     AMBASSADOR_APPROVED_MESSAGE=
     TRIPLER_REMINDER_MESSAGE=
@@ -74,6 +75,7 @@ The meaning of each config item is as follows:
 * `TWILIO_ACCOUNT_SID`: SID of twilio account.
 * `TWILIO_AUTH_TOKEN`: Auth token of twilio account.
 * `TWILIO_FROM`: Number to send SMSes from.
+* `TWILIO_SUPPORT_PROXY_RESPONSE`: Support proxy messages for development; message and proxy number separated by =>. For example: yes=>+1 111-111-1111
 * `ORGANIZATION_NAME`: the name of the org
 * `AMBASSADOR_APPROVED_MESSAGE`: the SMS message when an ambassador is approved
 * `TRIPLER_REMINDER_MESSAGE`: the SMS message when a tripler is reminded
