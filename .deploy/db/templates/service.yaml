@@ -10,10 +10,6 @@ spec:
         targetPort: 7474
         name: http
       - protocol: TCP
-        port: 7473
-        targetPort: 7473
-        name: https
-      - protocol: TCP
         port: 7687
         targetPort: 7687
         name: bolt
