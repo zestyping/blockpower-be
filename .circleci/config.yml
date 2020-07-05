@@ -12,13 +12,15 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: Build api container
-          command: /build-docker.sh
+          name: Build and Deploy
+          command: |
+            /build-docker.sh
+            /deploy.sh
           environment:
             DOCKERFILE: server/Dockerfile
             DOCKER_CONTEXT: server
             DOCKER_REPO: colabcoop/hello-voter-api
-      - run: /helmfile-apply.sh
+      - run:
 
 workflows:
    deploy:
