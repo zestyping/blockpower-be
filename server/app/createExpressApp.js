@@ -32,6 +32,7 @@ export function doExpressInit(log, db, qq, neode) {
   app.disable('x-powered-by');
   app.disable('etag');
   app.use(bodyParser.json({limit: '5mb'}));
+  app.use(bodyParser.urlencoded({ extended: false }));
   app.use(cors({exposedHeaders: ['x-sm-oauth-url']}));
   app.use(helmet());
 
@@ -79,6 +80,8 @@ export function doExpressInit(log, db, qq, neode) {
     req.neode = neode;
     req.logger = logger;
 
+    req.isLocal = req.connection.remoteAddress === req.connection.localAddress;
+
     res.set('x-sm-oauth-url', ov_config.sm_oauth_url);
 
     if (!public_key && !ov_config.no_auth) {
@@ -95,6 +98,7 @@ export function doExpressInit(log, db, qq, neode) {
     }
     if (req.url.match(/^\/HelloVoterHQ.*mobile\//)) return next();
     if (req.url.match(/^\/HelloVoterHQ.*public\//)) return next();
+    if (req.url.match(/^\/.*public\//)) return next();
     //if (req.url.match(/^\/.*va\//)) return next();
     if (req.url.match(/\/\.\.\//)) return _400(res, "Not OK..");
 
@@ -145,6 +149,7 @@ export function doExpressInit(log, db, qq, neode) {
   app.use('/HelloVoterHQ/[0-9A-Z]+/api/v1', router);
 
   app.use('/api/v1/va', router);
+  app.use('/api/v1/public/va', router);
 
   // default error handler
   app.use((err, req, res, next) => {

@@ -45,7 +45,7 @@ async function createAmbassador(req, res) {
       }
     })
   } catch(err) {
-    req.logger.error("Unhandled error in %s: %j", req.url, err);
+    req.logger.error("Unhandled error in %s: %s", req.url, err);
     return _500(res, 'Unable to create ambassador');
   }
   return res.json(serializeAmbassador(new_ambassador));
@@ -104,7 +104,8 @@ async function approveAmbassador(req, res) {
                                       organization_name: process.env.ORGANIZATION_NAME
                                     }));
   } catch (err) {
-    return _500(res, 'Error sending confirmation sms to the ambassador');
+    req.logger.error("Unhandled error in %s: %s", req.url, err);
+    return _500(res, 'Error sending approved sms to the ambassador');
   }
 
   return res.json(serializeAmbassador(updated));
@@ -171,7 +172,7 @@ async function signup(req, res) {
       external_id: req.external_id
     });
   } catch(err) {
-    req.logger.error("Unhandled error in %s: %j", req.url, err);
+    req.logger.error("Unhandled error in %s: %s", req.url, err);
     return _500(res, 'Unable to update ambassador form data');
   }
   return res.json(serializeAmbassador(new_ambassador));

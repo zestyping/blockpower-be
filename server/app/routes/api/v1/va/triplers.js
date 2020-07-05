@@ -1,12 +1,11 @@
 import { Router } from 'express';
 import neo4j from 'neo4j-driver';
-import phone from '../../../../lib/phone';
-
-import format from 'string-format';
-
+import stringFormat from 'string-format';
 import { v4 as uuidv4 } from 'uuid';
 
+import phoneFormat from '../../../../lib/phone';
 import { ov_config } from '../../../../lib/ov_config';
+import triplersSvc from '../../../../services/triplers';
 
 import {
   _204, _400, _401, _403, _404, _500, geoCode, validateEmpty
@@ -25,7 +24,7 @@ async function createTripler(req, res) {
       return _400(res, "Invalid payload, tripler cannot be created");
     }
 
-    let existing_tripler = await req.neode.first('Tripler', 'phone', phone(req.body.phone));
+    let existing_tripler = await req.neode.first('Tripler', 'phone', phoneFormat(req.body.phone));
     if (existing_tripler) {
       return _400(res, "Tripler with this data already exists");
     }
@@ -39,7 +38,7 @@ async function createTripler(req, res) {
       id: uuidv4(),
       first_name: req.body.first_name,
       last_name: req.body.last_name || null,
-      phone: phone(req.body.phone),
+      phone: phoneFormat(req.body.phone),
       email: req.body.email || null,
       address: JSON.stringify(req.body.address),
       triplees: !req.body.triplees ? null : JSON.stringify(req.body.triplees),
@@ -52,7 +51,7 @@ async function createTripler(req, res) {
 
     new_tripler = await req.neode.create('Tripler', obj);
   } catch(err) {
-    req.logger.error("Unhandled error in %s: %j", req.url, err);
+    req.logger.error("Unhandled error in %s: %s", req.url, err);
     return _500(res, 'Unable to create tripler');
   }
   return res.json(serializeTripler(new_tripler));
@@ -103,7 +102,7 @@ async function updateTripler(req, res) {
   if (!found) return _404(res, "Tripler not found");
 
   if (req.body.phone) {
-    let existing_tripler = await req.neode.first('Tripler', 'phone', phone(req.body.phone));
+    let existing_tripler = await req.neode.first('Tripler', 'phone', phoneFormat(req.body.phone));
     if(existing_tripler && existing_tripler.get('id') !== found.get('id')) {
       return _400(res, "Tripler with this phone number already exists");
     }
@@ -119,7 +118,7 @@ async function updateTripler(req, res) {
   }
 
   if (req.body.phone) {
-    json.phone = phone(req.body.phone);
+    json.phone = phoneFormat(req.body.phone);
   }
 
   if (req.body.address) {
@@ -158,10 +157,10 @@ async function startTriplerConfirmation(req, res) {
     return _400(res, 'Insufficient triplees, cannot start confirmation')
   }
 
-  let triplerPhone = req.body.phone ? phone(req.body.phone): tripler.get('phone');
+  let triplerPhone = req.body.phone ? phoneFormat(req.body.phone): tripler.get('phone');
 
   try {
-    await sms(triplerPhone, format(process.env.TRIPLER_CONFIRMATION_MESSAGE, 
+    await sms(triplerPhone, stringFormat(process.env.TRIPLER_CONFIRMATION_MESSAGE, 
                                     {
                                       ambassador_first_name: ambassador.get('first_name'),
                                       ambassador_last_name: ambassador.get('last_name') || '',
@@ -172,6 +171,7 @@ async function startTriplerConfirmation(req, res) {
                                       triplee_3: triplees[2]
                                     }));
   } catch (err) {
+    req.logger.error("Unhandled error in %s: %s", req.url, err);
     return _500(res, 'Error sending confirmation sms to the tripler');
   }
   await tripler.update({ triplees: JSON.stringify(triplees), status: 'pending', phone: triplerPhone });
@@ -190,10 +190,15 @@ async function remindTripler(req, res) {
     return _400(res, "Invalid status, cannot proceed")
   }
 
-  let triplees = tripler.get('triplees');
+  let new_phone = req.body.phone;
+  if (new_phone) {
+    await tripler.update({ phone: new_phone });
+  }
+
+  let triplees = JSON.parse(tripler.get('triplees'));
 
   try {
-    await sms(tripler.get('phone'), format(process.env.TRIPLER_REMINDER_MESSAGE,
+    await sms(tripler.get('phone'), stringFormat(process.env.TRIPLER_REMINDER_MESSAGE,
                                     {
                                       ambassador_first_name: ambassador.get('first_name'),
                                       ambassador_last_name: ambassador.get('last_name') || '',
@@ -204,6 +209,7 @@ async function remindTripler(req, res) {
                                       triplee_3: triplees[2]
                                     }));
   } catch (err) {
+    req.logger.error("Unhandled error in %s: %s", req.url, err);
     return _500(res, 'Error sending reminder sms to the tripler');
   }
 
@@ -211,17 +217,22 @@ async function remindTripler(req, res) {
 }
 
 async function confirmTripler(req, res) {
-  let found = null;
-  found = await req.neode.first('Tripler', 'id', req.params.triplerId);
-
+  let tripler = await triplersSvc.findById(req.params.triplerId);
+  
   if (!tripler) {
-    return _400(res, "Invalid tripler id");
+    return _404(res, "Invalid tripler");
   }
-  else if (tripler.get('status') !== 'pending') {
+
+  if (tripler.get('status') !== 'pending') {
     return _400(res, "Invalid status, cannot confirm")
   }
 
-  await tripler.update({ status: 'confirmed' });
+  try {
+    await triplersSvc.confirmTripler(req.params.triplerId);
+  } catch(err) {
+    req.logger.error("Unhandled error in %s: %s", req.url, err);
+    return _500(res, 'Error confirming a tripler'); 
+  }
   return _204(res);
 }
 
@@ -235,6 +246,11 @@ module.exports = Router({mergeParams: true})
   if (!req.user) return _401(res, 'Permission denied.');
   if (!req.user.get('admin')) return _403(res, "Permission denied.");;
   return updateTripler(req, res);
+})
+.put('/triplers/:triplerId/confirm', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.');
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");;
+  return confirmTripler(req, res);
 })
 .get('/triplers', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
@@ -250,9 +266,6 @@ module.exports = Router({mergeParams: true})
 .put('/triplers/:triplerId/start-confirm', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
   return startTriplerConfirmation(req, res);
-})
-.put('/triplers/:triplerId/confirm', (req, res) => {
-  return confirmTripler(req, res);
 })
 .put('/triplers/:triplerId/remind', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
