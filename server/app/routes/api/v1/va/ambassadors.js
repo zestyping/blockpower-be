@@ -81,7 +81,7 @@ async function fetchAmbassador(req, res) {
 }
 
 async function fetchCurrentAmbassador(req, res) {
-  if (req.user == {}) return _400(res, "No current ambassador");
+  if (!req.user.get) return _400(res, "No current ambassador");
   return res.json(serializeAmbassador(req.user));
 }
 
