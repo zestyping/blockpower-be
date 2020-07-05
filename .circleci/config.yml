@@ -24,3 +24,6 @@ workflows:
      jobs:
        - deploy-to-coopernetes:
            context: coopernetes-staging
+           filters:
+             branches:
+               only: ambassador
