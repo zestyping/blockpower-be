@@ -36,8 +36,18 @@ releases:
     namespace: hello-voter
     chart: ./db
     values:
-      - heap_size: "4G"
-        page_size: "12G"
-        neo4j_password: {{ requiredEnv "NEO4J_PASSWORD" | quote }}
+      -
         image:
-          tag: {{ requiredEnv "DOCKER_TAG_DB" | quote }}
+          # NOTE: I couldn' get the DB container to work. Unsure how to set up
+          # a neo4j server according to their instructions, so just calling
+          # the container from npm run database on the server for now.
+          tag: ourvoiceusa/neo4j-hv
+          env:
+            - name: NEO4J_dbms_memory_pagecache_size
+              value: "12G"
+            - name:  NEO4J_dbms_memory_heap_initial__size
+              value: "4G"
+            - name: NEO4J_dbms_memory_heap_max__size
+              value: "4G"
+            - name: NEO4J_AUTH
+              value: neo4j/{{ requiredEnv "NEO4J_PASSWORD" | quote }}

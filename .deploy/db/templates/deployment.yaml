@@ -17,19 +17,10 @@ spec:
       containers:
       - image: {{ .Values.image.tag }}
         name: neo4j
+        {{- with .Values.image.env}}
         env:
-          - name: NEO4J_dbms_security_procedures_unrestricted
-            value: "apoc.*"
-          - name: NEO4J_dbms_memory_pagecache_size
-            value: {{ .Values.page_size }}
-          - name: NEO4J_dbms_memory_heap_initial__size
-            value: {{ .Values.heap_size }}
-          - name: NEO4J_dbms_memory_heap_max__size
-            value: {{ .Values.heap_size }}
-          - name: NEO4J_dbms_directories_tx__log
-            value: "/logs"
-          - name: NEO4J_AUTH
-            value: neo4j/{{ .Values.neo4j_password }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
         ports: ## Ports to map
             - containerPort: 7474
               name: http
