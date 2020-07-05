@@ -11,19 +11,19 @@ releases:
           port: 80
           env:
             - name: NEO4J_PROTOCOL
-              value: bolt
+              value: "bolt"
             - name: NEO4J_HOST
-              value: localhost
+              value: "hello-voter-db"
             - name: NEO4J_USERNAME
-              value: neo4j
+              value: "neo4j"
             - name: NEO4J_PASSWORD
               value: {{ requiredEnv "NEO4J_PASSWORD" | quote }}
             - name: NEO4J_PORT
               value: "7687"
             - name: NEO4J_DATABASE
-              value: neo4j
+              value: "neo4j"
             - name: JWT_AUD
-              value: blockpower.us
+              value: "blockpower.us"
             - name: TWILIO_ACCOUNT_SID
               value: {{ requiredEnv "TWILIO_ACCOUNT_SID" | quote }}
             - name: TWILIO_AUTH_TOKEN
@@ -50,4 +50,4 @@ releases:
             - name: NEO4J_dbms_memory_heap_max__size
               value: "4G"
             - name: NEO4J_AUTH
-              value: neo4j/{{ requiredEnv "NEO4J_PASSWORD" | quote }}
+              value: "neo4j/{{ requiredEnv "NEO4J_PASSWORD" }}"
