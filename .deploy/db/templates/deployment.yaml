@@ -2,17 +2,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: neo4j-db
-  name: neo4j-db
+    app: {{ .Values.name }}
+  name: {{ .Values.name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: neo4j-db
+      app: {{ .Values.name }}
   template:
     metadata:
       labels:
-        app: neo4j-db
+        app: {{ .Values.name }}
     spec:
       containers:
       - image: {{ .Values.image.tag }}
@@ -36,7 +36,7 @@ spec:
       volumes:
           - name: neo4j-data
             persistentVolumeClaim:
-              claimName: neo4j-db-data
+              claimName: {{ .Values.name }}-data
           - name: neo4j-logs
             persistentVolumeClaim:
-              claimName: neo4j-db-logs
+              claimName: {{ .Values.name }}-logs

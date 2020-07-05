@@ -13,7 +13,7 @@ releases:
             - name: NEO4J_PROTOCOL
               value: "bolt"
             - name: NEO4J_HOST
-              value: "hello-voter-db"
+              value: "neo4j-db"
             - name: NEO4J_USERNAME
               value: "neo4j"
             - name: NEO4J_PASSWORD
@@ -36,7 +36,7 @@ releases:
     namespace: hello-voter
     chart: ./db
     values:
-      -
+      - name: neo4j-db
         image:
           # NOTE: I couldn' get the DB container to work. Unsure how to set up
           # a neo4j server according to their instructions, so just calling
