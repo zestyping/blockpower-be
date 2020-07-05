@@ -13,22 +13,11 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build api container
-          command: |
-            /build-docker.sh
-            echo "export DOCKER_TAG_API=$DOCKER_TAG" >> $BASH_ENV
+          command: /build-docker.sh
           environment:
             DOCKERFILE: server/Dockerfile
             DOCKER_CONTEXT: server
             DOCKER_REPO: colabcoop/hello-voter-api
-      - run:
-          name: Build db container
-          command: |
-            /build-docker.sh
-            echo "export DOCKER_TAG_DB=$DOCKER_TAG" >> $BASH_ENV
-          environment:
-            DOCKERFILE: database/Dockerfile
-            DOCKER_CONTEXT: database
-            DOCKER_REPO: colabcoop/hello-voter-db
       - run: /helmfile-apply.sh
 
 workflows:

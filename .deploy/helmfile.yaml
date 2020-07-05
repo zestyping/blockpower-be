@@ -7,7 +7,7 @@ releases:
         issuer: "letsencrypt-prod"
         host: hello-voter-api.coopernetes.colab.coop
         image:
-          tag: {{ requiredEnv "DOCKER_TAG_API" | quote }}
+          tag: {{ requiredEnv "DOCKER_TAG" | quote }}
           port: 8080
           env:
             - name: NEO4J_PROTOCOL
