@@ -78,6 +78,75 @@
 			"response": []
 		},
 		{
+			"name": "Signup failure due to duplicate external id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "da0a69af-c1a2-4247-bdb9-f90615cdf728",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"address\": {\"address1\": \"1800 Grant St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+15005550006\",\n\t\"quiz_results\": [\n\t\t{\n\t\t\t\"question\": \"hello there\",\n\t\t\t\"answer\": \"chicken tikka\"\n\t\t},\n\t\t{\n\t\t\t\"question\": \"do you like sand?\",\n\t\t\t\"answer\": \"butter masala\"\n\t\t}\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/signup",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Make admin (localhost api)",
 			"event": [
 				{
@@ -1533,6 +1602,56 @@
 				"body": {
 					"mode": "raw",
 					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+15005550006\",\n\t\"email\": \"aman@colab.coop\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"{{other_ambassador_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update ambassador failure due to duplicate phone",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bfb2034a-f070-4de0-81cd-1f461f4c02e6",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+1 205 852 8537\",\n\t\"email\": \"aman@colab.coop\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

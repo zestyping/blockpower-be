@@ -30,7 +30,7 @@ async function createTripler(req, res) {
 
     let existing_tripler = await req.neode.first('Tripler', 'phone', phoneFormat(req.body.phone));
     if (existing_tripler) {
-      return _400(res, "Tripler with this data already exists");
+      return _400(res, "Tripler with this phone already exists");
     }
 
     let coordinates = await geoCode(req.body.address);

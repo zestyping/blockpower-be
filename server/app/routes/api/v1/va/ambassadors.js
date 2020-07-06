@@ -24,7 +24,7 @@ async function createAmbassador(req, res) {
 
     let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
     if(existing_ambassador) {
-      return _400(res, "Ambassador with this data already exists");
+      return _400(res, "Ambassador with this phone already exists");
     }
 
     let coordinates = await geoCode(req.body.address);
@@ -163,12 +163,17 @@ async function signup(req, res) {
 
     let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
     if(existing_ambassador) {
-      return _400(res, "Ambassador with this data already exists");
+      return _400(res, "Ambassador with this phone already exists");
+    }
+
+    existing_ambassador = await req.neode.first('Ambassador', 'external_id', req.externalId);
+    if(existing_ambassador) {
+      return _400(res, "Ambassador with this external id already exists");
     }
 
     let coordinates = await geoCode(req.body.address);
     if (coordinates === null) {
-      return _400(res, "Invalid address, ambassador cannot be updated with this form data");
+      return _400(res, "Invalid address, ambassador cannot sign up with this address");
     }
 
     new_ambassador = await req.neode.create('Ambassador', {
@@ -208,7 +213,7 @@ async function updateAmbassador(req, res) {
 
     let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
     if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-      return _400(res, "Ambassador with this data already exists");
+      return _400(res, "Ambassador with this phone already exists");
     }
   }
 
@@ -253,7 +258,7 @@ async function updateCurrentAmbassador(req, res) {
 
     let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
     if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-      return _400(res, "Ambassador with this data already exists");
+      return _400(res, "Ambassador with this phone already exists");
     }
   }
 
