@@ -47,6 +47,12 @@ const argv = yargs
                    type: 'number'
                  }
                })
+               .option({
+                 'force-unconfirmed': {
+                   describe: 'force all triplers to be created with "unconfirmed" status',
+                   type: 'boolean'
+                 }
+               })
                .help()
                .argv
 
@@ -84,7 +90,7 @@ async function createTripler(opts) {
       latitude: parseFloat(coordinates.latitude, 10),
       longitude: parseFloat(coordinates.longitude, 10)
     },
-    status: opts.status,
+    status: argv['force-unconfirmed'] ? 'unconfirmed' : opts.status,
     triplees: JSON.stringify(triplees)
   }
   return await neode.create('Tripler', json);
