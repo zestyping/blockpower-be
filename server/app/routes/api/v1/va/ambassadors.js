@@ -263,6 +263,21 @@ async function updateCurrentAmbassador(req, res) {
   return res.json(serializeAmbassador(updated));
 }
 
+async function deleteAmbassador(req, res) {
+  let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
+  if (!found) {
+    return _404(res, "Ambassador not found");
+  }
+
+  if (req.user.get('id') === req.params.ambassadorId) {
+    return _400(res, "Cannot delete self");
+  }
+
+  found.delete();
+
+  return _204(res);
+}
+
 async function claimTriplers(req, res) {
   let ambassador = req.user;
 
@@ -353,4 +368,9 @@ module.exports = Router({mergeParams: true})
   if (!req.user) return _401(res, 'Permission denied.')
   if (!req.user.get('admin')) return _403(res, "Permission denied.");
   return updateAmbassador(req, res);
+})
+.delete('/ambassadors/:ambassadorId', (req, res) => {
+  if (!req.user) return _401(res, 'Permission denied.')
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");
+  return deleteAmbassador(req, res);
 })

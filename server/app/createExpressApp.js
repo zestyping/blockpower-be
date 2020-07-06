@@ -10,8 +10,10 @@ import bodyParser from 'body-parser';
 import mobile from 'is-mobile';
 import fs from 'fs';
 import fetch from 'node-fetch';
+import audit from 'morgan-body';
 
 import { ov_config } from './lib/ov_config';
+import ambassadorSvc from './services/ambassadors';
 
 import {
   cqdo, _400, _401, _403, _500, _503
@@ -27,14 +29,23 @@ export function doExpressInit(log, db, qq, neode) {
   // Initialize http server
   const app = express();
 
-  if (log) app.use(expressLogging(logger));
-
   app.disable('x-powered-by');
   app.disable('etag');
   app.use(bodyParser.json({limit: '5mb'}));
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(cors({exposedHeaders: ['x-sm-oauth-url']}));
   app.use(helmet());
+
+  if (log) {
+    // generic logger
+    app.use(expressLogging(logger));
+
+    // request logging
+    if (process.env.LOG_REQUESTS === 'true') {
+      let maxBodyLength = parseInt(process.env.LOG_REQUEST_MAX_BODY_LENGTH || 1000);
+      audit(app, { noColors: true, maxBodyLength: maxBodyLength });
+    }
+  }
 
   if (ov_config.no_auth) {
     console.warn("Starting up without authentication!");
@@ -122,7 +133,7 @@ export function doExpressInit(log, db, qq, neode) {
 
       req.external_id = u.id;
 
-      let user = await req.neode.first('Ambassador', 'external_id', u.id);      
+      let user = await ambassadorSvc.findByExternalId(u.id);
       if (user && user.locked) {
         return _403(res, "Your account is locked.");
       }

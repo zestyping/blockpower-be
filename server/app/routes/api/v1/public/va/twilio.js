@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import logger from 'logops';
-import triplersSvc from '../../../../../services/triplers';
+import triplerSvc from '../../../../../services/triplers';
 
 module.exports = Router({mergeParams: true})
 .post('/sms/receive', async (req, res) => {
@@ -16,7 +16,7 @@ module.exports = Router({mergeParams: true})
     }
   }
 
-  let tripler = await triplersSvc.findByPhone(sender);
+  let tripler = await triplerSvc.findByPhone(sender);
   if (tripler) {
     if (response !== 'yes') {
       logger.error("Tripler has not responded yes", sender, tripler.get('id'), response);
@@ -24,7 +24,7 @@ module.exports = Router({mergeParams: true})
     }
 
     try {
-      await triplersSvc.confirmTripler(tripler.get('id'));
+      await triplerSvc.confirmTripler(tripler.get('id'));
     } catch(err) {
       logger.error("Invalid tripler or status, cannot confirm", sender, tripler.get('id'), err);
     }
