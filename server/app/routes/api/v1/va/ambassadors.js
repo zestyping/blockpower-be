@@ -180,6 +180,9 @@ async function signup(req, res) {
 
 async function updateAmbassador(req, res) {
   let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
+  if (!found) {
+    return _404(res, "Ambassador not found");
+  }
 
   if (req.body.phone) {
     let existing_ambassador = await req.neode.first('Ambassador', 'phone', phone(req.body.phone));
