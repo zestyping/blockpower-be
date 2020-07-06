@@ -740,6 +740,19 @@
 		},
 		{
 			"name": "Create ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "634aed9a-3571-466f-9d8c-21959fd97f13",
+						"exec": [
+							"let jsonData = pm.response.json()",
+							"pm.globals.set('other_ambassador_id', jsonData.id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -770,7 +783,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 100-000-0032\"\n}",
+					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 100-000-0042\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -940,6 +953,78 @@
 						"ambassadors",
 						"{{ambassador_id}}",
 						"approve"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete an ambassador (admin api)",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"{{other_ambassador_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete a tripler (admin api)",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers/{{tripler_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers",
+						"{{tripler_id}}"
 					]
 				}
 			},
