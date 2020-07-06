@@ -26,17 +26,14 @@ export const CardVolunteerFull = props => (
   <div>
     <br />
     {props.volunteer.first_name}
-    {props.volunteer.approved ? (
-      <Button
-        onClick={() => props.refer._approveAmbassador(props.volunteer, false)}
-      >
-        Deny
-      </Button>
-    ) : (
-      <Button onClick={() => props.refer._approveAmbassador(props.volunteer, true)}>
-        Approve
-      </Button>
-    )}
+    <Button
+      onClick={() => props.refer._approveAmbassador(props.volunteer, false)}
+    >
+      Deny
+    </Button>
+    <Button onClick={() => props.refer._approveAmbassador(props.volunteer, true)}>
+      Approve
+    </Button>
     <br />
     Approved: {props.volunteer.approved ? "Yes" : "No"}
     <br />

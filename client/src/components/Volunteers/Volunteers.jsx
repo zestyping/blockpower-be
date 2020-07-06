@@ -92,7 +92,7 @@ export default class App extends Component {
       if (c.locked) {
         denied.push(c);
       } else if (c.invited) invited.push(c);
-      else if (c.ass && c.ass.ready) ready.push(c);
+      else if (c.approved) ready.push(c);
       else unassigned.push(c);
     });
 
@@ -114,14 +114,14 @@ export default class App extends Component {
               to={'/volunteers/'}
               onClick={() => this.setState({ pageNum: 1 })}
             >
-              Volunteers ({ready.length})
+              Approved ({ready.length})
             </Link>
             &nbsp;-&nbsp;
             <Link
               to={'/volunteers/unassigned'}
               onClick={() => this.setState({ pageNum: 1 })}
             >
-              Unassigned ({unassigned.length})
+              Pending ({unassigned.length})
             </Link>
             &nbsp;-&nbsp;
             <Link

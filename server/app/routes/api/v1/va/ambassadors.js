@@ -119,7 +119,7 @@ async function disapproveAmbassador(req, res) {
     return _404(res, "Ambassador not found");
   }
 
-  let json = {...{approved: false}};
+  let json = {...{approved: false, locked: true}};
   let updated = await found.update(json);
   return res.json(serializeAmbassador(updated));
 }
