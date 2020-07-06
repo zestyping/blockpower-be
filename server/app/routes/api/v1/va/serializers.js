@@ -1,6 +1,6 @@
 function serializeAmbassador(ambassador) {
   let obj = {};
-  ['id', 'first_name', 'last_name', 'phone', 'email', 'location', 'signup_completed', 'approved'].forEach(x => obj[x] = ambassador.get(x));
+  ['id', 'external_id', 'first_name', 'last_name', 'phone', 'email', 'location', 'signup_completed', 'approved', 'locked'].forEach(x => obj[x] = ambassador.get(x));
   obj['address'] = !!ambassador.get('address') ? JSON.parse(ambassador.get('address')) : null;
   obj['quiz_results'] = !!ambassador.get('quiz_results') ? JSON.parse(ambassador.get('quiz_results')) : null;
 

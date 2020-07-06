@@ -61,7 +61,16 @@ async function countAmbassadors(req, res) {
 }
 
 async function fetchAmbassadors(req, res) {
-  const collection = await req.neode.model('Ambassador').all();
+  let query = {};
+  
+  if (req.query.phone) query.phone = phone(req.query.phone);
+  if (req.query.email) query.email = req.query.email;
+  if (req.query['external-id']) query.external_id = req.query['external-id'];
+  if (req.query.approved) query.approved = req.query.approved.toLowerCase() === 'true';  
+  if (req.query.locked) query.locked = req.query.locked.toLowerCase() === 'true';
+  if (req.query['signup-completed']) query.signup_completed = req.query['signup-completed'] === 'true';
+
+  const collection = await req.neode.model('Ambassador').all(query);
   let models = [];
   for (var index = 0; index < collection.length; index++) {
     let entry = collection.get(index);

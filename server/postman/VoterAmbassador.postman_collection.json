@@ -832,6 +832,210 @@
 			"response": []
 		},
 		{
+			"name": "Find ambassador by phone (admin api)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors?phone=+1 100 000 0042",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors"
+					],
+					"query": [
+						{
+							"key": "phone",
+							"value": "+1 100 000 0042"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find ambassador by email (admin api)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors?email=aman@colab.coop",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "aman@colab.coop"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find ambassador by approved (admin api)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors?approved=true",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors"
+					],
+					"query": [
+						{
+							"key": "approved",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find ambassador by disapproved (admin api)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors?approved=false&locked=true",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors"
+					],
+					"query": [
+						{
+							"key": "approved",
+							"value": "false"
+						},
+						{
+							"key": "locked",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find ambassador by external id (admin api)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors?external-id=facebook:10221625176114074",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors"
+					],
+					"query": [
+						{
+							"key": "external-id",
+							"value": "facebook:10221625176114074"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Find ambassador by pending (admin api)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors?signup-completed=true&approved=false&locked=false",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors"
+					],
+					"query": [
+						{
+							"key": "signup-completed",
+							"value": "true"
+						},
+						{
+							"key": "approved",
+							"value": "false"
+						},
+						{
+							"key": "locked",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Count all ambassadors (admin api)",
 			"request": {
 				"method": "GET",
@@ -870,7 +1074,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/{{ambassador_id}}",
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}",
 					"host": [
 						"{{base_url}}"
 					],
@@ -879,7 +1083,7 @@
 						"v1",
 						"va",
 						"ambassadors",
-						"{{ambassador_id}}"
+						"{{other_ambassador_id}}"
 					]
 				}
 			},
@@ -898,7 +1102,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+1 123-456-7890\"\n}",
+					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+1 223-456-7890\",\n\t\"email\": \"aman@colab.coop\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -906,7 +1110,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/{{ambassador_id}}",
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}",
 					"host": [
 						"{{base_url}}"
 					],
@@ -915,7 +1119,7 @@
 						"v1",
 						"va",
 						"ambassadors",
-						"{{ambassador_id}}"
+						"{{other_ambassador_id}}"
 					]
 				}
 			},
@@ -942,7 +1146,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/{{ambassador_id}}/approve",
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}/approve",
 					"host": [
 						"{{base_url}}"
 					],
@@ -951,8 +1155,45 @@
 						"v1",
 						"va",
 						"ambassadors",
-						"{{ambassador_id}}",
+						"{{other_ambassador_id}}",
 						"approve"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Disapprove an ambassador (admin api)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}/disapprove",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"{{other_ambassador_id}}",
+						"disapprove"
 					]
 				}
 			},
