@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import logger from 'logops';
 import triplerSvc from '../../../../../services/triplers';
 
 module.exports = Router({mergeParams: true})
@@ -19,18 +18,18 @@ module.exports = Router({mergeParams: true})
   let tripler = await triplerSvc.findByPhone(sender);
   if (tripler) {
     if (response !== 'yes') {
-      logger.error("Tripler has not responded yes", sender, tripler.get('id'), response);
+      req.logger.error("Tripler has not responded yes", sender, tripler.get('id'), response);
       return res.send({});
     }
 
     try {
       await triplerSvc.confirmTripler(tripler.get('id'));
     } catch(err) {
-      logger.error("Invalid tripler or status, cannot confirm", sender, tripler.get('id'), err);
+      req.logger.error("Invalid tripler or status, cannot confirm", sender, tripler.get('id'), err);
     }
   }
   else {
-    logger.error("Tripler not found", sender);
+    req.logger.error("Tripler not found", sender);
   }
 
   return res.send({});
