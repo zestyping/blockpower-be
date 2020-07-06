@@ -179,7 +179,7 @@ async function signup(req, res) {
 }
 
 async function updateAmbassador(req, res) {
-  let found = req.user;
+  let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
 
   if (req.body.phone) {
     let existing_ambassador = await req.neode.first('Ambassador', 'phone', phone(req.body.phone));
