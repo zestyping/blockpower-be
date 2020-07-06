@@ -8,7 +8,7 @@ import { ov_config } from '../../../../lib/ov_config';
 import triplersSvc from '../../../../services/triplers';
 
 import {
-  _204, _400, _401, _403, _404, _500, geoCode, validateEmpty, validatePhone
+  _204, _400, _401, _403, _404, _500, geoCode, validateEmpty, validatePhone, validateEmail
 } from '../../../../lib/utils';
 
 import { serializeTripler, serializeNeo4JTripler } from './serializers';
@@ -26,6 +26,10 @@ async function createTripler(req, res) {
 
     if (!validatePhone(req.body.phone)) {
       return _400(res, "Invalid phone");
+    }
+
+    if (req.body.email && !validateEmail(req.body.email)) {
+      return _400(res, "Invalid email"); 
     }
 
     let existing_tripler = await req.neode.first('Tripler', 'phone', phoneFormat(req.body.phone));
@@ -114,6 +118,10 @@ async function updateTripler(req, res) {
     if(existing_tripler && existing_tripler.get('id') !== found.get('id')) {
       return _400(res, "Tripler with this phone number already exists");
     }
+  }
+
+  if (req.body.email && !validateEmail(req.body.email)) {
+    return _400(res, "Invalid email"); 
   }
 
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'email', 'status'];

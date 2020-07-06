@@ -147,6 +147,75 @@
 			"response": []
 		},
 		{
+			"name": "Signup failure due to invalid email",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0597becf-ac3f-4d4b-9c94-de9d8f60968f",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"address\": {\"address1\": \"1800 Grant St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 8537\",\n\t\"email\": \"whatever\",\n\t\"quiz_results\": [\n\t\t{\n\t\t\t\"question\": \"hello there\",\n\t\t\t\"answer\": \"chicken tikka\"\n\t\t},\n\t\t{\n\t\t\t\"question\": \"do you like sand?\",\n\t\t\t\"answer\": \"butter masala\"\n\t\t}\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/signup",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Make admin (localhost api)",
 			"event": [
 				{
@@ -630,7 +699,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"triplees\": [\"Aman\", \"David\", \"Ethan\"],\n\t\"phone\": \"+1 205 852 8537\"\n}",
+					"raw": "{\n\t\"triplees\": [\"Aman\", \"David\", \"Ethan\"],\n\t\"phone\": \"+1 500 555 0006\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -700,7 +769,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"triplees\": [\"Aman\", \"David\", \"Ethan\"],\n\t\"phone\": \"+1 205 852 8537\"\n}",
+					"raw": "{\n\t\"triplees\": [\"Aman\", \"David\", \"Ethan\"],\n\t\"phone\": \"+1 500 555 0006\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

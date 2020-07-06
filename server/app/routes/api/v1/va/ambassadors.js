@@ -4,7 +4,7 @@ import neo4j from 'neo4j-driver';
 import format from 'string-format';
 
 import {
-  _204, _400, _401, _403, _404, _500, geoCode, validateEmpty, validatePhone
+  _204, _400, _401, _403, _404, _500, geoCode, validateEmpty, validatePhone, validateEmail
 } from '../../../../lib/utils';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -20,6 +20,10 @@ async function createAmbassador(req, res) {
 
     if (!validatePhone(req.body.phone)) {
       return _400(res, "Invalid phone");
+    }
+
+    if (req.body.email && !validateEmail(req.body.email)) {
+      return _400(res, "Invalid email"); 
     }
 
     let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
@@ -162,6 +166,10 @@ async function signup(req, res) {
       return _400(res, "Invalid phone");
     }
 
+    if (req.body.email && !validateEmail(req.body.email)) {
+      return _400(res, "Invalid email"); 
+    }
+
     let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
     if(existing_ambassador) {
       return _400(res, "Ambassador with this phone already exists");
@@ -218,6 +226,10 @@ async function updateAmbassador(req, res) {
     }
   }
 
+  if (req.body.email && !validateEmail(req.body.email)) {
+    return _400(res, "Invalid email"); 
+  }
+
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'email'];
 
   let json = {};
@@ -261,6 +273,10 @@ async function updateCurrentAmbassador(req, res) {
     if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
       return _400(res, "Ambassador with this phone already exists");
     }
+  }
+
+  if (req.body.email && !validateEmail(req.body.email)) {
+    return _400(res, "Invalid email"); 
   }
 
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'email'];
