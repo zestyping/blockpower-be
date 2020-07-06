@@ -1,0 +1,48 @@
+---
+- name: Ensure repository is cloned and set to desired version
+  become: True
+  become_user: "{{ user }}"
+  git:
+    repo: "{{ repository }}"
+    dest: "{{ app_folder }}"
+    version: "{{ branch }}"
+    force: True
+    accept_hostkey: True
+
+- name: Ensure Server Dotenv file is ready
+  become: True
+  become_user: "{{ user }}"
+  template:
+    src: "env.j2"
+    dest: "{{ app_folder }}/client/.env"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    mode: 0644
+
+- name: Ensure Forever is installed
+  become: True
+  become_user: "{{ user }}"
+  npm:
+    name: forever
+    global: True
+    state: present
+    executable: "{{ npm_exe }}"
+
+- name: Install Server NPM modules
+  become: True
+  become_user: "{{ user }}"
+  npm:
+    path: "{{ app_folder }}/server"
+    executable: "{{ npm_exe }}"
+
+- name: Install Client NPM modules
+  become: True
+  become_user: "{{ user }}"
+  npm:
+    path: "{{ app_folder }}/client"
+    executable: "{{ npm_exe }}"
+
+- name: Restart the Server
+  become: True
+  become_user: "{{ user }}"
+  shell: forever restartall
