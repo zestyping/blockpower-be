@@ -114,7 +114,8 @@ async function approveAmbassador(req, res) {
                                     {
                                       ambassador_first_name: found.get('first_name'),
                                       ambassador_last_name: found.get('last_name') || '',
-                                      organization_name: process.env.ORGANIZATION_NAME
+                                      organization_name: process.env.ORGANIZATION_NAME,
+                                      ambassador_landing_page: process.env.AMBASSADOR_LANDING_PAGE
                                     }));
   } catch (err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);

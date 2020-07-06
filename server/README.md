@@ -37,9 +37,12 @@ For this server, configure an `.env` file. The following is a complete list of v
     TWILIO_FROM=
     TWILIO_SUPPORT_PROXY_RESPONSE=
     ORGANIZATION_NAME=
+    AMBASSADOR_LANDING_PAGE=
     AMBASSADOR_APPROVED_MESSAGE=
     TRIPLER_REMINDER_MESSAGE=
     TRIPLER_CONFIRMATION_MESSAGE=
+    LOG_REQUESTS=
+    LOG_REQUEST_MAX_BODY_LENGTH=
 
 The meaning of each config item is as follows:
 
@@ -77,7 +80,10 @@ The meaning of each config item is as follows:
 * `TWILIO_FROM`: Number to send SMSes from.
 * `TWILIO_SUPPORT_PROXY_RESPONSE`: Support proxy messages for development; message and proxy number separated by =>. For example: yes=>+1 111-111-1111
 * `ORGANIZATION_NAME`: the name of the org
+* `AMBASSADOR_LANDING_PAGE`: link to the webpage where ambassador lands after approval, this is sent in SMS
 * `AMBASSADOR_APPROVED_MESSAGE`: the SMS message when an ambassador is approved
 * `TRIPLER_REMINDER_MESSAGE`: the SMS message when a tripler is reminded
 * `TRIPLER_CONFIRMATION_MESSAGE`: the SMS message when a tripler begins confirmation process
+* `LOG_REQUESTS`: if set to true, enable request/response body logging
+* `LOG_REQUEST_MAX_BODY_LENGTH`: maximum number of characters logged during request/response logging, default set to 1000
 
