@@ -178,7 +178,7 @@ async function signup(req, res) {
         latitude: parseFloat(coordinates.latitude, 10),
         longitude: parseFloat(coordinates.longitude, 10)
       },
-      external_id: req.external_id
+      external_id: req.externalId
     });
   } catch(err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
@@ -318,6 +318,10 @@ async function claimedTriplers(req, res) {
   return res.json(triplers);
 }
 
+async function checkAmbassador(req, res) {
+  return res.json( { exists: !!req.user.get } );
+}
+
 module.exports = Router({mergeParams: true})
 .post('/ambassadors/signup', (req, res) => {
   return signup(req, res);
@@ -337,6 +341,9 @@ module.exports = Router({mergeParams: true})
 .get('/ambassadors/current/triplers', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.')
   return claimedTriplers(req, res);
+})
+.get('/ambassadors/exists', (req, res) => {
+  return checkAmbassador(req, res);
 })
 
 .post('/ambassadors', (req, res) => {

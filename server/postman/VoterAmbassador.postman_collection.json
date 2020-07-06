@@ -280,6 +280,60 @@
 			"response": []
 		},
 		{
+			"name": "Check ambassador exists (true)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/exists",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"exists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check ambassador exists (false)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{other_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/exists",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"exists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Update current ambassador",
 			"request": {
 				"method": "PUT",

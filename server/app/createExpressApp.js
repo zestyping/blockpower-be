@@ -131,10 +131,10 @@ export function doExpressInit(log, db, qq, neode) {
       )) return _401(res, "Your token has an incorrect audience.");
       */
 
-      req.external_id = u.id;
+      req.externalId = u.id;
 
       let user = await ambassadorSvc.findByExternalId(u.id);
-      if (user && user.locked) {
+      if (user && user.get('locked')) {
         return _403(res, "Your account is locked.");
       }
       else if (user) {
