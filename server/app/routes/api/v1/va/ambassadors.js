@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import phone from '../../../../lib/phone';
+import phoneFormat from '../../../../lib/phone';
 import neo4j from 'neo4j-driver';
 import format from 'string-format';
 
 import {
-  _204, _400, _401, _403, _404, _500, geoCode, validateEmpty
+  _204, _400, _401, _403, _404, _500, geoCode, validateEmpty, validatePhone
 } from '../../../../lib/utils';
 
 import { v4 as uuidv4 } from 'uuid';
@@ -18,7 +18,11 @@ async function createAmbassador(req, res) {
       return _400(res, "Invalid payload, ambassador cannot be created");
     }
 
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phone(req.body.phone));
+    if (!validatePhone(req.body.phone)) {
+      return _400(res, "Invalid phone");
+    }
+
+    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
     if(existing_ambassador) {
       return _400(res, "Ambassador with this data already exists");
     }
@@ -32,7 +36,7 @@ async function createAmbassador(req, res) {
       id: uuidv4(),
       first_name: req.body.first_name,
       last_name: req.body.last_name || null,
-      phone: phone(req.body.phone),
+      phone: phoneFormat(req.body.phone),
       email: req.body.email || null,
       address: JSON.stringify(req.body.address),
       quiz_results: JSON.stringify(req.body.quiz_results) || null,
@@ -63,7 +67,7 @@ async function countAmbassadors(req, res) {
 async function fetchAmbassadors(req, res) {
   let query = {};
   
-  if (req.query.phone) query.phone = phone(req.query.phone);
+  if (req.query.phone) query.phone = phoneFormat(req.query.phone);
   if (req.query.email) query.email = req.query.email;
   if (req.query['external-id']) query.external_id = req.query['external-id'];
   if (req.query.approved) query.approved = req.query.approved.toLowerCase() === 'true';  
@@ -102,7 +106,7 @@ async function approveAmbassador(req, res) {
     return _404(res, "Ambassador not found");
   }
 
-  let json = {...{approved: true}};
+  let json = {...{approved: true, locked: false}};
   let updated = await found.update(json);
 
   try {
@@ -117,7 +121,7 @@ async function approveAmbassador(req, res) {
     return _500(res, 'Error sending approved sms to the ambassador');
   }
 
-  return res.json(serializeAmbassador(updated));
+  return _204(res);
 }
 
 async function disapproveAmbassador(req, res) {
@@ -130,7 +134,7 @@ async function disapproveAmbassador(req, res) {
 
   let json = {...{approved: false, locked: true}};
   let updated = await found.update(json);
-  return res.json(serializeAmbassador(updated));
+  return _204(res);
 }
 
 async function makeAdmin(req, res) {
@@ -143,7 +147,7 @@ async function makeAdmin(req, res) {
 
   let json = {...{admin: true}};
   await found.update(json);
-  return res.json(_204);
+  return _204(res);
 }
 
 async function signup(req, res) {
@@ -153,7 +157,11 @@ async function signup(req, res) {
       return _400(res, "Invalid payload, ambassador cannot be created");
     }
 
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phone(req.body.phone));
+    if (!validatePhone(req.body.phone)) {
+      return _400(res, "Invalid phone");
+    }
+
+    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
     if(existing_ambassador) {
       return _400(res, "Ambassador with this data already exists");
     }
@@ -167,7 +175,7 @@ async function signup(req, res) {
       id: uuidv4(),
       first_name: req.body.first_name,
       last_name: req.body.last_name || null,
-      phone: phone(req.body.phone),
+      phone: phoneFormat(req.body.phone),
       email: req.body.email || null,
       address: JSON.stringify(req.body.address),
       quiz_results: JSON.stringify(req.body.quiz_results) || null,
@@ -194,7 +202,11 @@ async function updateAmbassador(req, res) {
   }
 
   if (req.body.phone) {
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phone(req.body.phone));
+    if (!validatePhone(req.body.phone)) {
+      return _400(res, "Invalid phone");
+    }
+
+    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
     if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
       return _400(res, "Ambassador with this data already exists");
     }
@@ -210,7 +222,7 @@ async function updateAmbassador(req, res) {
   }
 
   if (req.body.phone) {
-    json.phone = phone(req.body.phone);
+    json.phone = phoneFormat(req.body.phone);
   }
 
   if (req.body.address) {
@@ -235,7 +247,11 @@ async function updateCurrentAmbassador(req, res) {
   let found = req.user;
 
   if (req.body.phone) {
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phone(req.body.phone));
+    if (!validatePhone(req.body.phone)) {
+      return _400(res, "Invalid phone");
+    }
+
+    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
     if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
       return _400(res, "Ambassador with this data already exists");
     }
@@ -251,7 +267,7 @@ async function updateCurrentAmbassador(req, res) {
   }
 
   if (req.body.phone) {
-    json.phone = phone(req.body.phone);
+    json.phone = phoneFormat(req.body.phone);
   }
 
   if (req.body.address) {
@@ -310,7 +326,7 @@ async function claimTriplers(req, res) {
   return _204(res);
 }
 
-async function claimedTriplers(req, res) {
+function claimedTriplers(req, res) {
   let ambassador = req.user;
 
   let triplers = [];
@@ -318,7 +334,7 @@ async function claimedTriplers(req, res) {
   return res.json(triplers);
 }
 
-async function checkAmbassador(req, res) {
+function checkAmbassador(req, res) {
   return res.json( { exists: !!req.user.get } );
 }
 

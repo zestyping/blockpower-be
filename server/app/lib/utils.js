@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
 import papa from 'papaparse';
+import PhoneNumber from 'awesome-phonenumber';
 import { ov_config } from './ov_config';
 
 export var min_neo4j_version = 3.5;
@@ -223,3 +224,6 @@ export function validateEmpty(obj, keys) {
   return true;
 }
 
+export function validatePhone(phone) {
+  return (new PhoneNumber(phone, 'US')).isValid();
+}

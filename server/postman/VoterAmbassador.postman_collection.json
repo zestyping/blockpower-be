@@ -13,6 +13,10 @@
 					"script": {
 						"id": "34d8e05d-1d2f-4edf-86eb-e28ca63e4ea3",
 						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
 							"let jsonData = pm.response.json()",
 							"pm.globals.set('ambassador_id', jsonData.id);"
 						],
@@ -50,7 +54,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Tomaz\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 100-000-0001\",\n\t\"quiz_results\": [\n\t\t{\n\t\t\t\"question\": \"hello there\",\n\t\t\t\"answer\": \"general kenobi!\"\n\t\t},\n\t\t{\n\t\t\t\"question\": \"do you like sand?\",\n\t\t\t\"answer\": \"I hate it\"\n\t\t}\n\t]\n}",
+					"raw": "{\n\t\"first_name\": \"Tomaz\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 8537\",\n\t\"quiz_results\": [\n\t\t{\n\t\t\t\"question\": \"hello there\",\n\t\t\t\"answer\": \"general kenobi!\"\n\t\t},\n\t\t{\n\t\t\t\"question\": \"do you like sand?\",\n\t\t\t\"answer\": \"I hate it\"\n\t\t}\n\t]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -75,6 +79,20 @@
 		},
 		{
 			"name": "Make admin (localhost api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9d307ae6-9afb-4bec-80d8-84eab59a946d",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -128,6 +146,10 @@
 					"script": {
 						"id": "da1a0aad-baad-464f-b51e-d47accf5c627",
 						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
 							"let jsonData = pm.response.json()",
 							"pm.globals.set('tripler_id', jsonData.id);"
 						],
@@ -165,7 +187,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 100-000-0001\"\n}",
+					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 8537\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -189,6 +211,20 @@
 		},
 		{
 			"name": "Claim triplers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3e679e8f-fa41-4b98-88e3-cd401a1a6510",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -226,6 +262,20 @@
 		},
 		{
 			"name": "Fetch claimed triplers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e0f43e84-3f6c-4396-b39e-2177618242eb",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -254,6 +304,20 @@
 		},
 		{
 			"name": "Fetch current ambassador",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9c74dde0-3686-43d1-8b7d-49ad6dbf55ea",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -281,6 +345,20 @@
 		},
 		{
 			"name": "Check ambassador exists (true)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0cecd1e1-fd9c-4ca7-ac34-f1f5f08ff661",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -308,6 +386,20 @@
 		},
 		{
 			"name": "Check ambassador exists (false)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "708ebf4f-8bfb-4e0f-ac50-deb13a60ebc8",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -335,6 +427,20 @@
 		},
 		{
 			"name": "Update current ambassador",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a0f8df90-737a-41a0-9065-cd40b3f54ec8",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -346,7 +452,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"the admin\",\n\t\"phone\": \"+1 100-000-0009\",\n\t\"address\": {\n        \"address1\": \"1653 Logan St\",\n        \"city\": \"Denver\",\n        \"state\": \"CO\",\n        \"zip\": 80203\n    }\n}",
+					"raw": "{\n\t\"first_name\": \"the admin\",\n\t\"phone\": \"+1 205 852 8537\",\n\t\"address\": {\n        \"address1\": \"1653 Logan St\",\n        \"city\": \"Denver\",\n        \"state\": \"CO\",\n        \"zip\": 80203\n    }\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -371,6 +477,20 @@
 		},
 		{
 			"name": "Suggest triplers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7126f804-bbcc-4465-96b4-5f4443778594",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -397,6 +517,20 @@
 		},
 		{
 			"name": "Start confirmation process for claimed tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b88ce3d6-2010-4e49-9578-b51c9af02aa9",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -427,7 +561,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"triplees\": [\"Aman\", \"David\", \"Ethan\"],\n\t\"phone\": \"+1 111-111-1111\"\n}",
+					"raw": "{\n\t\"triplees\": [\"Aman\", \"David\", \"Ethan\"],\n\t\"phone\": \"+1 205 852 8537\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -453,6 +587,20 @@
 		},
 		{
 			"name": "Remind tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "aa6f936b-b447-444c-a46c-bedd8f81e21c",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -483,7 +631,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"triplees\": [\"Aman\", \"David\", \"Ethan\"],\n\t\"phone\": \"+1 111-111-1111\"\n}",
+					"raw": "{\n\t\"triplees\": [\"Aman\", \"David\", \"Ethan\"],\n\t\"phone\": \"+1 205 852 8537\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -509,6 +657,20 @@
 		},
 		{
 			"name": "Fetch a tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f0224f46-3eef-407d-ad62-984e93c41704",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -555,6 +717,20 @@
 		},
 		{
 			"name": "Confirm tripler via SMS",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "951806eb-82f0-47d0-ba70-890f1a834b9d",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -585,7 +761,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"From\": \"+1 111-111-1111\",\n\t\"Body\": \"yes\"\n}"
+					"raw": "{\n\t\"From\": \"+1 205 852 8537\",\n\t\"Body\": \"yes\"\n}"
 				},
 				"url": {
 					"raw": "{{base_url}}/api/v1/public/va/sms/receive",
@@ -606,6 +782,20 @@
 		},
 		{
 			"name": "Confirm tripler via SMS (proxy)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4b576045-3f6e-48f9-a95c-a9c1fda9af55",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -636,7 +826,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"From\": \"+1 222-233-2222\",\n\t\"Body\": \"yes => +1 111-111-1111\"\n}"
+					"raw": "{\n\t\"From\": \"+1 222-233-2222\",\n\t\"Body\": \"yes => +1 205 852 8537\"\n}"
 				},
 				"url": {
 					"raw": "{{base_url}}/api/v1/public/va/sms/receive",
@@ -657,6 +847,20 @@
 		},
 		{
 			"name": "Update tripler (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e4043fa9-c1e7-42f3-88f5-ccc148372ae8",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -687,7 +891,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"phone\": \"+1 111-111-1111\",\n\t\"status\": \"pending\"\n}",
+					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"phone\": \"+1 205 852 8537\",\n\t\"status\": \"pending\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -712,6 +916,20 @@
 		},
 		{
 			"name": "Confirm tripler (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a76279cf-60c2-414c-9017-0b38c69bb274",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"protocolProfileBehavior": {
 				"disabledSystemHeaders": {
 					"accept": true,
@@ -742,7 +960,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"phone\": \"+1 111-111-1111\"\n}",
+					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"phone\": \"+1 205 852 8537\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -768,6 +986,20 @@
 		},
 		{
 			"name": "Fetch all triplers (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7e70aece-17ee-4607-afe1-84468048e7b4",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -800,6 +1032,10 @@
 					"script": {
 						"id": "634aed9a-3571-466f-9d8c-21959fd97f13",
 						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
 							"let jsonData = pm.response.json()",
 							"pm.globals.set('other_ambassador_id', jsonData.id);"
 						],
@@ -837,7 +1073,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 100-000-0042\"\n}",
+					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+15005550006\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -861,6 +1097,20 @@
 		},
 		{
 			"name": "Fetch all ambassadors (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f79aba41-6540-4135-9b2e-87eb609a20d9",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -887,6 +1137,20 @@
 		},
 		{
 			"name": "Find ambassador by phone (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "54ac9377-9d67-4cab-b890-c2c898eedcc3",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -919,6 +1183,20 @@
 		},
 		{
 			"name": "Find ambassador by email (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d082e535-9661-4dc7-b858-e1aa31c266a8",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -951,6 +1229,20 @@
 		},
 		{
 			"name": "Find ambassador by approved (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1bd7c924-8335-4aa5-9cfc-a8838908df2f",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -983,6 +1275,20 @@
 		},
 		{
 			"name": "Find ambassador by disapproved (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "41b38357-044f-4bcc-a032-21d9e525c923",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -1019,6 +1325,20 @@
 		},
 		{
 			"name": "Find ambassador by external id (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c2125884-b5d6-45a4-be9d-2f6e28796e5c",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -1051,6 +1371,20 @@
 		},
 		{
 			"name": "Find ambassador by pending (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e73c492e-e171-4e65-8fc3-5e8389c6c3e4",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -1091,6 +1425,20 @@
 		},
 		{
 			"name": "Count all ambassadors (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "43689f5c-9574-4be7-b849-bf8ba71532e0",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -1118,6 +1466,20 @@
 		},
 		{
 			"name": "Fetch an ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7125013b-4301-40c6-93a1-90aafd6a5db4",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -1145,6 +1507,20 @@
 		},
 		{
 			"name": "Update an ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8433093c-6a10-49c3-b84d-eec25f762b20",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -1156,7 +1532,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+1 223-456-7890\",\n\t\"email\": \"aman@colab.coop\"\n}",
+					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+15005550006\",\n\t\"email\": \"aman@colab.coop\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1181,6 +1557,20 @@
 		},
 		{
 			"name": "Approve an ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b689d96a-dbad-4b64-86b6-94779d6ed73c",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -1218,6 +1608,20 @@
 		},
 		{
 			"name": "Disapprove an ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e1d0e5ef-5194-4ab9-94e5-702e6ceb4341",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -1255,6 +1659,20 @@
 		},
 		{
 			"name": "Delete an ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7c2ec3d0-2c1f-4fbf-b32e-a42719f38564",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "DELETE",
 				"header": [
@@ -1291,6 +1709,20 @@
 		},
 		{
 			"name": "Delete a tripler (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "33730024-7ab6-4a03-88d0-a7f2643307dd",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "DELETE",
 				"header": [
