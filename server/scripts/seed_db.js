@@ -5,7 +5,7 @@ import { geoCode } from '../app/lib/utils.js';
 import { v4 as uuidv4 } from 'uuid';
 import neode from  '../app/lib/neode.js';
 import addresses from './seed_data/addresses.json';
-import phoneformat from '../app/lib/phone';
+import { normalize as phoneFormat } from '../app/lib/phone';
 import yargs from 'yargs';
 
 const argv = yargs
@@ -58,7 +58,7 @@ const argv = yargs
 
 async function randomPhone(model) {
   while (true) {
-    let phone = phoneformat(faker.phone.phoneNumber());
+    let phone = phoneFormat(faker.phone.phoneNumber());
     let entry = await neode.first(model, 'phone', phone);
     if (!entry) return phone;
   }  
