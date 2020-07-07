@@ -315,8 +315,7 @@ module.exports = Router({mergeParams: true})
 })
 .get('/triplers', (req, res) => {
   if (!req.user) return _401(res, 'Permission denied.');
-  // temporarily removing admin restriction so Tomaz can pretend it is /suggest-triplers
-  // if (!req.user.get('admin')) return _403(res, "Permission denied.");;
+  if (!req.user.get('admin')) return _403(res, "Permission denied.");;
   return fetchAllTriplers(req, res);
 })
 .delete('/triplers/:triplerId', (req, res) => {

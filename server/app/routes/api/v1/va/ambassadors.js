@@ -453,7 +453,8 @@ module.exports = Router({mergeParams: true})
   return disapproveAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId/admin', (req, res) => {
-  // TODO allow only from local
+  if (!req.user) return _401(res, 'Permission denied.')
+  if (!req.isLocal) return _403(res, "Permission denied.");
   return makeAdmin(req, res);
 })
 .put('/ambassadors/:ambassadorId', (req, res) => {
