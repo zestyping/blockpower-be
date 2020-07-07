@@ -192,8 +192,15 @@ async function startTriplerConfirmation(req, res) {
     return _400(res, 'Insufficient triplees, cannot start confirmation')
   }
 
-  if (req.body.phone && !validatePhone(req.body.phone)) {
-    return _400(res, "Invalid phone");
+  if (req.body.phone) {
+    if (!validatePhone(req.body.phone)) {
+      return _400(res, "Invalid phone");
+    }
+
+    let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(req.body.phone));
+    if(existing_tripler && existing_tripler.get('id') !== tripler.get('id')) {
+      return _400(res, "Tripler with this phone number already exists");
+    }
   }
 
   let triplerPhone = req.body.phone ? normalize(req.body.phone): tripler.get('phone');
