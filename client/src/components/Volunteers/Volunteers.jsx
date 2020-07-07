@@ -83,6 +83,7 @@ export default class App extends Component {
 
     let ready = [];
     let unassigned = [];
+    let incomplete = [];
     let denied = [];
     let invited = [];
 
@@ -93,7 +94,8 @@ export default class App extends Component {
         denied.push(c);
       } else if (c.invited) invited.push(c);
       else if (c.approved) ready.push(c);
-      else unassigned.push(c);
+      else if (c.signup_completed) unassigned.push(c);
+      else incomplete.push(c);
     });
 
     return (
@@ -117,6 +119,12 @@ export default class App extends Component {
               Approved ({ready.length})
             </Link>
             &nbsp;-&nbsp;
+            <Link
+              to={'/volunteers/incomplete'}
+              onClick={() => this.setState({ pageNum: 1 })}
+            >
+              Not completed signup ({incomplete.length})
+            </Link>
             <Link
               to={'/volunteers/unassigned'}
               onClick={() => this.setState({ pageNum: 1 })}
@@ -173,6 +181,18 @@ export default class App extends Component {
                     Invite Someone
                   </Button>
                 </div>
+              )}
+            />
+            <Route
+              exact={true}
+              path="/volunteers/incomplete"
+              render={() => (
+                <ListVolunteers
+                  global={global}
+                  refer={this}
+                  type="Incomplete"
+                  volunteers={incomplete}
+                />
               )}
             />
             <Route

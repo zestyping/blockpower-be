@@ -41,6 +41,7 @@ For this server, configure an `.env` file. The following is a complete list of v
     AMBASSADOR_APPROVED_MESSAGE=
     TRIPLER_REMINDER_MESSAGE=
     TRIPLER_CONFIRMATION_MESSAGE=
+    STRESS_TESTING=
     LOG_REQUESTS=
     LOG_REQUEST_MAX_BODY_LENGTH=
 
@@ -84,6 +85,7 @@ The meaning of each config item is as follows:
 * `AMBASSADOR_APPROVED_MESSAGE`: the SMS message when an ambassador is approved
 * `TRIPLER_REMINDER_MESSAGE`: the SMS message when a tripler is reminded
 * `TRIPLER_CONFIRMATION_MESSAGE`: the SMS message when a tripler begins confirmation process
+* `STRESS_TESTING`: if set to true, this introduces changes in the code like non-enforcement of unique constraints to facilitate stress testing. You will have to drop neode schema to be able to do stress testing.
 * `LOG_REQUESTS`: if set to true, enable request/response body logging
 * `LOG_REQUEST_MAX_BODY_LENGTH`: maximum number of characters logged during request/response logging, default set to 1000
 
