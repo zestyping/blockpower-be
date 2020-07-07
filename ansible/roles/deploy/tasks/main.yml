@@ -19,6 +19,15 @@
     group: "{{ group }}"
     mode: 0644
 
+- name: Install global NPM modules
+  become: True
+  become_user: "{{ user }}"
+  npm:
+    name: forever
+    state: present
+    global: True
+    executable: "{{ npm_exe }}"
+
 - name: Create symbolic links for Node and NPM
   file:
     state: link
@@ -57,15 +66,6 @@
     dest: "/etc/systemd/system/{{ item.name }}.service"
   with_items: "{{ boot_scripts }}"
 
-- name: Install global NPM modules
-  become: True
-  become_user: "{{ user }}"
-  npm:
-    name: forever
-    state: present
-    global: True
-    executable: "{{ npm_exe }}"
-
 - name: Install server NPM modules
   become: True
   become_user: "{{ user }}"
@@ -79,6 +79,13 @@
   npm:
     path: "{{ app_folder }}/client"
     executable: "{{ npm_exe }}"
+
+- name: Build static client
+  become: True
+  become_user: "{{ name }}"
+  shell: >
+    cd {{ app_folder }}/client && \
+    {{ npm_exe }} run build
 
 - name: Make sure API is running and enabled
   systemd:
