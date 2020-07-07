@@ -1,4 +1,33 @@
 ---
+- name: Create the main deploy directories
+  file:
+    path: "{{ home_folder }}/{{ item }}"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    state: directory
+    mode: 0755
+  with_items:
+    - "logs"
+    - "scripts"
+
+- name: Create startup script
+  template:
+    src: "start.bash.j2"
+    dest: "{{ home_folder }}/scripts/start.bash"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    mode: 0755
+
+- name: Create systemd services
+  template:
+    src: "systemd.j2"
+    dest: "/etc/systemd/system/{{ item.name }}.service"
+  with_items: "{{ boot_scripts }}"
+
+- name: Systemd deamon reload
+  systemd:
+    daemon_reload: True
+
 - name: Ensure repository is cloned and set to desired version
   become: True
   become_user: "{{ user }}"
@@ -14,35 +43,45 @@
   become_user: "{{ user }}"
   template:
     src: "env.j2"
-    dest: "{{ app_folder }}/client/.env"
+    dest: "{{ app_folder }}/server/.env"
     owner: "{{ user }}"
     group: "{{ group }}"
     mode: 0644
 
-- name: Ensure Forever is installed
-  become: True
-  become_user: "{{ user }}"
-  npm:
-    name: forever
-    global: True
-    state: present
-    executable: "{{ npm_exe }}"
+- name: Create symbolic links for Node and NPM
+  file:
+    state: link
+    src: "{{ node_bin }}/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    mode: 0775
+  with_items:
+    - "npm"
+    - "node"
+    - "forever"
 
-- name: Install Server NPM modules
+- name: Install NPM modules
   become: True
   become_user: "{{ user }}"
-  npm:
-    path: "{{ app_folder }}/server"
-    executable: "{{ npm_exe }}"
+  shell: >
+    {{ npm_exe }} i -g forever && \
+    cd {{ app_folder }}/server && {{ npm_exe }} i && \
+    cd {{ app_folder }}/client && {{ npm_exe }} i
 
-- name: Install Client NPM modules
+- name: Restart API
   become: True
   become_user: "{{ user }}"
-  npm:
-    path: "{{ app_folder }}/client"
-    executable: "{{ npm_exe }}"
+  shell: "forever restart {{ name }}"
 
-- name: Restart the Server
-  become: True
-  become_user: "{{ user }}"
-  shell: forever restartall
+#- name: Make sure API is running and enabled
+#  systemd:
+#    state: started
+#    user: True
+#    enabled: True
+#    name: "{{ name }}"
+
+#- name: Make sure API is restarted
+#  systemd:
+#    state: restarted
+#    name: "{{ name }}"

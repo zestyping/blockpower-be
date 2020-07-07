@@ -58,3 +58,13 @@ dotenv:
   AMBASSADOR_APPROVED_MESSAGE: "Congratulations, {ambassador_first_name}, you're ready to start recruiting triplers and earning money! GO to {ambassador_landing_page} to start looking for people from {organization_name}'s list."
   LOG_REQUESTS: "true"
   LOG_REQUEST_MAX_BODY_LENGTH: "1000"
+
+### Systemd
+boot_scripts:
+  - name: "{{ name }}"
+    app_user: "{{ user }}"
+    description: "HelloVoter API"
+    url: "https://{{ domain }}/"
+    env_vars: "PATH=/usr/bin:/usr/local/bin:{{ node_bin }} NODE_ENV={{ env }}"
+    start_cmd: "{{ home_folder }}/scripts/start.bash"
+    stop_cmd: "{{ node_bin }}/forever stop {{ name }}"

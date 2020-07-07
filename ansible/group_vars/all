@@ -2,6 +2,7 @@
 name: "hellovoter"
 home_folder: "/opt/www/{{ name }}"
 app_folder: "{{ home_folder }}/app"
+logs_dir: "{{ home_folder }}/logs"
 user: "{{ name }}"
 group: "{{ name }}"
 
@@ -10,4 +11,5 @@ repository: "git@github.com:colab-coop/HelloVoter.git"
 
 ### NPM
 npm_version: "v12.18.2"
-npm_exe: "{{ home }}/.nvm/versions/node/{{ npm_version }}/bin/npm"
+node_bin: "{{ home_folder }}/.nvm/versions/node/{{ npm_version }}/bin"
+npm_exe: "{{ node_bin }}/npm"
