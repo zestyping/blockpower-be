@@ -1211,7 +1211,75 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+15005550006\"\n}",
+					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+15005550006\",\n    \"email\": \"aman@colab.coop\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create ambassador failure due to duplicate email (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "515bad22-01ee-45f0-81bd-f1f7b84b141b",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+15005550007\",\n    \"email\": \"aman@colab.coop\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1299,7 +1367,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors?phone=+1 100 000 0042",
+					"raw": "{{base_url}}/api/v1/va/ambassadors?phone=12058528537",
 					"host": [
 						"{{base_url}}"
 					],
@@ -1312,7 +1380,7 @@
 					"query": [
 						{
 							"key": "phone",
-							"value": "+1 100 000 0042"
+							"value": "12058528537"
 						}
 					]
 				}
@@ -1694,56 +1762,6 @@
 			"response": []
 		},
 		{
-			"name": "Update ambassador failure due to duplicate phone",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "bfb2034a-f070-4de0-81cd-1f461f4c02e6",
-						"exec": [
-							"pm.test(\"Status test\", function () {",
-							"    pm.response.to.have.status(400);",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Authorization",
-						"type": "text",
-						"value": "Bearer {{token}}"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+1 205 852 8537\",\n\t\"email\": \"aman@colab.coop\"\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"v1",
-						"va",
-						"ambassadors",
-						"{{other_ambassador_id}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Approve an ambassador (admin api)",
 			"event": [
 				{
@@ -1789,6 +1807,56 @@
 						"ambassadors",
 						"{{other_ambassador_id}}",
 						"approve"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update ambassador failure due to duplicate phone",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bfb2034a-f070-4de0-81cd-1f461f4c02e6",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+1 205 852 8537\",\n\t\"email\": \"aman@colab.coop\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"{{other_ambassador_id}}"
 					]
 				}
 			},
