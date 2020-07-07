@@ -3,13 +3,17 @@ import neo4j from 'neo4j-driver';
 import stringFormat from 'string-format';
 import { v4 as uuidv4 } from 'uuid';
 
-import phoneFormat from '../../../../lib/phone';
+import { normalize } from '../../../../lib/phone';
 import { ov_config } from '../../../../lib/ov_config';
 import triplersSvc from '../../../../services/triplers';
 
 import {
-  _204, _400, _401, _403, _404, _500, geoCode, validateEmpty, validatePhone, validateEmail
+  _204, _400, _401, _403, _404, _500, geoCode
 } from '../../../../lib/utils';
+
+import {
+  validateEmpty, validatePhone, validateEmail
+} from '../../../../lib/validations';
 
 import { serializeTripler, serializeNeo4JTripler } from './serializers';
 
@@ -28,13 +32,21 @@ async function createTripler(req, res) {
       return _400(res, "Invalid phone");
     }
 
-    if (req.body.email && !validateEmail(req.body.email)) {
-      return _400(res, "Invalid email"); 
+    if (req.models.Tripler.phone.unique) {
+      if (await req.neode.first('Tripler', 'phone', normalize(req.body.phone))) {
+        return _400(res, "Tripler with this phone already exists");
+      }
     }
 
-    let existing_tripler = await req.neode.first('Tripler', 'phone', phoneFormat(req.body.phone));
-    if (existing_tripler) {
-      return _400(res, "Tripler with this phone already exists");
+    if (req.body.email) {
+      if (!validateEmail(req.body.email)) return _400(res, "Invalid email");  
+
+      if (req.models.Tripler.email.unique) {
+        let existing_tripler = await req.neode.first('Tripler', 'email', req.body.email);
+        if(existing_tripler) {
+          return _400(res, "Tripler with this email already exists");
+        }
+      }
     }
 
     let coordinates = await geoCode(req.body.address);
@@ -46,7 +58,7 @@ async function createTripler(req, res) {
       id: uuidv4(),
       first_name: req.body.first_name,
       last_name: req.body.last_name || null,
-      phone: phoneFormat(req.body.phone),
+      phone: normalize(req.body.phone),
       email: req.body.email || null,
       address: JSON.stringify(req.body.address),
       triplees: !req.body.triplees ? null : JSON.stringify(req.body.triplees),
@@ -114,14 +126,21 @@ async function updateTripler(req, res) {
       return _400(res, "Invalid phone");
     }
 
-    let existing_tripler = await req.neode.first('Tripler', 'phone', phoneFormat(req.body.phone));
+    let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(req.body.phone));
     if(existing_tripler && existing_tripler.get('id') !== found.get('id')) {
       return _400(res, "Tripler with this phone number already exists");
     }
   }
 
-  if (req.body.email && !validateEmail(req.body.email)) {
-    return _400(res, "Invalid email"); 
+  if (req.body.email) {
+    if (!validateEmail(req.body.email)) return _400(res, "Invalid email");  
+
+    if (req.models.Tripler.email.unique) {
+      let existing_tripler = await req.neode.first('Tripler', 'email', req.body.email);
+      if(existing_tripler && existing_tripler.get('id') !== found.get('id')) {
+        return _400(res, "Tripler with this email already exists");
+      }
+    }
   }
 
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'email', 'status'];
@@ -134,7 +153,7 @@ async function updateTripler(req, res) {
   }
 
   if (req.body.phone) {
-    json.phone = phoneFormat(req.body.phone);
+    json.phone = normalize(req.body.phone);
   }
 
   if (req.body.address) {
@@ -177,7 +196,7 @@ async function startTriplerConfirmation(req, res) {
     return _400(res, "Invalid phone");
   }
 
-  let triplerPhone = req.body.phone ? phoneFormat(req.body.phone): tripler.get('phone');
+  let triplerPhone = req.body.phone ? normalize(req.body.phone): tripler.get('phone');
 
   try {
     await sms(triplerPhone, stringFormat(process.env.TRIPLER_CONFIRMATION_MESSAGE, 

@@ -1,11 +1,15 @@
 import { Router } from 'express';
-import phoneFormat from '../../../../lib/phone';
+import { normalize } from '../../../../lib/phone';
 import neo4j from 'neo4j-driver';
 import format from 'string-format';
 
 import {
-  _204, _400, _401, _403, _404, _500, geoCode, validateEmpty, validatePhone, validateEmail
+  _204, _400, _401, _403, _404, _500, geoCode
 } from '../../../../lib/utils';
+
+import {
+  validateEmpty, validatePhone, validateEmail
+} from '../../../../lib/validations';
 
 import { v4 as uuidv4 } from 'uuid';
 import { serializeAmbassador, serializeTripler } from './serializers';
@@ -22,13 +26,20 @@ async function createAmbassador(req, res) {
       return _400(res, "Invalid phone");
     }
 
-    if (req.body.email && !validateEmail(req.body.email)) {
-      return _400(res, "Invalid email"); 
+    if (req.models.Ambassador.phone.unique) {
+      let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
+      if(existing_ambassador) {
+        return _400(res, "Ambassador with this phone already exists");
+      }
     }
 
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
-    if(existing_ambassador) {
-      return _400(res, "Ambassador with this phone already exists");
+    if (req.body.email) {
+      if (!validateEmail(req.body.email)) return _400(res, "Invalid email");  
+
+      if (req.models.Ambassador.email.unique && 
+          await req.neode.first('Ambassador', 'email', req.body.email)) {
+        return _400(res, "Ambassador with this email already exists");
+      }
     }
 
     let coordinates = await geoCode(req.body.address);
@@ -40,7 +51,7 @@ async function createAmbassador(req, res) {
       id: uuidv4(),
       first_name: req.body.first_name,
       last_name: req.body.last_name || null,
-      phone: phoneFormat(req.body.phone),
+      phone: normalize(req.body.phone),
       email: req.body.email || null,
       address: JSON.stringify(req.body.address),
       quiz_results: JSON.stringify(req.body.quiz_results) || null,
@@ -71,7 +82,7 @@ async function countAmbassadors(req, res) {
 async function fetchAmbassadors(req, res) {
   let query = {};
   
-  if (req.query.phone) query.phone = phoneFormat(req.query.phone);
+  if (req.query.phone) query.phone = normalize(req.query.phone);
   if (req.query.email) query.email = req.query.email;
   if (req.query['external-id']) query.external_id = req.query['external-id'];
   if (req.query.approved) query.approved = req.query.approved.toLowerCase() === 'true';  
@@ -166,18 +177,27 @@ async function signup(req, res) {
       return _400(res, "Invalid phone");
     }
 
-    if (req.body.email && !validateEmail(req.body.email)) {
-      return _400(res, "Invalid email"); 
+    if (req.models.Ambassador.phone.unique) {
+      let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
+      if(existing_ambassador) {
+        return _400(res, "Ambassador with this phone already exists");
+      }
     }
 
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
-    if(existing_ambassador) {
-      return _400(res, "Ambassador with this phone already exists");
+    if (req.models.Ambassador.external_id.unique) {
+      let existing_ambassador = await req.neode.first('Ambassador', 'external_id', req.externalId);
+      if(existing_ambassador) {
+        return _400(res, "Ambassador with this external id already exists");
+      }
     }
 
-    existing_ambassador = await req.neode.first('Ambassador', 'external_id', req.externalId);
-    if(existing_ambassador) {
-      return _400(res, "Ambassador with this external id already exists");
+    if (req.body.email) {
+      if (!validateEmail(req.body.email)) return _400(res, "Invalid email");  
+
+      if (req.models.Ambassador.email.unique && 
+        await req.neode.first('Ambassador', 'email', req.body.email)) {
+        return _400(res, "Ambassador with this email already exists");
+      }
     }
 
     let coordinates = await geoCode(req.body.address);
@@ -189,7 +209,7 @@ async function signup(req, res) {
       id: uuidv4(),
       first_name: req.body.first_name,
       last_name: req.body.last_name || null,
-      phone: phoneFormat(req.body.phone),
+      phone: normalize(req.body.phone),
       email: req.body.email || null,
       address: JSON.stringify(req.body.address),
       quiz_results: JSON.stringify(req.body.quiz_results) || null,
@@ -220,14 +240,23 @@ async function updateAmbassador(req, res) {
       return _400(res, "Invalid phone");
     }
 
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
-    if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-      return _400(res, "Ambassador with this phone already exists");
+    if (req.models.Ambassador.phone.unique) {
+      let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
+      if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
+        return _400(res, "Ambassador with this phone already exists");
+      }
     }
   }
 
-  if (req.body.email && !validateEmail(req.body.email)) {
-    return _400(res, "Invalid email"); 
+  if (req.body.email) {
+    if (!validateEmail(req.body.email)) return _400(res, "Invalid email");  
+
+    if (req.models.Ambassador.email.unique) {
+      let existing_ambassador = await req.neode.first('Ambassador', 'email', req.body.email);
+      if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
+        return _400(res, "Ambassador with this email already exists");
+      }
+    }
   }
 
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'email'];
@@ -240,7 +269,7 @@ async function updateAmbassador(req, res) {
   }
 
   if (req.body.phone) {
-    json.phone = phoneFormat(req.body.phone);
+    json.phone = normalize(req.body.phone);
   }
 
   if (req.body.address) {
@@ -269,14 +298,23 @@ async function updateCurrentAmbassador(req, res) {
       return _400(res, "Invalid phone");
     }
 
-    let existing_ambassador = await req.neode.first('Ambassador', 'phone', phoneFormat(req.body.phone));
-    if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-      return _400(res, "Ambassador with this phone already exists");
+    if (req.models.Ambassador.phone.unique) {
+      let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
+      if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
+        return _400(res, "Ambassador with this phone already exists");
+      }
     }
   }
 
-  if (req.body.email && !validateEmail(req.body.email)) {
-    return _400(res, "Invalid email"); 
+  if (req.body.email) {
+    if (!validateEmail(req.body.email)) return _400(res, "Invalid email");  
+
+    if (req.models.Ambassador.email.unique) {
+      let existing_ambassador = await req.neode.first('Ambassador', 'email', req.body.email);
+      if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
+        return _400(res, "Ambassador with this email already exists");
+      }
+    }
   }
 
   let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'email'];
@@ -289,7 +327,7 @@ async function updateCurrentAmbassador(req, res) {
   }
 
   if (req.body.phone) {
-    json.phone = phoneFormat(req.body.phone);
+    json.phone = normalize(req.body.phone);
   }
 
   if (req.body.address) {

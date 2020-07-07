@@ -90,6 +90,7 @@ export function doExpressInit(log, db, qq, neode) {
     req.qq = qq;
     req.neode = neode;
     req.logger = logger;
+    req.models = require('./models/va');
 
     req.isLocal = req.connection.remoteAddress === req.connection.localAddress;
 

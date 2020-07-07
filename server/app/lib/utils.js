@@ -3,8 +3,6 @@ import crypto from 'crypto';
 import FormData from 'form-data';
 import fetch from 'node-fetch';
 import papa from 'papaparse';
-import PhoneNumber from 'awesome-phonenumber';
-import EmailValidator from 'email-validator';
 import { ov_config } from './ov_config';
 
 export var min_neo4j_version = 3.5;
@@ -208,27 +206,4 @@ export async function geoCode(address) {
     longitude: coordinates[0],
     latitude: coordinates[1]
   };
-}
-
-function _isEmpty(obj) {
-  if (!obj) return true;
-  if (typeof obj === 'object') return Object.keys(obj).length === 0;
-  if (typeof obj === 'string') return !(obj.trim());
-  return false;
-}
-
-export function validateEmpty(obj, keys) {
-  if (_isEmpty(obj)) return false;
-  for (var i = 0; i < keys.length; i++) {
-    if (_isEmpty(obj[keys[i]])) return false;
-  }
-  return true;
-}
-
-export function validatePhone(phone) {
-  return (new PhoneNumber(phone, 'US')).isValid();
-}
-
-export function validateEmail(email) {
-  return EmailValidator.validate(email);
 }
