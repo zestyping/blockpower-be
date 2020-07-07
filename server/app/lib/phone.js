@@ -1,7 +1,7 @@
 import PhoneNumber from 'awesome-phonenumber';
 
 function normalize(phone) {
-  if (phone[0] === '+1') {
+  if (phone.substr(0, 2) === '+1') {
     phone = phone.substr(2);
   }
   return phone.replace(/[^0-9xX]/g, '')
