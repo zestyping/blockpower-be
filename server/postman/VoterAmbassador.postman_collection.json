@@ -6,6 +6,144 @@
 	},
 	"item": [
 		{
+			"name": "Check address (valid)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7f640f8a-4e58-4d12-ae2a-25e46c022540",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/shared/check-address",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"shared",
+						"check-address"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check address (invalid)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "95f5b80b-88f1-4208-8bb6-169ddb3330ba",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"address\": {\"address1\": \"1665 Aman St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/shared/check-address",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"shared",
+						"check-address"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Signup",
 			"event": [
 				{
