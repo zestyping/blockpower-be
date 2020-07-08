@@ -1,17 +1,18 @@
 import { Router } from 'express';
 import triplerSvc from '../../../../../services/triplers';
+import { normalize } from '../../../../../lib/phone';
 
 module.exports = Router({mergeParams: true})
 .post('/sms/receive', async (req, res) => {
   
-  let sender = req.body.From;
+  let sender = normalize(req.body.From);
   let response = req.body.Body.toLowerCase();
   
   if (process.env.TWILIO_SUPPORT_PROXY_RESPONSE === 'true') {
     let arr = response.split('=>').map((entry)=>entry.trim()).filter((entry)=>entry.length > 0)
     response = arr[0];
     if (arr.length > 1) {
-      sender = arr[1];
+      sender = normalize(arr[1]);
     }
   }
 
