@@ -65,6 +65,6 @@ boot_scripts:
     app_user: "{{ user }}"
     description: "HelloVoter API"
     url: "https://{{ domain }}/"
-    env_vars: "PATH=/usr/bin:/usr/local/bin:{{ node_bin }} NODE_ENV={{ env }}"
+    env_vars: "PATH=$PATH:/usr/bin:/usr/local/bin:{{ node_bin }}"
     start_cmd: "{{ home_folder }}/scripts/start.bash"
     stop_cmd: "{{ node_bin }}/forever stop {{ name }}"
