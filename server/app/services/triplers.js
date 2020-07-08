@@ -1,12 +1,12 @@
 import neode  from '../lib/neode';
-import phoneFormat from '../lib/phone';
+import { normalize } from '../lib/phone';
 
 async function findById(triplerId) {
   return await neode.first('Tripler', 'id', triplerId);
 }
 
 async function findByPhone(phone) {
-  return await neode.first('Tripler', 'phone', phoneFormat(phone));
+  return await neode.first('Tripler', 'phone', normalize(phone));
 }
 
 async function confirmTripler(triplerId) {

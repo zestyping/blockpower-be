@@ -1,3 +1,5 @@
+let enforceUnique = process.env.STRESS_TESTING !== 'true';
+
 module.exports = {
   id: {
     type: 'uuid',
@@ -12,7 +14,7 @@ module.exports = {
   phone: {
     type: 'string',
     required: true,
-    unique: true
+    unique: enforceUnique
   },
   email: 'string',  
   status: 'string',

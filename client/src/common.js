@@ -59,6 +59,8 @@ export async function _fetch(global, uri, method, body) {
 
   if (res.status >= 400) throw new Error(await res.text());
 
+  if (res.status === 204) return {};
+
   return res.json();
 }
 
