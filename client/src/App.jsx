@@ -179,6 +179,8 @@ class App extends Component {
     if (orgId) localStorage.setItem('orgId', orgId);
     this.setState({server, orgId});
 
+    return { error: false, flag: true, data: {} };
+
     let https = true;
     if (server.match(/:8080$/)) https = false;
 

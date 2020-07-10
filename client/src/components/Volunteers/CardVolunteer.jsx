@@ -256,9 +256,9 @@ export class CardVolunteer extends Component {
         `/ambassadors/${volunteer.id}/${flag ? 'approve' : 'disapprove'}`,
         'PUT'
       );
-      notify_success('Volunteer has been ' + term);
+      notify_success('Ambassador has been ' + term);
     } catch (e) {
-      notify_error(e, 'Volunteer has NOT been ' + term + ' successfully.');
+      notify_error(e, 'Ambassador has NOT been ' + term + ' successfully.');
     }
     this.props.refer.setState({ saving: false });
 

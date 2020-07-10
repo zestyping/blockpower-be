@@ -92,7 +92,7 @@ async function suggestTriplers(req, res) {
     .match('a', 'Ambassador')
     .where('a.id', req.user.get('id'))
     .match('t', 'Tripler')
-    .whereRaw('NOT (a)-[:CLAIMS]->(t)')
+    .whereRaw('NOT ()-[:CLAIMS]->(t)')
     .whereRaw('distance(t.location, a.location) <= 10000') // distance in meters (10km)
     .return('t')
     .execute()
