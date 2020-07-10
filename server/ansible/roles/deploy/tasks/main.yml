@@ -23,10 +23,13 @@
   become: True
   become_user: "{{ user }}"
   npm:
-    name: forever
+    name: "{{ item }}"
     state: present
     global: True
     executable: "{{ npm_exe }}"
+  with_items:
+    - "forever"
+    - "babel-node"
 
 - name: Create symbolic links for Node and NPM
   file:
@@ -40,6 +43,7 @@
     - "npm"
     - "node"
     - "forever"
+    - "babel-node"
 
 - name: Create the main deploy directories
   file:
@@ -66,26 +70,12 @@
     dest: "/etc/systemd/system/{{ item.name }}.service"
   with_items: "{{ boot_scripts }}"
 
-- name: Install server NPM modules
+- name: Install NPM modules
   become: True
   become_user: "{{ user }}"
   npm:
     path: "{{ app_folder }}/server"
     executable: "{{ npm_exe }}"
-
-- name: Install client NPM modules
-  become: True
-  become_user: "{{ user }}"
-  npm:
-    path: "{{ app_folder }}/client"
-    executable: "{{ npm_exe }}"
-
-- name: Build static client
-  become: True
-  become_user: "{{ name }}"
-  shell: >
-    cd {{ app_folder }}/client && \
-    {{ npm_exe }} run build
 
 - name: Make sure API is running and enabled
   systemd:
