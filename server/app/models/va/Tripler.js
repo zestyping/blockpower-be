@@ -2,7 +2,7 @@ let enforceUnique = process.env.STRESS_TESTING !== 'true';
 
 module.exports = {
   id: {
-    type: 'uuid',
+    type: 'string',
     primary: true
   },
   first_name: {
@@ -13,7 +13,6 @@ module.exports = {
   date_of_birth: 'string',
   phone: {
     type: 'string',
-    required: true,
     unique: enforceUnique
   },
   email: 'string',  
@@ -30,5 +29,16 @@ module.exports = {
   created_at: {
     type: 'localdatetime',
     default: () => new Date,
+  },
+  knows: {
+    type: 'relationships',
+    relationship: 'KNOWS',
+    target: 'Tripler',
+    properties: {
+      distance: {
+        type: 'float'
+      }
+    },
+    eager: true
   }
 };
