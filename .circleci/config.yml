@@ -87,6 +87,64 @@ jobs:
             . env/bin/activate
             cd ~/repo/ansible/server
             ansible-playbook -i hosts deploy.yml --limit production_v1 --vault-password-file ~/repo/server/ansible/.vault-pass
+  staging_admin:
+    docker:
+      - image: circleci/python:3.6
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - deps-{{ checksum "~/repo/client/ansible/requirements.txt" }}
+      - run:
+          name: Install PIP Dependencies
+          command: |
+            python3 -m venv env
+            . env/bin/activate
+            pip install -r ~/repo/client/ansible/requirements.txt
+      - save_cache:
+          key: deps-{{ checksum "~/repo/client/ansible/requirements.txt" }}
+          paths:
+            - "env"
+      - run:
+          name: Setup Ansible Vault pass
+          command: |
+            echo $VAULT_PASS | tee ~/repo/client/ansible/.vault-pass
+      - run:
+          name: Deploy with Ansible
+          command: |
+            . env/bin/activate
+            cd ~/repo/client/ansible
+            ansible-playbook -i hosts deploy.yml --limit staging_v1 --vault-password-file ~/repo/client/ansible/.vault-pass
+  production_admin:
+    docker:
+      - image: circleci/python:3.6
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - deps-{{ checksum "~/repo/client/ansible/requirements.txt" }}
+      - run:
+          name: Install PIP Dependencies
+          command: |
+            python3 -m venv env
+            . env/bin/activate
+            pip install -r ~/repo/client/ansible/requirements.txt
+      - save_cache:
+          key: deps-{{ checksum "~/repo/client/ansible/requirements.txt" }}
+          paths:
+            - "env"
+      - run:
+          name: Setup Ansible Vault pass
+          command: |
+            echo $VAULT_PASS | tee ~/repo/client/ansible/.vault-pass
+      - run:
+          name: Deploy with Ansible
+          command: |
+            . env/bin/activate
+            cd ~/repo/client/ansible
+            ansible-playbook -i hosts deploy.yml --limit production_v1 --vault-password-file ~/repo/client/ansible/.vault-pass
 workflows:
   version: 2
   build-and-deploy:
@@ -100,6 +158,14 @@ workflows:
             branches:
               only: ambassador-stress
       - production_api:
+          filters:
+            branches:
+              only: ambassador
+      - staging_admin:
+          filters:
+            branches:
+              only: ambassador-stage
+      - production_admin:
           filters:
             branches:
               only: ambassador

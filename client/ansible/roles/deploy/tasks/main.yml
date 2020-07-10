@@ -20,7 +20,7 @@
     version: "{{ branch }}"
     force: True
     accept_hostkey: True
-  with_items: organizations
+  with_items: "{{ organizations }}"
 
 - name: Ensure Dotenv files are ready
   become: True
@@ -31,7 +31,7 @@
     owner: "{{ user }}"
     group: "{{ group }}"
     mode: 0644
-  with_items: organizations
+  with_items: "{{ organizations }}"
 
 - name: Install NPM modules
   become: True
@@ -39,15 +39,15 @@
   npm:
     path: "{{ app_folder }}/{{ item.slug }}/client"
     executable: "{{ npm_exe }}"
-  with_items: organizations
+  with_items: "{{ organizations }}"
 
-- name: Build static client
+- name: Build static clients
   become: True
   become_user: "{{ user }}"
   shell: >
     cd {{ app_folder }}/{{ item.slug }}/client && \
     {{ npm_exe }} run build
-  with_items: organizations
+  with_items: "{{ organizations }}"
 
 - name: Ensure main deploy directory
   become: True
@@ -68,7 +68,7 @@
     group: "{{ group }}"
     state: directory
     mode: 0755
-  with_items: organizations
+  with_items: "{{ organizations }}"
 
 - name: Ensure organizations admin deploy directories
   become: True
@@ -79,12 +79,13 @@
     group: "{{ group }}"
     state: directory
     mode: 0755
-  with_items: organizations
+  with_items: "{{ organizations }}"
 
 - name: Sync each build directory with exposed
   become: True
   become_user: "{{ user }}"
   synchronize:
-    src: "{{ app_folder }}/{{ item.slug }}/client/build"
-    dest: "{{ home_folder }}/clients/{{ item.slug }}/HelloVoterHQ"
-  with_items: organizations
+    src: "{{ app_folder }}/{{ item.slug }}/client/build/"
+    dest: "{{ home_folder }}/clients/{{ item.slug }}/HelloVoterHQ/"
+  with_items: "{{ organizations }}"
+  delegate_to: "{{ inventory_hostname }}"
