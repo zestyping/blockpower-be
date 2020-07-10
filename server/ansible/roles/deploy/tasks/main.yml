@@ -31,7 +31,7 @@
     - "forever"
     - "babel-node"
 
-- name: Create symbolic links for Node and NPM
+- name: Create symbolic links for Node binaries
   file:
     state: link
     src: "{{ node_bin }}/{{ item }}"
@@ -43,7 +43,6 @@
     - "npm"
     - "node"
     - "forever"
-    - "babel-node"
 
 - name: Create the main deploy directories
   file:
