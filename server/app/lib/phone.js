@@ -1,14 +1,12 @@
 import PhoneNumber from 'awesome-phonenumber';
 
-function normalize(phone) {
-  if (phone.substr(0, 2) === '+1') {
-    phone = phone.substr(2);
-  }
-  return phone.replace(/[^0-9xX]/g, '')
-}
 
 function international(phone) {
   return (new PhoneNumber(phone, 'US')).getNumber( 'international' );
+}
+
+function normalize(phone) {
+  return international(phone).replace(/[^0-9xX]/g, '')
 }
 
 module.exports = {

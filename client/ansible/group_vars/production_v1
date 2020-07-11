@@ -1,0 +1,9 @@
+### Evnironment
+env: "production"
+domain: "hellovoter.prod.colab.coop"
+branch: "ambassador"
+
+### Dotenv
+dotenv:
+  REACT_APP_VERSION: "$npm_package_version"
+  REACT_APP_NAME: "$npm_package_name"
