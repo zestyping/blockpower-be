@@ -7,7 +7,8 @@ import jwt from 'jsonwebtoken';
 import queryString from 'query-string';
 import ReactTooltip from 'react-tooltip';
 
-import { Header, Sidebar, LogoutDialog, Login, Loading } from './components';
+import { Header, Sidebar, LogoutDialog, Loading } from './components';
+import Login from './components/va/Login';
 import Routes from './routes/Routes';
 
 import 'typeface-roboto';

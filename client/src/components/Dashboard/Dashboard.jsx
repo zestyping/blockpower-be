@@ -61,6 +61,7 @@ export default class App extends Component {
 
     this.setState({ loading: true });
 
+    /*
     try {
       data = await _fetch(global, '/dashboard');
 
@@ -76,6 +77,7 @@ export default class App extends Component {
     } catch (e) {
       notify_error(e, 'Unable to load dashboard info.');
     }
+    */
 
     this.setState({ cards, data, loading: false });
   }

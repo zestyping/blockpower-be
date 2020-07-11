@@ -38,4 +38,5 @@ export const ov_config = {
   plaid_secret: getConfig('plaid_secret', false, null),
   plaid_public_key: getConfig('plaid_public_key', false, null),
   stripe_secret_key: getConfig('stripe_secret_key', false, null),
+  organization_name: getConfig('organization_name', false, 'unknown org name'),
 };
