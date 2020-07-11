@@ -4,6 +4,11 @@ import neode from '../app/lib/neode.js';
 import yargs from 'yargs';
 import parse from 'csv-parse';
 import fs from 'fs';
+import cliProgress from 'cli-progress';
+import { v4 as uuidv4 } from 'uuid';
+
+import { normalize } from '../app/lib/phone';
+import { geoCode } from '../app/lib/utils';
 
 const argv = yargs
                .scriptName("import.js")
@@ -25,6 +30,18 @@ const argv = yargs
                  }
                })
                .option({
+                 'latCol': {
+                   describe: 'column of the latitude',
+                   type: 'integer'
+                 }
+               })
+               .option({
+                 'longCol': {
+                   describe: 'column of the longitude',
+                   type: 'integer'
+                 }
+               })
+               .option({
                  'from': {
                    describe: 'parse from line N (starts at 1)',
                    type: 'number'
@@ -33,38 +50,63 @@ const argv = yargs
                .help()
                .argv
 
-function parseRecord(record) {
+function parseAddress(record) {
+  let arr = [];
+  if (record[7].trim().length > 0) arr.push(record[7].trim());
+  if (record[8].trim().length > 0) arr.push(record[8].trim());
+  return arr.join(',');
+}
+
+function parseZip(record) {
+  try {
+    return parseInt(record[12]);
+  }
+  catch(err) {
+    return record[12];
+  }
+}
+
+function parsePhone(record) {
+  let phone = record[3].trim().length !== 0 ? record[3].trim() : record[2].trim();
+  return phone.length > 0 ? normalize(phone) : null;
+}
+
+function parseLocation(record, argv) {
+  return {
+    latitude: argv.latCol ? parseFloat(record[parseInt(argv.latCol)]) : 0,
+    longitude: argv.longCol ? parseFloat(record[parseInt(argv.longCol)]) : 0,
+  };
+}
+
+async function parseRecord(record, argv) {
   let obj = {
-    id: record[0],
-    first_name: record[3],
-    last_name: record[4],
+    id: uuidv4(),
+    voter_id: record[1],
+    first_name: record[4],
+    last_name: record[5],
     address: JSON.stringify({
-      address1: record[7],
+      address1: parseAddress(record),
       city: record[10],
       state: record[11],
-      zip: record[12]
+      zip: parseZip(record)
     }),
-    location: {
-      latitude: record[98] ? parseFloat(record[98], 10) : 0.0,
-      longitude: record[99] ? parseFloat(record[99], 10) : 0.0
-    },
+    location: parseLocation(record, argv),
+    phone: parsePhone(record),
     status: 'unconfirmed'
+  };
+
+  if (obj.location.latitude === 0 || obj.location.longitude === 0) {
+    obj.location = await geoCode(JSON.parse(obj.address));
+    if (!obj.location) obj.location = { latitude: 0, longitude: 0};
   }
 
-
-  if (record[2] !== '') {
-    obj.phone = record[2]; // prefer cell phones
-  } else if (record[1] !== '') {
-    obj.phone = record[1];
-  }
-
-  return obj
+  return obj;
 }
 
 function parseEdge(record) {
   return {
-    tripler1_id: record[1],
-    tripler2_id: record[2],
+    tripler1_voter_id: record[1],
+    tripler2_voter_id: record[2],
     distance: record[4]
   }
 }
@@ -74,7 +116,15 @@ async function parseCsv(argv) {
 
   console.log('file loaded. starting parse.\n');
 
-  const parsed = parse(csvFile, { from_line: argv.from ? argv.from : 0 });
+  let startRow = argv.from ? argv.from : 2; // ignore header by default
+
+  const parsed = parse(csvFile, { from_line: startRow });
+
+  const bar1 = new cliProgress.SingleBar({
+    format: 'progress [{bar}] {percentage}% | {value}/{total}'
+  }, cliProgress.Presets.shades_classic);
+
+  bar1.start(csvFile.split('\n').length, startRow);
 
   for await (const record of parsed) {
     let parsedRecord = '';
@@ -83,12 +133,12 @@ async function parseCsv(argv) {
       let tripler1 = null;
       let tripler2 = null;
       try {
-        tripler1 = await neode.first('Tripler', 'id', parsedRecord.tripler1_id);
+        tripler1 = await neode.first('Tripler', 'voter_id', parsedRecord.tripler1_voter_id);
       } catch (err) {
         console.log('error finding tripler for relationship: ', err);
       }
       try {
-        tripler2 = await neode.first('Tripler', 'id', parsedRecord.tripler2_id);
+        tripler2 = await neode.first('Tripler', 'voter_id', parsedRecord.tripler2_voter_id);
       } catch (err) {
         console.log('error finding tripler for relationship: ', err);
       }
@@ -98,15 +148,21 @@ async function parseCsv(argv) {
         console.log('error creating relationship: ', err);
       }
     } else {
-      parsedRecord = parseRecord(record);
+      parsedRecord = await parseRecord(record, argv);
       try {
+        if (parsedRecord.phone) {
+          let existing_record = await neode.first('Tripler', 'phone', parsedRecord.phone);
+          if (existing_record) {
+            delete parsedRecord.phone;
+          }
+        }
         await neode.create('Tripler', parsedRecord);
       } catch (err) {
         console.log('error parsing: ', err);
       }
-    }
+    }    
 
-    process.stdout.write(`parsing ${record[0]}\n`);
+    bar1.increment();
   }
 
   console.log('\n.... done.\n');

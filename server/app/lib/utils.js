@@ -203,7 +203,7 @@ export async function geoCode(address) {
 
   let coordinates = pp.data[0][5].split(',');
   return {
-    longitude: coordinates[0],
-    latitude: coordinates[1]
+    longitude: parseFloat(coordinates[0]),
+    latitude: parseFloat(coordinates[1])
   };
 }

@@ -2,8 +2,12 @@ let enforceUnique = process.env.STRESS_TESTING !== 'true';
 
 module.exports = {
   id: {
-    type: 'string',
+    type: 'uuid',
     primary: true
+  },
+  voter_id: {
+    type: 'string',
+    unique: enforceUnique
   },
   first_name: {
     type: 'string',
