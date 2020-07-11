@@ -85,7 +85,7 @@ jobs:
           name: Deploy API with Ansible
           command: |
             . env/bin/activate
-            cd ~/repo/ansible/server
+            cd ~/repo/server/ansible
             ansible-playbook -i hosts deploy.yml --limit production_v1 --vault-password-file ~/repo/server/ansible/.vault-pass
   staging_admin:
     docker:
