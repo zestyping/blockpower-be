@@ -121,7 +121,7 @@ async function parseCsv(argv) {
   const parsed = parse(csvFile, { from_line: startRow });
 
   const bar1 = new cliProgress.SingleBar({
-    format: 'progress [{bar}] {percentage}% | {value}/{total}'
+    format: 'progress [{bar}] Elapsed: {duration_formatted} | ETA: {eta_formatted} | {percentage}% | {value}/{total}'
   }, cliProgress.Presets.shades_classic);
 
   bar1.start(csvFile.split('\n').length, startRow);
