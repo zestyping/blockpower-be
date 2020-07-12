@@ -299,44 +299,44 @@ async function deleteTripler(req, res) {
 
 module.exports = Router({mergeParams: true})
 .post('/triplers', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.');
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");;
+  if (!req.authenticated) return _401(res, 'Permission denied.');
+  if (!req.admin) return _403(res, "Permission denied.");;
   return createTripler(req, res);
 })
 .put('/triplers/:triplerId', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.');
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");;
+  if (!req.authenticated) return _401(res, 'Permission denied.');
+  if (!req.admin) return _403(res, "Permission denied.");;
   return updateTripler(req, res);
 })
 .put('/triplers/:triplerId/confirm', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.');
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");;
+  if (!req.authenticated) return _401(res, 'Permission denied.');
+  if (!req.admin) return _403(res, "Permission denied.");;
   return confirmTripler(req, res);
 })
 .get('/triplers', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.');
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");;
+  if (!req.authenticated) return _401(res, 'Permission denied.');
+  if (!req.admin) return _403(res, "Permission denied.");;
   return fetchAllTriplers(req, res);
 })
 .delete('/triplers/:triplerId', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.');
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");;
+  if (!req.authenticated) return _401(res, 'Permission denied.');
+  if (!req.admin) return _403(res, "Permission denied.");;
   return deleteTripler(req, res);
 })
 
 .get('/suggest-triplers', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.');
+  if (!req.authenticated) return _401(res, 'Permission denied.');
   return suggestTriplers(req, res);
 })
 .put('/triplers/:triplerId/start-confirm', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.');
+  if (!req.authenticated) return _401(res, 'Permission denied.');
   return startTriplerConfirmation(req, res);
 })
 .put('/triplers/:triplerId/remind', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.');
+  if (!req.authenticated) return _401(res, 'Permission denied.');
   return remindTripler(req, res);
 })
 .get('/triplers/:triplerId', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.');
+  if (!req.authenticated) return _401(res, 'Permission denied.');
   return fetchTripler(req, res);
 })
