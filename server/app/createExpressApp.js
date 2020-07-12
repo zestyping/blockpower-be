@@ -140,6 +140,8 @@ export function doExpressInit(log, db, qq, neode) {
       }
       else if (user) {
         req.user = user;
+        req.authenticated = true;
+        req.admin = user.get('admin');
       }      
     } catch (e) {
       console.warn(e);
