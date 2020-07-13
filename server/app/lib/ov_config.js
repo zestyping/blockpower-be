@@ -39,4 +39,7 @@ export const ov_config = {
   plaid_public_key: getConfig('plaid_public_key', false, null),
   stripe_secret_key: getConfig('stripe_secret_key', false, null),
   organization_name: getConfig('organization_name', false, 'unknown org name'),
+  make_admin_api: getConfig('make_admin_api', false, false),
+  ambassador_tripler_relation_max_distance: getConfig('ambassador_tripler_relation_max_distance', false, 10000),
+  suggest_tripler_limit: getConfig('suggest_tripler_limit', false, 1000)
 };

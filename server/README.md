@@ -44,6 +44,9 @@ For this server, configure an `.env` file. The following is a complete list of v
     STRESS_TESTING=
     LOG_REQUESTS=
     LOG_REQUEST_MAX_BODY_LENGTH=
+    MAKE_ADMIN_API=
+    AMBASSADOR_TRIPLER_RELATION_MAX_DISTANCE=
+    SUGGEST_TRIPLER_LIMIT=
 
 The meaning of each config item is as follows:
 
@@ -88,4 +91,6 @@ The meaning of each config item is as follows:
 * `STRESS_TESTING`: if set to true, this introduces changes in the code like non-enforcement of unique constraints to facilitate stress testing. You will have to drop neode schema to be able to do stress testing.
 * `LOG_REQUESTS`: if set to true, enable request/response body logging
 * `LOG_REQUEST_MAX_BODY_LENGTH`: maximum number of characters logged during request/response logging, default set to 1000
-
+* `MAKE_ADMIN_API`: flag to enable `PUT /admin` api which makes an ambassador amin, default set to false
+* `AMBASSADOR_TRIPLER_RELATION_MAX_DISTANCE`: distance in meters to decide if a tripler can be suggested to ambassador, default set to 10000
+* `SUGGEST_TRIPLER_LIMIT`: maximum number of triplers returned by suggest-triplers api, default set to 1000

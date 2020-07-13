@@ -14,6 +14,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { serializeAmbassador, serializeTripler } from './serializers';
 import sms from '../../../../lib/sms';
+import { ov_config } from '../../../../lib/ov_config';
 
 async function createAmbassador(req, res) {
   let new_ambassador = null;
@@ -403,19 +404,22 @@ module.exports = Router({mergeParams: true})
   return signup(req, res);
 })
 .get('/ambassadors/current', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
+  if (Object.keys(req.user).length === 0 && req.user.constructor === Object) {
+    return fetchCurrentAmbassador(req, res);
+  }
+  if (!req.authenticated) return _401(res, 'Permission denied.')
   return fetchCurrentAmbassador(req, res);
 })
 .put('/ambassadors/current', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
+  if (!req.authenticated) return _401(res, 'Permission denied.')
   return updateCurrentAmbassador(req, res);
 })
 .put('/ambassadors/current/triplers', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
+  if (!req.authenticated) return _401(res, 'Permission denied.')
   return claimTriplers(req, res);
 })
 .get('/ambassadors/current/triplers', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
+  if (!req.authenticated) return _401(res, 'Permission denied.')
   return claimedTriplers(req, res);
 })
 .get('/ambassadors/exists', (req, res) => {
@@ -423,47 +427,48 @@ module.exports = Router({mergeParams: true})
 })
 
 .post('/ambassadors', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!req.admin) return _403(res, "Permission denied.");
   return createAmbassador(req, res);
 })
 .get('/ambassadors', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!req.admin) return _403(res, "Permission denied.");
   return fetchAmbassadors(req, res);
 })
 .get('/ambassadors/count', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!req.admin) return _403(res, "Permission denied.");
   return countAmbassadors(req, res);
 })
 .get('/ambassadors/:ambassadorId', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!req.admin) return _403(res, "Permission denied.");
   return fetchAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId/approve', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!req.admin) return _403(res, "Permission denied.");
   return approveAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId/disapprove', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!req.admin) return _403(res, "Permission denied.");
   return disapproveAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId/admin', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
+  if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.isLocal) return _403(res, "Permission denied.");
+  if (ov_config.make_admin_api !== 'true') return _403(res, 'Permission denied.');
   return makeAdmin(req, res);
 })
 .put('/ambassadors/:ambassadorId', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!req.admin) return _403(res, "Permission denied.");
   return updateAmbassador(req, res);
 })
 .delete('/ambassadors/:ambassadorId', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
-  if (!req.user.get('admin')) return _403(res, "Permission denied.");
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!req.admin) return _403(res, "Permission denied.");
   return deleteAmbassador(req, res);
 })

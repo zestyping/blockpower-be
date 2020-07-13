@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-import neode from '../app/lib/neode.js';
+import neode from '../../app/lib/neode.js';
 import yargs from 'yargs';
 import parse from 'csv-parse';
 import fs from 'fs';
 import cliProgress from 'cli-progress';
 import { v4 as uuidv4 } from 'uuid';
 
-import { normalize } from '../app/lib/phone';
-import { geoCode } from '../app/lib/utils';
+import { normalize } from '../../app/lib/phone';
+import { geoCode } from '../../app/lib/utils';
 
 const argv = yargs
                .scriptName("import.js")
@@ -67,7 +67,7 @@ function parseZip(record) {
 }
 
 function parsePhone(record) {
-  let phone = record[3].trim().length !== 0 ? record[3].trim() : record[2].trim();
+  let phone = record[2].trim().length !== 0 ? record[2].trim() : record[1].trim();
   return phone.length > 0 ? normalize(phone) : null;
 }
 
@@ -81,9 +81,9 @@ function parseLocation(record, argv) {
 async function parseRecord(record, argv) {
   let obj = {
     id: uuidv4(),
-    voter_id: record[1],
-    first_name: record[4],
-    last_name: record[5],
+    voter_id: record[0],
+    first_name: record[3],
+    last_name: record[4],
     address: JSON.stringify({
       address1: parseAddress(record),
       city: record[10],
