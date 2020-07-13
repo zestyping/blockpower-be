@@ -95,6 +95,7 @@ async function suggestTriplers(req, res) {
     .whereRaw('NOT ()-[:CLAIMS]->(t)')
     .whereRaw('distance(t.location, a.location) <= 10000') // distance in meters (10km)
     .return('t')
+    .limit(1000)
     .execute()
 
   let models = [];
