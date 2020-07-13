@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import neode from '../app/lib/neode.js';
+import neode from '../../app/lib/neode.js';
 import yargs from 'yargs';
 import parse from 'csv-parse';
 import fs from 'fs';
