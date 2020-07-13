@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-import neode from '../app/lib/neode.js';
+import neode from '../../app/lib/neode.js';
 import yargs from 'yargs';
 import parse from 'csv-parse';
 import fs from 'fs';
 import cliProgress from 'cli-progress';
 import { v4 as uuidv4 } from 'uuid';
 
-import { normalize } from '../app/lib/phone';
-import { geoCode } from '../app/lib/utils';
+import { normalize } from '../../app/lib/phone';
+import { geoCode } from '../../app/lib/utils';
 
 const argv = yargs
                .scriptName("import.js")
