@@ -93,9 +93,9 @@ async function suggestTriplers(req, res) {
     .where('a.id', req.user.get('id'))
     .match('t', 'Tripler')
     .whereRaw('NOT ()-[:CLAIMS]->(t)')
-    .whereRaw('distance(t.location, a.location) <= 10000') // distance in meters (10km)
+    .whereRaw(`distance(t.location, a.location) <= ${ov_config.ambassador_tripler_relation_max_distance}`) // distance in meters (10km)
     .return('t')
-    .limit(1000)
+    .limit(ov_config.suggest_tripler_limit)
     .execute()
 
   let models = [];
