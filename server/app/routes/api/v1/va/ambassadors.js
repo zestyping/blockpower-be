@@ -458,6 +458,7 @@ module.exports = Router({mergeParams: true})
 .put('/ambassadors/:ambassadorId/admin', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.isLocal) return _403(res, "Permission denied.");
+  if (process.env.MAKE_ADMIN_API !== 'true') return _403(res, 'Permission denied.');
   return makeAdmin(req, res);
 })
 .put('/ambassadors/:ambassadorId', (req, res) => {

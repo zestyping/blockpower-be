@@ -87,6 +87,7 @@ dotenv:
   AMBASSADOR_APPROVED_MESSAGE: "Congratulations, {ambassador_first_name}, you're ready to start recruiting triplers and earning money! GO to {ambassador_landing_page} to start looking for people from {organization_name}'s list."
   LOG_REQUESTS: "true"
   LOG_REQUEST_MAX_BODY_LENGTH: "1000"
+  MAKE_ADMIN_API: "true"
 
 ### Systemd
 boot_scripts:
