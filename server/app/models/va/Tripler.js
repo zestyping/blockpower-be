@@ -5,6 +5,10 @@ module.exports = {
     type: 'uuid',
     primary: true
   },
+  voter_id: {
+    type: 'string',
+    unique: enforceUnique
+  },
   first_name: {
     type: 'string',
     required: true
@@ -13,7 +17,6 @@ module.exports = {
   date_of_birth: 'string',
   phone: {
     type: 'string',
-    required: true,
     unique: enforceUnique
   },
   email: 'string',  
@@ -30,5 +33,16 @@ module.exports = {
   created_at: {
     type: 'localdatetime',
     default: () => new Date,
+  },
+  knows: {
+    type: 'relationships',
+    relationship: 'KNOWS',
+    target: 'Tripler',
+    properties: {
+      distance: {
+        type: 'float'
+      }
+    },
+    eager: true
   }
 };
