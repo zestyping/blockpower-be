@@ -59,6 +59,7 @@ async function createAmbassador(req, res) {
       approved: false,
       locked: false,
       signup_completed: false,
+      onboarding_completed: false,
       location: {
         latitude: parseFloat(coordinates.latitude, 10),
         longitude: parseFloat(coordinates.longitude, 10)
@@ -89,6 +90,7 @@ async function fetchAmbassadors(req, res) {
   if (req.query.approved) query.approved = req.query.approved.toLowerCase() === 'true';  
   if (req.query.locked) query.locked = req.query.locked.toLowerCase() === 'true';
   if (req.query['signup-completed']) query.signup_completed = req.query['signup-completed'] === 'true';
+  if (req.query['onboarding-completed']) query.onboarding_completed = req.query['onboarding-completed'] === 'true';
 
   const collection = await req.neode.model('Ambassador').all(query);
   let models = [];
@@ -217,6 +219,7 @@ async function signup(req, res) {
       approved: false,
       locked: false,
       signup_completed: true,
+      onboarding_completed: false,
       location: {
         latitude: parseFloat(coordinates.latitude, 10),
         longitude: parseFloat(coordinates.longitude, 10)
@@ -393,6 +396,12 @@ async function claimTriplers(req, res) {
   return _204(res);
 }
 
+async function completeOnboarding(req, res) {
+  let found = req.user;
+  let updated = await found.update({onboarding_completed: true});
+  return res.json(serializeAmbassador(updated));
+}
+
 function claimedTriplers(req, res) {
   let ambassador = req.user;
 
@@ -430,6 +439,10 @@ module.exports = Router({mergeParams: true})
 })
 .get('/ambassadors/exists', (req, res) => {
   return checkAmbassador(req, res);
+})
+.put('/ambassadors/current/complete-onboarding', (req, res) => {
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  return completeOnboarding(req, res);
 })
 
 .post('/ambassadors', (req, res) => {
