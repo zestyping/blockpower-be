@@ -18,7 +18,7 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import styles from '../../app.styles';
 
 const SERVER_URL =
-  `https://${process.env.REACT_APP_API_DOMAIN}/HelloVoterHQ/${process.env.REACT_APP_ORGID}/api/v1`
+  `${process.env.REACT_APP_PROTOCOL}://${process.env.REACT_APP_API_DOMAIN}/HelloVoterHQ/${process.env.REACT_APP_ORGID}/api/v1`
 
 const LOGIN_URL = `${SERVER_URL}/hello`
 
@@ -86,7 +86,7 @@ class Login extends Component {
         headers: this.addAuth()
       })
       let data = await res.json()
-      let smOauthUrl = `${res.headers.get('x-sm-oauth-url')}/${sm}/?aud=${REACT_APP_AUDIANCE}&app=${REACT_APP_KEY}`
+      let smOauthUrl = `${res.headers.get('x-sm-oauth-url')}/${sm}/?aud=${process.env.REACT_APP_AUDIANCE}&app=${process.env.REACT_APP_KEY}`
       smOauthUrl += ['&local=', true].join('')
       return {
         data,
@@ -122,7 +122,6 @@ class Login extends Component {
               <a target="_blank" rel="noopener noreferrer" href="https://raw.githubusercontent.com/OurVoiceUSA/HelloVoter/master/docs/Terms-of-Service.md">Terms of Service</a>
               &nbsp; || &nbsp;
             </center>
-            <LoginOption global={global} refer={this} />
             {(process.env.REACT_APP_NO_AUTH)&&
             <Button
               type="submit"
