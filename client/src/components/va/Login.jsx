@@ -56,7 +56,7 @@ class Login extends Component {
 
     if (token) {
       localStorage.setItem('jwt', token);
-      setTimeout(() => {window.location.href = '/admin/#/'}, 500);
+      setTimeout(() => {window.location.href = process.env.REACT_APP_SUBPATH + '/admin/#/'}, 500);
       setTimeout(() => {window.location.reload()}, 1500);
     }
   }

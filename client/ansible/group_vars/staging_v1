@@ -12,3 +12,4 @@ dotenv:
   REACT_APP_API_DOMAIN: "hellovoter.api.stage.colab.coop"
   REACT_APP_AUDIANCE: "hellovoter.stage.colab.coop/stage/admin"
   REACT_APP_KEY: "auth"
+  REACT_APP_SUBPATH: "stage"
