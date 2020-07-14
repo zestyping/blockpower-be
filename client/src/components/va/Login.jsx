@@ -87,7 +87,7 @@ class Login extends Component {
       })
       let data = await res.json()
       let smOauthUrl = `${res.headers.get('x-sm-oauth-url')}/${sm}/?aud=${process.env.REACT_APP_AUDIANCE}&app=${process.env.REACT_APP_KEY}`
-      smOauthUrl += ['&local=', true].join('')
+      if (process.env.NODE_ENV === 'development') smOauthUrl += ['&local=', true].join('')
       return {
         data,
         smOauthUrl
