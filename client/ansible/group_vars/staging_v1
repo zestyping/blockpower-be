@@ -5,5 +5,9 @@ branch: "ambassador-stage"
 
 ### Dotenv
 dotenv:
+  REACT_APP_ORGID: "VT6WX8A"
   REACT_APP_VERSION: "$npm_package_version"
   REACT_APP_NAME: "$npm_package_name"
+  REACT_APP_API_DOMAIN: "hellovoter.api.stage.colab.coop"
+  REACT_APP_AUDIANCE: "hellovoter.stage.colab.coop/stage/admin"
+  REACT_APP_KEY: "auth"

@@ -102,8 +102,6 @@ export default class App extends Component {
       <RootLoader flag={this.state.loading} func={() => this._loadData()}>
         <Router>
           <div>
-          <InviteSomeone refer={this} />
-
             Search:{' '}
             <input
               type="text"
@@ -119,12 +117,6 @@ export default class App extends Component {
               Approved ({ready.length})
             </Link>
             &nbsp;-&nbsp;
-            <Link
-              to={'/volunteers/incomplete'}
-              onClick={() => this.setState({ pageNum: 1 })}
-            >
-              Not completed signup ({incomplete.length})
-            </Link>
             <Link
               to={'/volunteers/unassigned'}
               onClick={() => this.setState({ pageNum: 1 })}
