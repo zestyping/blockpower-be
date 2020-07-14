@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 
 import Loading from '../Loading';
 
-import Select from 'react-select';
-
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -18,6 +16,11 @@ import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 
 import styles from '../../app.styles';
+
+const SERVER_URL =
+  `https://${process.env.REACT_APP_API_DOMAIN}/HelloVoterHQ/${process.env.REACT_APP_ORGID}/api/v1`
+
+const LOGIN_URL = `${SERVER_URL}/hello`
 
 class Login extends Component {
 
@@ -43,7 +46,6 @@ class Login extends Component {
       dev: (process.env.NODE_ENV === 'development'), // default to true if development
       classes: props.classes,
       token: token,
-      selectedLoginOption: loginOptions[0],
       loginOptions: loginOptions,
     };
 
@@ -59,8 +61,45 @@ class Login extends Component {
     }
   }
 
+  getToken () {
+    return localStorage.getItem('jwt')
+  }
+
+  addAuth (headers) {
+    const token = this.getToken()
+    return {
+      ...(headers ? headers : null),
+      "Authorization": `Bearer ${token ? token : 'of the one ring'}`,
+      "Content-Type": "application/json"
+    }
+  }
+
+  async login(sm) {
+    const data = await this.apiLogIn(sm);
+    if (data) window.location.href = data.smOauthUrl
+  }
+
+  async apiLogIn(sm) {
+    try {
+      let res = await fetch(LOGIN_URL, {
+        method: 'POST',
+        headers: this.addAuth()
+      })
+      let data = await res.json()
+      let smOauthUrl = `${res.headers.get('x-sm-oauth-url')}/${sm}/?aud=${REACT_APP_AUDIANCE}&app=${REACT_APP_KEY}`
+      smOauthUrl += ['&local=', true].join('')
+      return {
+        data,
+        smOauthUrl
+      }
+    } catch(e) {
+      console.warn(e)
+      return false
+    }
+  }
+
   render() {
-    const { global, classes, token, loginOptions, selectedLoginOption } = this.state;
+    const { global, classes, token, loginOptions } = this.state;
 
     if (token) return (<Loading classes={classes} />);
 
@@ -103,7 +142,7 @@ class Login extends Component {
                 variant="contained"
                 color="primary"
                 className={classes.submit}
-                onClick={() => this.setState({target: 'google'})}
+                onClick={() => this.login('gm')}
               >
                 Google Sign In
               </Button>
@@ -112,7 +151,7 @@ class Login extends Component {
                 fullWidth
                 variant="contained"
                 color="secondary"
-                onClick={() => this.setState({target: 'facebook'})}
+                onClick={() => this.login('fm')}
                 className={classes.submit}
               >
                 Facebook Sign In
@@ -136,39 +175,6 @@ class Login extends Component {
         </center>
       </main>
     );
-  }
-}
-
-const LoginOption = props => {
-  switch (props.refer.state.selectedLoginOption.value) {
-    case 'org':
-      return (
-        <div>
-          <FormControl margin="normal" required fullWidth>
-            <InputLabel htmlFor="domain">Enter your Organization ID. Example: NCC1701</InputLabel>
-            <Input id="orgId" name="orgId" autoComplete="orgId" autoFocus defaultValue={props.global.state.orgId} />
-          </FormControl>
-          <FormControlLabel
-            control={<Checkbox value="ack" color="primary" required />}
-            label="By checking this box you acknowledge that you have read and agreed to our Terms of Service."
-          />
-        </div>
-      );
-    case 'server':
-      return (
-        <div>
-          <FormControl margin="normal" required fullWidth>
-            <InputLabel htmlFor="domain">Server Address</InputLabel>
-            <Input id="server" name="server" autoComplete="server" autoFocus defaultValue={props.global.state.qserver} />
-          </FormControl>
-          <FormControlLabel
-            control={<Checkbox value="ack" color="primary" required />}
-            label="By checking this box you acknowledge that the server to which you are connecting is not affiliated with Our Voice USA and the data you send and receive is governed by that server's Terms of Service."
-          />
-        </div>
-      );
-    default:
-      return null;
   }
 }
 
