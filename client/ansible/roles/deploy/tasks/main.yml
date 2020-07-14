@@ -74,7 +74,7 @@
   become: True
   become_user: "{{ user }}"
   file:
-    path: "{{ home_folder }}/clients/{{ item.slug }}/admin"
+    path: "{{ home_folder }}/clients/{{ item.slug }}/HelloVoterHQ"
     owner: "{{ user }}"
     group: "{{ group }}"
     state: directory
@@ -86,6 +86,6 @@
   become_user: "{{ user }}"
   synchronize:
     src: "{{ app_folder }}/{{ item.slug }}/client/build/"
-    dest: "{{ home_folder }}/clients/{{ item.slug }}/admin/"
+    dest: "{{ home_folder }}/clients/{{ item.slug }}/HelloVoterHQ/"
   with_items: "{{ organizations }}"
   delegate_to: "{{ inventory_hostname }}"
