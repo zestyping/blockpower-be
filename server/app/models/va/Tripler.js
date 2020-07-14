@@ -44,5 +44,12 @@ module.exports = {
       }
     },
     eager: true
+  },
+  claimed: {
+    type: 'node',
+    target: 'Ambassador',
+    relationship: 'CLAIMS',
+    direction: 'in',
+    eager: true
   }
 };

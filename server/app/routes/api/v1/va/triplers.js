@@ -228,6 +228,8 @@ async function startTriplerConfirmation(req, res) {
 async function remindTripler(req, res) {
   let ambassador = req.user;
   let tripler = null;
+
+  // TODO get ambassador directory from tripler, and then compare
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
   
   if (!tripler) {
