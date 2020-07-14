@@ -84,11 +84,12 @@ dotenv:
   TWILIO_SUPPORT_PROXY_RESPONSE: "true"
   ORGANIZATION_NAME: "BlockPower"
   AMBASSADOR_LANDING_PAGE: "https://blockpower.vote"
-  TRIPLER_CONFIRMATION_MESSAGE: "Congratulations on signing up to be a vote tripler with {ambassador_first_name} {ambassador_last_name}. By encouraging {triplee_1}, {triplee_2}, and {triplee_3} to vote, you're helping build real Black political power. Both {ambassador_first_name} and {organization_name} will help you along the way. Ready to go? Reply YES if you're in!"
+  TRIPLER_CONFIRMATION_MESSAGE: "Congrats {tripler_first_name}, on signing up to be a vote tripler with {ambassador_first_name} {ambassador_last_name}! By encouraging {triplee_1}, {triplee_2}, and {triplee_3} to vote, you're helping build real Black political power. Both {ambassador_first_name} and {organization_name} will help you along the way. Ready to go? Reply YES if you're in!"
   TRIPLER_REMINDER_MESSAGE: "Hey {tripler_first_name} just wanted to check-in. Have you had a chance to talk to {triplee_1}, {triplee_2}, and {triplee_3} about voting? Let me know if you need any help or have questions, otherwise you can just reply YES"
   AMBASSADOR_APPROVED_MESSAGE: "Congratulations, {ambassador_first_name}, you're ready to start recruiting triplers and earning money! GO to {ambassador_landing_page} to start looking for people from {organization_name}'s list."
   LOG_REQUESTS: "true"
   LOG_REQUEST_MAX_BODY_LENGTH: "1000"
+  LOGOPS_LEVEL: "INFO"
   MAKE_ADMIN_API: "false"
   AMBASSADOR_TRIPLER_RELATION_MAX_DISTANCE: 10000
   SUGGEST_TRIPLER_LIMIT: 1000

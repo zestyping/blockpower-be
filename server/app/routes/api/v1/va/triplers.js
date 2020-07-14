@@ -212,7 +212,7 @@ async function startTriplerConfirmation(req, res) {
                                       ambassador_first_name: ambassador.get('first_name'),
                                       ambassador_last_name: ambassador.get('last_name') || '',
                                       organization_name: process.env.ORGANIZATION_NAME,
-                                      tripler: tripler.get('first_name'), 
+                                      tripler_first_name: tripler.get('first_name'), 
                                       triplee_1: triplees[0],
                                       triplee_2: triplees[1],
                                       triplee_3: triplees[2]
@@ -254,7 +254,7 @@ async function remindTripler(req, res) {
                                       ambassador_first_name: ambassador.get('first_name'),
                                       ambassador_last_name: ambassador.get('last_name') || '',
                                       organization_name: process.env.ORGANIZATION_NAME,
-                                      tripler: tripler.get('first_name'),
+                                      tripler_first_name: tripler.get('first_name'),
                                       triplee_1: triplees[0],
                                       triplee_2: triplees[1],
                                       triplee_3: triplees[2]
