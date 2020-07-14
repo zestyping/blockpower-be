@@ -98,6 +98,6 @@
   become_user: "{{ user }}"
   synchronize:
     src: "{{ app_folder }}/{{ item.slug }}/client/build/"
-    dest: "{{ home_folder }}/clients/{{ item.slug }}/HelloVoterHQ/"
+    dest: "{{ home_folder }}/clients/{{ item.slug }}/admin/"
   with_items: "{{ organizations }}"
   delegate_to: "{{ inventory_hostname }}"
