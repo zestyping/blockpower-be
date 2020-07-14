@@ -14,6 +14,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { serializeAmbassador, serializeTripler } from './serializers';
 import sms from '../../../../lib/sms';
+import { ov_config } from '../../../../lib/ov_config';
 
 async function createAmbassador(req, res) {
   let new_ambassador = null;
@@ -458,6 +459,7 @@ module.exports = Router({mergeParams: true})
 .put('/ambassadors/:ambassadorId/admin', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.isLocal) return _403(res, "Permission denied.");
+  if (ov_config.make_admin_api !== 'true') return _403(res, 'Permission denied.');
   return makeAdmin(req, res);
 })
 .put('/ambassadors/:ambassadorId', (req, res) => {
