@@ -77,7 +77,7 @@ dotenv:
   WA_BASE: "{{ domain }}"
   TWILIO_ACCOUNT_SID: "{{ twilio_acccount_sid }}"
   TWILIO_AUTH_TOKEN: "{{ twilio_auth_token }}"
-  TWILIO_FROM: "+12058528537"
+  TWILIO_FROM: "+12052936020"
   TWILIO_DISABLE: "false"
   TWILIO_SUPPORT_PROXY_RESPONSE: "true"
   ORGANIZATION_NAME: "BlockPower"
