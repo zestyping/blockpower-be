@@ -298,7 +298,7 @@ export class CardVolunteer extends Component {
         alignItems="flex-start"
         onClick={() => {
           this.props.refer.setState({ thisVolunteer: volunteer });
-          window.location.href = "/admin/#/volunteers/view/"+volunteer.id;
+          window.location.href = "#/volunteers/view/"+volunteer.id;
         }}>
         <ListItemAvatar>
           <Avatar alt={volunteer.first_name} src={volunteer.avatar} />
