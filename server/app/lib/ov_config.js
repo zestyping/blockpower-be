@@ -41,5 +41,6 @@ export const ov_config = {
   organization_name: getConfig('organization_name', false, 'unknown org name'),
   make_admin_api: getConfig('make_admin_api', false, false),
   ambassador_tripler_relation_max_distance: getConfig('ambassador_tripler_relation_max_distance', false, 10000),
-  suggest_tripler_limit: getConfig('suggest_tripler_limit', false, 1000)
+  suggest_tripler_limit: getConfig('suggest_tripler_limit', false, 1000),
+  claim_tripler_limit: getConfig('claim_tripler_limit', false, 12)
 };

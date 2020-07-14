@@ -13,7 +13,7 @@ function _displayName(first_name, last_name) {
 
 function serializeAmbassador(ambassador) {
   let obj = {};
-  ['id', 'external_id', 'first_name', 'last_name', 'phone', 'email', 'location', 'signup_completed', 'approved', 'locked'].forEach(x => obj[x] = ambassador.get(x));
+  ['id', 'external_id', 'first_name', 'last_name', 'phone', 'email', 'location', 'signup_completed', 'onboarding_completed', 'approved', 'locked'].forEach(x => obj[x] = ambassador.get(x));
   obj['address'] = !!ambassador.get('address') ? JSON.parse(ambassador.get('address')) : null;
   obj['display_address'] = !!obj['address'] ? _displayAddress(obj['address']) : null;
   obj['display_name'] = _displayName(ambassador.get('first_name'), ambassador.get('last_name'));

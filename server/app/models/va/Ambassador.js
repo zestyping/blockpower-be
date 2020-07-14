@@ -49,6 +49,10 @@ module.exports = {
     type: 'boolean',
     default: false
   },
+  onboarding_completed: {
+    type: 'boolean',
+    default: false
+  },
   approved: {
     type: 'boolean',
     default: false
