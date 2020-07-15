@@ -2,9 +2,9 @@ import { Router } from 'express';
 import plaid from 'plaid';
 import stripe from 'stripe';
 import {
-  _400
-} from '../../../lib/utils';
-import { ov_config } from '../../../lib/ov_config';
+  _400, _401
+} from '../../../../lib/utils';
+import { ov_config } from '../../../../lib/ov_config';
 
 module.exports = Router({mergeParams: true})
 .post('/payout/account/token/exchange', async (req, res) => {
@@ -12,6 +12,8 @@ module.exports = Router({mergeParams: true})
 });
 
 async function exchangeToken(req, res) {
+  if (!req.authenticated) return _401(res, 'Permission denied.');
+  if (!req.user.get('email')) return _400(res, "Incomplete user data 'email'.");
   if (!req.body.token) return _400(res, "Invalid value to parameter 'token'.");
   if (!req.body.account_id) return _400(res, "Invalid value to parameter 'account_id'.");
 
@@ -19,7 +21,7 @@ async function exchangeToken(req, res) {
     ov_config.plaid_client_id,
     ov_config.plaid_secret,
     ov_config.plaid_public_key,
-    plaid.environments.sandbox,
+    plaid.environments[ov_config.plaid_environment]
   );
 
   let plaidTokenRes;
@@ -43,13 +45,13 @@ async function exchangeToken(req, res) {
   try {
     customer = await stripe(ov_config.stripe_secret_key).customers.create({
       source: bankAccountToken,
-      email: 'test_user@example.com',
+      email: req.user.get('email'),
     });
   } catch (err) {
     return _400(res, err);
   }
-  console.log("customer: " + JSON.stringify(customer));
-
+  
+  req.user.update({ payout_provider: 'stripe', payout_account_id: customer.id, payout_additional_data: customer.sources.data[0].last4 });
   return res.json({});
 }
 

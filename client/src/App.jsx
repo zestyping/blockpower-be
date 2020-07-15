@@ -7,7 +7,8 @@ import jwt from 'jsonwebtoken';
 import queryString from 'query-string';
 import ReactTooltip from 'react-tooltip';
 
-import { Header, Sidebar, LogoutDialog, Login, Loading } from './components';
+import { Header, Sidebar, LogoutDialog, Loading } from './components';
+import Login from './components/va/Login';
 import Routes from './routes/Routes';
 
 import 'typeface-roboto';
@@ -151,18 +152,9 @@ class App extends Component {
   };
 
   doSave = async (event, target) => {
-    let server;
+    let server = process.env.REACT_APP_API_DOMAIN;
     let orgId;
 
-    if (event.target.orgId) {
-      orgId = event.target.orgId.value;
-      let place = orgId.substring(0,2).toLowerCase();
-      server = 'gotv-'+place+'.ourvoiceusa.org';
-    } else if (event.target.server) {
-      server = event.target.server.value;
-    } else {
-      server = window.location.host.replace(':3000',':8080');
-    }
     if (process.env.REACT_APP_NO_AUTH) {
       // TODO: ask developer for username and generate a token with it
       let token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im5vYXV0aDpsb2NhbHVzZXIiLCJuYW1lIjoiTG9jYWwgVXNlciIsImVtYWlsIjoibG9jYWxAbG9jYWxob3N0IiwiaXNzIjoib3Vydm9pY2V1c2Eub3JnIiwiaWF0IjoxLCJleHAiOjIsImRpc2NsYWltZXIiOiJCbGFoIGJsYWggZGlzY2xhaW1lciJ9.qa5K2pgi1uLYkV7jP3aNvazcchvgBD8RwhdG6Q86GxlvusQx7nNCTr3LrAnn6pxDJxNidJoqjD3Ie77jj5hWK_-lbgtHMLhNXGExDxI8pQ0I5ZnAV_5pDu7vARinoy3mctQWFO2pIQSu8KzQc7eQ90IQZBseE7nQV-ugZRfK8Teo_48COcJxGxqwCNCO80G_JzBoif2xaWRb2i2n0qeSUKfXN4Fwy46JOiHFnL9yOS5s54tB6doe1wFJNYps8eVQbVkTBL1I9PQP4Gs-BmzND0vcQaczTdu_J50uvLL5do1FHb48lRhrA44ZrYv3EVwNsJXZtH3MbasxgPrZhl69VQ';

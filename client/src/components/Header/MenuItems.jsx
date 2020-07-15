@@ -32,22 +32,6 @@ const MenuItems = ({ assignments, handleClickLogout, experimental }) => (
           <ListItemText primary="Dashboard" />
         </ListItem>
       </Link>
-      <Link to={'/qrcode/'}>
-        <ListItem button>
-          <ListItemIcon>
-            <AspectRatioIcon />
-          </ListItemIcon>
-          <ListItemText primary="QR Codes" />
-        </ListItem>
-      </Link>
-      <Link to={'/import/'}>
-        <ListItem button>
-          <ListItemIcon>
-            <PresentToAllIcon />
-          </ListItemIcon>
-          <ListItemText primary="Import Data" />
-        </ListItem>
-      </Link>
     </List>
     <Divider />
     <List>
@@ -68,18 +52,6 @@ const MenuItems = ({ assignments, handleClickLogout, experimental }) => (
           <ListItemText primary="About" />
         </ListItem>
       </Link>
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://github.com/OurVoiceUSA/HelloVoter/tree/master/docs/"
-      >
-        <ListItem button>
-          <ListItemIcon>
-            <HelpIcon />
-          </ListItemIcon>
-          <ListItemText primary="Help" />
-        </ListItem>
-      </a>
     </List>
   </Fragment>
 );

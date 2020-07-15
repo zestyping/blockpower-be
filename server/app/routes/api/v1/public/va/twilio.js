@@ -5,6 +5,8 @@ import { normalize } from '../../../../../lib/phone';
 module.exports = Router({mergeParams: true})
 .post('/sms/receive', async (req, res) => {
   
+  // TODO security check needed to confirm message came from twilio
+
   let sender = normalize(req.body.From);
   let response = req.body.Body.toLowerCase();
   
@@ -17,20 +19,24 @@ module.exports = Router({mergeParams: true})
   }
 
   let tripler = await triplerSvc.findByPhone(sender);
-  if (tripler) {
-    if (response !== 'yes') {
-      req.logger.error("Tripler has not responded yes", sender, tripler.get('id'), response);
-      return res.send({});
+  try {
+    if (tripler) {
+      if (response === 'yes') {
+        await triplerSvc.confirmTripler(tripler.get('id'));
+      }
+      else if (response === 'no') {
+        await triplerSvc.detachTripler(tripler.get('id'));
+      }
+      else {
+        await triplerSvc.reconfirmTripler(tripler.get('id'));
+      }
     }
-
-    try {
-      await triplerSvc.confirmTripler(tripler.get('id'));
-    } catch(err) {
-      req.logger.error("Invalid tripler or status, cannot confirm", sender, tripler.get('id'), err);
+    else {
+      req.logger.error("Tripler not found", sender);
     }
   }
-  else {
-    req.logger.error("Tripler not found", sender);
+  catch(err) {
+    req.logger.error(`Error while processing response ${response} from sender ${sender}: ${err}`);
   }
 
   return res.send({});

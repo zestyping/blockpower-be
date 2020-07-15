@@ -34,11 +34,18 @@ export const ov_config = {
   purge_import_records: getConfig("purge_import_records", false, null),
   wabase: getConfig("wabase", false, 'https://apps.ourvoiceusa.org'),
   DEBUG: getConfig("debug", false, false),
-  plaid_client_id: getConfig('plaid_client_id', false, null),
-  plaid_secret: getConfig('plaid_secret', false, null),
-  plaid_public_key: getConfig('plaid_public_key', false, null),
-  stripe_secret_key: getConfig('stripe_secret_key', false, null),
+  plaid_client_id: getConfig('plaid_client_id', true, null),
+  plaid_secret: getConfig('plaid_secret', true, null),
+  plaid_public_key: getConfig('plaid_public_key', true, null),
+  plaid_environment: getConfig('plaid_environment', true, null),
+  stripe_secret_key: getConfig('stripe_secret_key', true, null),
+  organization_name: getConfig('organization_name', false, 'unknown org name'),
+  ambassador_approved_message: getConfig('ambassador_approved_message', true, null),
+  tripler_confirmation_message: getConfig('tripler_confirmation_message', true, null),
+  tripler_reminder_message: getConfig('tripler_reminder_message', true, null),
+  tripler_reconfirmation_message: getConfig('tripler_reconfirmation_message', true, null),
   make_admin_api: getConfig('make_admin_api', false, false),
   ambassador_tripler_relation_max_distance: getConfig('ambassador_tripler_relation_max_distance', false, 10000),
-  suggest_tripler_limit: getConfig('suggest_tripler_limit', false, 1000)
+  suggest_tripler_limit: getConfig('suggest_tripler_limit', false, 1000),
+  claim_tripler_limit: getConfig('claim_tripler_limit', false, 12)
 };

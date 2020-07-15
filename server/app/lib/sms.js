@@ -1,3 +1,4 @@
+import logger from 'logops';
 import { international as phoneFormat } from './phone';
 
 const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN, { 
@@ -5,7 +6,10 @@ const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWI
 });
 
 module.exports = (to, message) => {
+  logger.debug(`Sending SMS to ${phoneFormat(to)}: ${message}`);
+
   if (process.env.TWILIO_DISABLE === 'true') {
+    logger.debug('Bypassing sending SMS');
     return;
   }
 
