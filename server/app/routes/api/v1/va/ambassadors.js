@@ -383,7 +383,9 @@ async function claimTriplers(req, res) {
     triplers.push(model);
   }
 
-  ambassador.get('claims').forEach((entry) => triplers.push(entry.otherNode.get('id')));
+  ambassador.get('claims').forEach((entry) => {
+    triplers.push(entry.otherNode());
+  });
   triplers = [... new Set(triplers)]; // eliminate duplicates
   if (triplers.length > parseInt(ov_config.claim_tripler_limit)) {
     return _400(res, `An ambassador cannot have more than ${ov_config.claim_tripler_limit} triplers`);
