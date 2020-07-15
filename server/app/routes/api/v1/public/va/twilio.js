@@ -5,6 +5,8 @@ import { normalize } from '../../../../../lib/phone';
 module.exports = Router({mergeParams: true})
 .post('/sms/receive', async (req, res) => {
   
+  // TODO security check needed to confirm message came from twilio
+
   let sender = normalize(req.body.From);
   let response = req.body.Body.toLowerCase();
   

@@ -30,6 +30,7 @@ For this server, configure an `.env` file. The following is a complete list of v
     PLAID_CLIENT_ID=
     PLAID_SECRET=
     PLAID_PUBLIC_KEY=
+    PLAID_ENVIRONMENT=
     STRIPE_SECRET_KEY=
     TWILIO_DISABLE=
     TWILIO_ACCOUNT_SID=
@@ -79,22 +80,23 @@ The meaning of each config item is as follows:
 * `PLAID_CLIENT_ID`: The client ID from your Plaid developer account. Needed for ambassador payouts.
 * `PLAID_SECRET`: The secret from your Plaid developer account. Needed for ambassador payouts.
 * `PLAID_PUBLIC_KEY`: The public key from your Plaid developer account. Needed for ambassador payouts.
+* `PLAID_ENVIRONMENT`: The environment plaid is running in, can be sandbox, development or production.
 * `STRIPE_SECRET_KEY`: The secret key from your Stripe developer account. Needed for ambassador payouts.
 * `TWILIO_DISABLE`: Setting it to true will disable twilio.
 * `TWILIO_ACCOUNT_SID`: SID of twilio account.
 * `TWILIO_AUTH_TOKEN`: Auth token of twilio account.
 * `TWILIO_FROM`: Number to send SMSes from.
 * `TWILIO_SUPPORT_PROXY_RESPONSE`: Support proxy messages for development; message and proxy number separated by =>. For example: yes=>+1 111-111-1111
-* `ORGANIZATION_NAME`: the name of the org
-* `AMBASSADOR_LANDING_PAGE`: link to the webpage where ambassador lands after approval, this is sent in SMS
-* `AMBASSADOR_APPROVED_MESSAGE`: the SMS message when an ambassador is approved
-* `TRIPLER_REMINDER_MESSAGE`: the SMS message when a tripler is reminded
-* `TRIPLER_CONFIRMATION_MESSAGE`: the SMS message when a tripler begins confirmation process
-* `TRIPLER_RECONFIRMATION_MESSAGE`: the SMS message when a tripler responds to other than YES or NO in response to confirmation message
-* `STRESS_TESTING`: if set to true, this introduces changes in the code like non-enforcement of unique constraints to facilitate stress testing. You will have to drop neode schema to be able to do stress testing.
-* `LOG_REQUESTS`: if set to true, enable request/response body logging
-* `LOG_REQUEST_MAX_BODY_LENGTH`: maximum number of characters logged during request/response logging, default set to 1000
-* `MAKE_ADMIN_API`: flag to enable `PUT /admin` api which makes an ambassador amin, default set to false
-* `AMBASSADOR_TRIPLER_RELATION_MAX_DISTANCE`: distance in meters to decide if a tripler can be suggested to ambassador, default set to 10000
-* `SUGGEST_TRIPLER_LIMIT`: maximum number of triplers returned by suggest-triplers api, default set to 1000
-* `CLAIM_TRIPLER_LIMIT`: maximum number of triplers an ambassador can claim, default set to 12
+* `ORGANIZATION_NAME`: The name of the org
+* `AMBASSADOR_LANDING_PAGE`: Link to the webpage where ambassador lands after approval, this is sent in SMS
+* `AMBASSADOR_APPROVED_MESSAGE`: The SMS message when an ambassador is approved
+* `TRIPLER_REMINDER_MESSAGE`: The SMS message when a tripler is reminded
+* `TRIPLER_CONFIRMATION_MESSAGE`: The SMS message when a tripler begins confirmation process
+* `TRIPLER_RECONFIRMATION_MESSAGE`: The SMS message when a tripler responds to other than YES or NO in response to confirmation message
+* `STRESS_TESTING`: If set to true, this introduces changes in the code like non-enforcement of unique constraints to facilitate stress testing. You will have to drop neode schema to be able to do stress testing.
+* `LOG_REQUESTS`: If set to true, enable request/response body logging
+* `LOG_REQUEST_MAX_BODY_LENGTH`: Maximum number of characters logged during request/response logging, default set to 1000
+* `MAKE_ADMIN_API`: Flag to enable `PUT /admin` api which makes an ambassador amin, default set to false
+* `AMBASSADOR_TRIPLER_RELATION_MAX_DISTANCE`: Distance in meters to decide if a tripler can be suggested to ambassador, default set to 10000
+* `SUGGEST_TRIPLER_LIMIT`: Maximum number of triplers returned by suggest-triplers api, default set to 1000
+* `CLAIM_TRIPLER_LIMIT`: Maximum number of triplers an ambassador can claim, default set to 12

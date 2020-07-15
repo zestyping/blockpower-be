@@ -69,5 +69,18 @@ module.exports = {
   admin: {
     type: 'boolean',
     default: false
+  },
+  payout_provider: 'string',
+  payout_account_id: 'string',
+  payout_additional_data: 'string',
+  earns_off: {
+    type: 'relationships',
+    relationship: 'EARNS_OFF',
+    direction: 'out',
+    target: 'Tripler',
+    properties: {
+      paid_at: 'localdatetime',
+      amount: 'float'
+    }
   }
 };

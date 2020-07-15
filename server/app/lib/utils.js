@@ -26,6 +26,7 @@ export async function cqdo(req, res, q, p, a) {
 
   let ref;
 
+  // TODO don't go to database to get timestamp
   try {
     ref = await req.db.query(q, p);
   } catch (e) {
