@@ -53,6 +53,16 @@ const MenuItems = ({ assignments, handleClickLogout, experimental }) => (
         </ListItem>
       </Link>
     </List>
+    <List>
+      <Link to={'/payout/'}>
+        <ListItem button>
+          <ListItemIcon>
+            <AccountBalanceIcon />
+          </ListItemIcon>
+          <ListItemText primary="Payments" />
+        </ListItem>
+      </Link>
+    </List>
   </Fragment>
 );
 
