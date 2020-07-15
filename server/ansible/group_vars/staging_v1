@@ -110,6 +110,7 @@ dotenv:
   TRIPLER_CONFIRMATION_MESSAGE: "Congrats {tripler_first_name}, on signing up to be a vote tripler with {ambassador_first_name} {ambassador_last_name}! By encouraging {triplee_1}, {triplee_2}, and {triplee_3} to vote, you're helping build real Black political power. Both {ambassador_first_name} and {organization_name} will help you along the way. Ready to go? Reply YES if you're in!"
   TRIPLER_REMINDER_MESSAGE: "Hey {tripler_first_name} just wanted to check-in. Have you had a chance to talk to {triplee_1}, {triplee_2}, and {triplee_3} about voting? Let me know if you need any help or have questions, otherwise you can just reply YES"
   AMBASSADOR_APPROVED_MESSAGE: "Congratulations, {ambassador_first_name}, you're ready to start recruiting triplers and earning money! GO to {ambassador_landing_page} to start looking for people from {organization_name}'s list."
+  TRIPLER_RECONFIRMATION_MESSAGE: "Hi {tripler_first_name}, are you able to encourage {triplee_1}, {triplee_2}, and {triplee_3} to vote to help build real Black political power? Please reply just YES or NO"
   LOG_REQUESTS: "true"
   LOG_REQUEST_MAX_BODY_LENGTH: "1000"
   LOGOPS_LEVEL: "DEBUG"
