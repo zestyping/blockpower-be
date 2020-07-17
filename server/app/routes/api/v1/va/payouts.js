@@ -2,12 +2,12 @@ import { Router } from 'express';
 import plaid from 'plaid';
 import stripe from 'stripe';
 import {
-  _400, _401
+  _400, _401, _204
 } from '../../../../lib/utils';
 import { ov_config } from '../../../../lib/ov_config';
 
 module.exports = Router({mergeParams: true})
-.post('/payout/account/token/exchange', async (req, res) => {
+.post('/payouts/account/token/exchange', async (req, res) => {
   return exchangeToken(req, res);
 });
 
@@ -52,6 +52,6 @@ async function exchangeToken(req, res) {
   }
   
   req.user.update({ payout_provider: 'stripe', payout_account_id: customer.id, payout_additional_data: customer.sources.data[0].last4 });
-  return res.json({});
+  return _204(res);
 }
 

@@ -43,13 +43,15 @@ module.exports = {
         type: 'float'
       }
     },
-    eager: true
+    eager: true,
+    cascade: 'detach'
   },
   claimed: {
     type: 'node',
     target: 'Ambassador',
     relationship: 'CLAIMS',
     direction: 'in',
-    eager: true
+    eager: true,
+    cascade: 'detach'
   }
 };

@@ -19,7 +19,14 @@ function serializeAmbassador(ambassador) {
   obj['display_name'] = _displayName(ambassador.get('first_name'), ambassador.get('last_name'));
   obj['quiz_results'] = !!ambassador.get('quiz_results') ? JSON.parse(ambassador.get('quiz_results')) : null;
 
-  return obj
+  return obj;
+}
+
+function serializePayout(payout) {
+  let obj = {};
+  ['initiated_at', 'paid_at', 'amount', 'status', 'error'].forEach(x => obj[x] = payout[x]);
+
+  return obj;
 }
 
 function serializeTripler(tripler) {
@@ -29,7 +36,7 @@ function serializeTripler(tripler) {
   obj['display_address'] = !!obj['address'] ? _displayAddress(obj['address']) : null;
   obj['display_name'] = _displayName(tripler.get('first_name'), tripler.get('last_name'));
   obj['triplees'] = !!tripler.get('triplees') ? JSON.parse(tripler.get('triplees')) : null;
-  return obj
+  return obj;
 }
 
 function serializeNeo4JTripler(tripler) {

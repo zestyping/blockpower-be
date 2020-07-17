@@ -4,6 +4,7 @@ import { asyncForEach, sleep } from './common';
 import { ov_config } from './ov_config';
 import { min_neo4j_version } from './utils';
 import queue from './queue';
+import cron from './cron';
 
 var _require = require; // so we can lazy load a module later on
 
@@ -21,7 +22,10 @@ export async function doStartupTasks(db, qq, neode) {
   await doNeodeInit(neode);
   // can happen in parallel
   postDbInit(qq);
+  cron.schedule();
 }
+
+
 
 async function doJmxInit(db, qq) {
   let start = new Date().getTime();

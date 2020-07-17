@@ -28,9 +28,7 @@ async function detachTripler(triplerId) {
   if (tripler) {
     let ambassador = tripler.get('claimed');
     if (ambassador) {
-      let query = `MATCH (t:Tripler{id: \'${tripler.get('id')}\'}) DETACH DELETE t`;
-      console.log(query);
-      await neode.cypher(query);
+      await tripler.delete();
     }
   }
   else {

@@ -79,8 +79,17 @@ module.exports = {
     direction: 'out',
     target: 'Tripler',
     properties: {
+      since: {
+        type: 'localdatetime',
+        default: () => new Date,
+      },
+      initiated_at: 'localdatetime',
       paid_at: 'localdatetime',
-      amount: 'float'
-    }
+      amount: 'float',
+      status: 'string',
+      payment_id: 'string',
+      error: 'string'
+    },
+    eager: true
   }
 };
