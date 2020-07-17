@@ -10,8 +10,10 @@ import bodyParser from 'body-parser';
 import mobile from 'is-mobile';
 import fs from 'fs';
 import fetch from 'node-fetch';
+import audit from 'morgan-body';
 
 import { ov_config } from './lib/ov_config';
+import ambassadorSvc from './services/ambassadors';
 
 import {
   cqdo, _400, _401, _403, _500, _503
@@ -22,18 +24,28 @@ const router = require('./routes/createRouter.js')();
 var public_key;
 var jwt_iss = ov_config.jwt_iss;
 
-export function doExpressInit(log, db, qq) {
+export function doExpressInit(log, db, qq, neode) {
 
   // Initialize http server
   const app = express();
 
-  if (log) app.use(expressLogging(logger));
-
   app.disable('x-powered-by');
   app.disable('etag');
   app.use(bodyParser.json({limit: '5mb'}));
+  app.use(bodyParser.urlencoded({ extended: false }));
   app.use(cors({exposedHeaders: ['x-sm-oauth-url']}));
   app.use(helmet());
+
+  if (log) {
+    // generic logger
+    app.use(expressLogging(logger));
+
+    // request logging
+    if (process.env.LOG_REQUESTS === 'true') {
+      let maxBodyLength = parseInt(process.env.LOG_REQUEST_MAX_BODY_LENGTH || 1000);
+      audit(app, { noColors: true, maxBodyLength: maxBodyLength });
+    }
+  }
 
   if (ov_config.no_auth) {
     console.warn("Starting up without authentication!");
@@ -76,6 +88,11 @@ export function doExpressInit(log, db, qq) {
     req.user = {};
     req.db = db;
     req.qq = qq;
+    req.neode = neode;
+    req.logger = logger;
+    req.models = require('./models/va');
+
+    req.isLocal = req.connection.remoteAddress === req.connection.localAddress;
 
     res.set('x-sm-oauth-url', ov_config.sm_oauth_url);
 
@@ -93,6 +110,8 @@ export function doExpressInit(log, db, qq) {
     }
     if (req.url.match(/^\/HelloVoterHQ.*mobile\//)) return next();
     if (req.url.match(/^\/HelloVoterHQ.*public\//)) return next();
+    if (req.url.match(/^\/.*public\//)) return next();
+    //if (req.url.match(/^\/.*va\//)) return next();
     if (req.url.match(/\/\.\.\//)) return _400(res, "Not OK..");
 
     try {
@@ -103,6 +122,7 @@ export function doExpressInit(log, db, qq) {
       if (ov_config.no_auth) u = jwt.decode(req.header('authorization').split(' ')[1]);
       else u = jwt.verify(req.header('authorization').split(' ')[1], public_key);
 
+      /*
       // verify props
       if (!u.id) return _401(res, "Your token is missing a required parameter.");
       if (u.iss !== jwt_iss) return _401(res, "Your token was issued for a different domain.");
@@ -110,25 +130,19 @@ export function doExpressInit(log, db, qq) {
         (ov_config.jwt_aud && u.aud !== ov_config.jwt_aud) ||
         (!ov_config.jwt_aud && u.aud !== req.header('host'))
       )) return _401(res, "Your token has an incorrect audience.");
+      */
 
-      if (!u.email) u.email = "";
-      if (!u.avatar) u.avatar = "";
+      req.externalId = u.id;
 
-      let a;
-
-      try {
-        a = await req.db.query('merge (a:Volunteer {id:{id}}) on match set a += {last_seen: timestamp(), name:{name}, email:{email}, avatar:{avatar}} on create set a += {created: timestamp(), last_seen: timestamp(), name:{name}, email:{email}, avatar:{avatar}} return a', u);
-      } catch (e) {
-        console.warn(e);
-        return _500(res, e);
+      let user = await ambassadorSvc.findByExternalId(u.id);
+      if (user && user.get('locked')) {
+        return _403(res, "Your account is locked.");
       }
-
-      if (a.data.length === 1) {
-        req.user = a.data[0];
-      } else return _500(res, {});
-
-      if (req.user.locked) return _403(res, "Your account is locked.");
-
+      else if (user) {
+        req.user = user;
+        req.authenticated = true;
+        req.admin = user.get('admin');
+      }      
     } catch (e) {
       console.warn(e);
       return _401(res, "Invalid token.");
@@ -147,6 +161,9 @@ export function doExpressInit(log, db, qq) {
 
   app.use('/HelloVoterHQ/api/v1', router);
   app.use('/HelloVoterHQ/[0-9A-Z]+/api/v1', router);
+
+  app.use('/api/v1/va', router);
+  app.use('/api/v1/public/va', router);
 
   // default error handler
   app.use((err, req, res, next) => {

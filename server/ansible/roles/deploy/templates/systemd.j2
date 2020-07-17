@@ -1,0 +1,17 @@
+[Unit]
+Description={{ item.description | default(boot_default_description) }}
+Documentation={{ item.url | default(boot_default_url) }}
+After=network.target
+
+[Service]
+Environment={{ item.env_vars | default(boot_default_env_vars) }}
+Type={{ item.type | default(boot_default_type) }}
+User={{ item.app_user | default(boot_default_app_user) }}
+Group={{ item.app_user | default(boot_default_app_user) }}
+WorkingDirectory={{ app_folder }}
+ExecStart={{ item.start_cmd | default(boot_default_stop_cmd) }}
+ExecStop={{ item.stop_cmd | default(boot_default_stop_cmd) }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

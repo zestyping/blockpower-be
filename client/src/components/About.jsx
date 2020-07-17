@@ -26,12 +26,13 @@ export default class App extends Component {
     const { global } = this.state;
 
     let data = {};
+    /*
     try {
       data = await _fetch(global, '/dashboard');
     } catch (e) {
       notify_error(e, 'Unable to load dashboard info.');
     }
-
+    */
     this.setState({
       api_version: data.version ? data.version : 'unknown',
       neo4j_version: data.neo4j_version ? data.neo4j_version : 'unknown',
@@ -45,20 +46,6 @@ export default class App extends Component {
       <div>
         <div>
           {process.env.REACT_APP_NAME} version {process.env.REACT_APP_VERSION}
-        </div>
-        <div>
-          {api_version ? (
-            'HelloVoterAPI version ' + api_version
-          ) : (
-            <CircularProgress height={15} />
-          )}
-        </div>
-        <div>
-          {neo4j_version ? (
-            'Neo4j version ' + neo4j_version
-          ) : (
-            <CircularProgress height={15} />
-          )}
         </div>
         {(api_version && api_version !== "unknown" && api_version !== process.env.REACT_APP_VERSION)&&
         <h3 style={{color: "red"}}>WARNING: API version doesn't match HQ version.</h3>

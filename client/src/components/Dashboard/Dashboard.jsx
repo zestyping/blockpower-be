@@ -61,6 +61,7 @@ export default class App extends Component {
 
     this.setState({ loading: true });
 
+    /*
     try {
       data = await _fetch(global, '/dashboard');
 
@@ -68,47 +69,15 @@ export default class App extends Component {
 
       cards = {
         vol: {
-          name: 'Volunteers',
+          name: 'Ambassadors',
           stat: data.volunteers,
           icon: faUser,
         },
-        turf: {
-          name: 'Turfs',
-          stat: data.turfs,
-          icon: faMap,
-        },
-        form: {
-          name: 'Forms',
-          stat: data.forms,
-          icon: faClipboard,
-        },
-        attributes: {
-          name: 'Attributes',
-          stat: data.attributes,
-          icon: faChartPie,
-        },
-        addr: {
-          name: 'Addresses',
-          stat: (
-            <NumberFormat
-              value={data.addresses}
-              displayType={'text'}
-              thousandSeparator={true}
-            />
-          ),
-          icon: faMapMarkerAlt,
-        },
-        dbsz: {
-          name: 'Database size',
-          stat: filesize(data.dbsize ? data.dbsize : 0, {
-            round: 1,
-          }),
-          icon: faDatabase,
-        },
-      };
+     };
     } catch (e) {
       notify_error(e, 'Unable to load dashboard info.');
     }
+    */
 
     this.setState({ cards, data, loading: false });
   }

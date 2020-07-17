@@ -14,10 +14,11 @@ var jvmconfig = {};
 export var concurrency = ov_config.job_concurrency;
 
 // tasks to do on startup
-export async function doStartupTasks(db, qq) {
+export async function doStartupTasks(db, qq, neode) {
   // required to do in sequence
   if (!ov_config.disable_jmx) await doJmxInit(db, qq);
   await doDbInit(db);
+  await doNeodeInit(neode);
   // can happen in parallel
   postDbInit(qq);
 }
@@ -97,6 +98,11 @@ async function doJmxInit(db, qq) {
   console.log("doJmxInit() finished @ "+finish+" after "+(finish-start)+" milliseconds");
 }
 
+export async function doNeodeInit(neode) {
+  await neode.schema.install();
+  console.log('Neode schema installed!');
+}
+
 export async function doDbInit(db) {
   let start = new Date().getTime();
   console.log("doDbInit() started @ "+start);
@@ -145,6 +151,7 @@ export async function doDbInit(db) {
     }
   }
 
+  /*
   let indexes = [
     {label: 'Attribute', property: 'id', create: 'create constraint on (a:Attribute) assert a.id is unique'},
     {label: 'Person', property: 'id', create: 'create constraint on (a:Person) assert a.id is unique'},
@@ -153,8 +160,8 @@ export async function doDbInit(db) {
     {label: 'Address', property: 'position', create: 'create index on :Address(position)'},
     {label: 'Address', property: 'bbox', create: 'create index on :Address(bbox)'},
     {label: 'Device', property: 'UniqueID', create: 'create constraint on (a:Device) assert a.UniqueID is unique'},
-    {label: 'Volunteer', property: 'id', create: 'create constraint on (a:Volunteer) assert a.id is unique'},
-    {label: 'Volunteer', property: 'location', create: 'create index on :Volunteer(location)'},
+    {label: 'Ambassador', property: 'id', create: 'create constraint on (a:Ambassador) assert a.id is unique'},
+    {label: 'Ambassador', property: 'location', create: 'create index on :Ambassador(location)'},
     {label: 'Team', property: 'id', create: 'create constraint on (a:Team) assert a.id is unique'},
     {label: 'Team', property: 'name', create: 'create constraint on (a:Team) assert a.name is unique'},
     {label: 'Turf', property: 'id', create: 'create constraint on (a:Turf) assert a.id is unique'},
@@ -219,7 +226,7 @@ export async function doDbInit(db) {
       await db.query('create (:Attribute {id:{id},name:{name},order:{order},type:{type},multi:{multi}})', attribute);
       if (attribute.values) await db.query('match (a:Attribute {id:{id}}) set a.values = {values}', attribute);
     }
-  });
+  });*/
 
   let finish = new Date().getTime();
   console.log("doDbInit() finished @ "+finish+" after "+(finish-start)+" milliseconds");

@@ -83,6 +83,7 @@ export default class App extends Component {
 
     let ready = [];
     let unassigned = [];
+    let incomplete = [];
     let denied = [];
     let invited = [];
 
@@ -92,16 +93,15 @@ export default class App extends Component {
       if (c.locked) {
         denied.push(c);
       } else if (c.invited) invited.push(c);
-      else if (c.ass.ready) ready.push(c);
-      else unassigned.push(c);
+      else if (c.approved) ready.push(c);
+      else if (c.signup_completed) unassigned.push(c);
+      else incomplete.push(c);
     });
 
     return (
       <RootLoader flag={this.state.loading} func={() => this._loadData()}>
         <Router>
           <div>
-          <InviteSomeone refer={this} />
-
             Search:{' '}
             <input
               type="text"
@@ -114,14 +114,14 @@ export default class App extends Component {
               to={'/volunteers/'}
               onClick={() => this.setState({ pageNum: 1 })}
             >
-              Volunteers ({ready.length})
+              Approved ({ready.length})
             </Link>
             &nbsp;-&nbsp;
             <Link
               to={'/volunteers/unassigned'}
               onClick={() => this.setState({ pageNum: 1 })}
             >
-              Unassigned ({unassigned.length})
+              Pending ({unassigned.length})
             </Link>
             &nbsp;-&nbsp;
             <Link
@@ -173,6 +173,18 @@ export default class App extends Component {
                     Invite Someone
                   </Button>
                 </div>
+              )}
+            />
+            <Route
+              exact={true}
+              path="/volunteers/incomplete"
+              render={() => (
+                <ListVolunteers
+                  global={global}
+                  refer={this}
+                  type="Incomplete"
+                  volunteers={incomplete}
+                />
               )}
             />
             <Route
@@ -264,7 +276,7 @@ const ListVolunteers = props => {
   return (
     <div>
       <h3>
-        {props.type} Volunteers ({props.volunteers.length})
+        {props.type} Ambassadors ({props.volunteers.length})
       </h3>
       {paginate}
       <List component="nav">{list}</List>

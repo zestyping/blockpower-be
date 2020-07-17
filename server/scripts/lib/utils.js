@@ -24,7 +24,7 @@ export async function runDatabase(sandbox, {pagecache_size, heap_size_init, heap
         (sandbox?"5":"")+
         "7687:7687 -p "+
         (sandbox?"5":"")+
-        "7474:7474 -e NEO4J_AUTH=neo4j/"+ov_config.neo4j_pass+
+        "7474:7474 -e NEO4J_AUTH=neo4j/"+ov_config.neo4j_password+
         (pagecache_size?" -e NEO4J_dbms_memory_pagecache_size="+pagecache_size:"")+
         (heap_size_init?" -e NEO4J_dbms_memory_heap_initial__size="+heap_size_init:"")+
         (heap_size_max?" -e NEO4J_dbms_memory_heap_max__size="+heap_size_max:"")+

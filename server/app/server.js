@@ -5,6 +5,7 @@ import fs from 'fs';
 import { doStartupTasks } from './lib/startup';
 import { doExpressInit } from './createExpressApp';
 import { ov_config } from './lib/ov_config';
+import neode  from './lib/neode';
 import neo4j from './lib/neo4j';
 import queue from './lib/queue';
 
@@ -18,9 +19,9 @@ db.query('return timestamp()')
     process.exit(1)
   })
   .then(async () => {
-    await doStartupTasks(db, qq);
+    await doStartupTasks(db, qq, neode);
 
-    const app = doExpressInit(true, db, qq);
+    const app = doExpressInit(true, db, qq, neode);
 
     // Launch the server
     if (ov_config.server_ssl_port && ov_config.server_ssl_key && ov_config.server_ssl_cert) {

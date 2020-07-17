@@ -4,10 +4,12 @@
 For this server, configure an `.env` file. The following is a complete list of variables and their defaults:
 
     SERVER_PORT=8080
+    NEO4J_PROTOCOL=bolt
     NEO4J_HOST=localhost
     NEO4J_PORT=7687
     NEO4J_USER=neo4j
-    NEO4J_PASS=hellovoter
+    NEO4J_PASSWORD=hellovoter
+    NEO4J_ENTERPRISE=false
     NEO4J_JMX_PORT=9999
     NEO4J_JMX_USER=monitor
     NEO4J_JMX_PASS=Neo4j
@@ -28,15 +30,36 @@ For this server, configure an `.env` file. The following is a complete list of v
     PLAID_CLIENT_ID=
     PLAID_SECRET=
     PLAID_PUBLIC_KEY=
+    PLAID_ENVIRONMENT=
     STRIPE_SECRET_KEY=
+    TWILIO_DISABLE=
+    TWILIO_ACCOUNT_SID=
+    TWILIO_AUTH_TOKEN=
+    TWILIO_FROM=
+    TWILIO_SUPPORT_PROXY_RESPONSE=
+    ORGANIZATION_NAME=
+    AMBASSADOR_LANDING_PAGE=
+    AMBASSADOR_APPROVED_MESSAGE=
+    TRIPLER_REMINDER_MESSAGE=
+    TRIPLER_CONFIRMATION_MESSAGE=
+    TRIPLER_RECONFIRMATION_MESSAGE=
+    STRESS_TESTING=
+    LOG_REQUESTS=
+    LOG_REQUEST_MAX_BODY_LENGTH=
+    MAKE_ADMIN_API=
+    AMBASSADOR_TRIPLER_RELATION_MAX_DISTANCE=
+    SUGGEST_TRIPLER_LIMIT=
+    CLAIM_TRIPLER_LIMIT=
 
 The meaning of each config item is as follows:
 
 * `SERVER_PORT`: Port for node to listen on for http requests.
+* `NEO4J_PROTOCOL`: Protocol for talking to neo4j.
 * `NEO4J_HOST`: Hostname of your neo4j server.
 * `NEO4J_PORT`: Port number of your neo4j server.
 * `NEO4J_USER`: Username to use to connect to neo4j.
-* `NEO4J_PASS`: Password to use to connect to neo4j.
+* `NEO4J_PASSWORD`: Password to use to connect to neo4j.
+* `NEO4J_ENTERPRISE`: Flag to enable enterprise features in neo4j.
 * `NEO4J_JMX_PORT`: The port on your `NEO4J_HOST` that exposes JMX. This port isn't exposed by default by Neo4j. See "Neo4j Configuration" below for how to set this up on the database side.
 * `NEO4J_JMX_USER`: Username to use to connect to neo4j jmx.
 * `NEO4J_JMX_PASS`: Password to use to connect to neo4j jmx.
@@ -57,4 +80,23 @@ The meaning of each config item is as follows:
 * `PLAID_CLIENT_ID`: The client ID from your Plaid developer account. Needed for ambassador payouts.
 * `PLAID_SECRET`: The secret from your Plaid developer account. Needed for ambassador payouts.
 * `PLAID_PUBLIC_KEY`: The public key from your Plaid developer account. Needed for ambassador payouts.
+* `PLAID_ENVIRONMENT`: The environment plaid is running in, can be sandbox, development or production.
 * `STRIPE_SECRET_KEY`: The secret key from your Stripe developer account. Needed for ambassador payouts.
+* `TWILIO_DISABLE`: Setting it to true will disable twilio.
+* `TWILIO_ACCOUNT_SID`: SID of twilio account.
+* `TWILIO_AUTH_TOKEN`: Auth token of twilio account.
+* `TWILIO_FROM`: Number to send SMSes from.
+* `TWILIO_SUPPORT_PROXY_RESPONSE`: Support proxy messages for development; message and proxy number separated by =>. For example: yes=>+1 111-111-1111
+* `ORGANIZATION_NAME`: The name of the org
+* `AMBASSADOR_LANDING_PAGE`: Link to the webpage where ambassador lands after approval, this is sent in SMS
+* `AMBASSADOR_APPROVED_MESSAGE`: The SMS message when an ambassador is approved
+* `TRIPLER_REMINDER_MESSAGE`: The SMS message when a tripler is reminded
+* `TRIPLER_CONFIRMATION_MESSAGE`: The SMS message when a tripler begins confirmation process
+* `TRIPLER_RECONFIRMATION_MESSAGE`: The SMS message when a tripler responds to other than YES or NO in response to confirmation message
+* `STRESS_TESTING`: If set to true, this introduces changes in the code like non-enforcement of unique constraints to facilitate stress testing. You will have to drop neode schema to be able to do stress testing.
+* `LOG_REQUESTS`: If set to true, enable request/response body logging
+* `LOG_REQUEST_MAX_BODY_LENGTH`: Maximum number of characters logged during request/response logging, default set to 1000
+* `MAKE_ADMIN_API`: Flag to enable `PUT /admin` api which makes an ambassador amin, default set to false
+* `AMBASSADOR_TRIPLER_RELATION_MAX_DISTANCE`: Distance in meters to decide if a tripler can be suggested to ambassador, default set to 10000
+* `SUGGEST_TRIPLER_LIMIT`: Maximum number of triplers returned by suggest-triplers api, default set to 1000
+* `CLAIM_TRIPLER_LIMIT`: Maximum number of triplers an ambassador can claim, default set to 12

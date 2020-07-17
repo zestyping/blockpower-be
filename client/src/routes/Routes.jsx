@@ -27,9 +27,9 @@ import NoMatch from './NoMatch';
 */
 export const Routes = ({ global, experimental }) => (
   <Switch>
-    <Route exact={true} path="/" render={() => <Dashboard global={global} />} />
-    <Route path="/jwt/" render={props => <Login {...props} global={global} />} />
+    <Route exact={true} path="/" render={() => <Volunteers global={global} />} />
     <Route path="/volunteers/" render={() => <Volunteers global={global} />} />
+    <Route path="/jwt/" render={props => <Login {...props} global={global} />} />
     <Route path="/turf/" render={() => <Turf global={global} />} />
     <Route path="/forms/" render={() => <Forms global={global} />} />
     <Route path="/qrcode/" render={() => <QRCodes global={global} />} />

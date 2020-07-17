@@ -244,21 +244,21 @@ export class CardVolunteer extends Component {
     });
   };
 
-  _lockVolunteer = async (volunteer, flag) => {
+  _approveAmbassador = async (volunteer, flag) => {
     const { global } = this.state;
 
-    let term = flag ? 'lock' : 'unlock';
+    let term = flag ? 'approved' : 'denied';
+
     this.props.refer.setState({ saving: true });
     try {
       await _fetch(
         global,
-        '/volunteer/' + term,
-        'POST',
-        { id: volunteer.id }
+        `/ambassadors/${volunteer.id}/${flag ? 'approve' : 'disapprove'}`,
+        'PUT'
       );
-      notify_success('Volunteer hass been ' + term + 'ed.');
+      notify_success('Ambassador has been ' + term);
     } catch (e) {
-      notify_error(e, 'Unable to ' + term + ' volunteer.');
+      notify_error(e, 'Ambassador has NOT been ' + term + ' successfully.');
     }
     this.props.refer.setState({ saving: false });
 
@@ -277,14 +277,12 @@ export class CardVolunteer extends Component {
         <div>
           <ListItem alignItems="flex-start" style={{ width: 350 }}>
             <ListItemAvatar>
-              <Avatar alt={volunteer.name} src={volunteer.avatar} />
+              <Avatar alt={volunteer.first_name} src={volunteer.avatar} />
             </ListItemAvatar>
             <ListItemText
-              primary={volunteer.name}
+              primary={`${volunteer.first_name} ${volunteer.last_name || ''}`}
               secondary={
-                volunteer.locationstr
-                  ? extract_addr(volunteer.locationstr)
-                  : 'N/A'
+                `${volunteer.address.address1} ${volunteer.address.city} ${volunteer.address.state} ${volunteer.address.zip}`
               }
             />
             <VolunteerBadges volunteer={volunteer} />
@@ -300,15 +298,15 @@ export class CardVolunteer extends Component {
         alignItems="flex-start"
         onClick={() => {
           this.props.refer.setState({ thisVolunteer: volunteer });
-          window.location.href = "/HelloVoterHQ/#/volunteers/view/"+volunteer.id;
+          window.location.href = "#/volunteers/view/"+volunteer.id;
         }}>
         <ListItemAvatar>
-          <Avatar alt={volunteer.name} src={volunteer.avatar} />
+          <Avatar alt={volunteer.first_name} src={volunteer.avatar} />
         </ListItemAvatar>
         <ListItemText
-          primary={volunteer.name}
+          primary={`${volunteer.first_name} ${volunteer.last_name || ''}`}
           secondary={
-            volunteer.locationstr ? extract_addr(volunteer.locationstr) : 'N/A'
+                `${volunteer.address.address1} ${volunteer.address.city} ${volunteer.address.state} ${volunteer.address.zip}`
           }
         />
         <VolunteerBadges volunteer={volunteer} />
@@ -321,6 +319,7 @@ const VolunteerBadges = props => {
   let badges = [];
   let id = props.volunteer.id;
 
+  /*
   if (props.volunteer.admin)
     badges.push(
       <Icon
@@ -340,7 +339,7 @@ const VolunteerBadges = props => {
       />
     );
   else {
-    if (props.volunteer.ass.ready)
+    if (props.volunteer.ass && props.volunteer.ass.ready)
       badges.push(
         <Icon
           icon={faCheckCircle}
@@ -368,6 +367,7 @@ const VolunteerBadges = props => {
         />
       );
   }
+  */
 
   return badges;
 };

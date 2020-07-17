@@ -4,6 +4,7 @@ import { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
 import Select from 'react-select';
 
 import Button from '@material-ui/core/Button';
+import List from '@material-ui/core/List';
 
 import {
   notify_error,
@@ -24,82 +25,43 @@ const NEARBY_DIST = 50;
 export const CardVolunteerFull = props => (
   <div>
     <br />
-    {props.volunteer.locked ? (
+    {props.volunteer.first_name}
+    {props.volunteer.signup_completed ?
+    <div>
       <Button
-        onClick={() => props.refer._lockVolunteer(props.volunteer, false)}
-      >
-        Restore Access
+        onClick={() => props.refer._approveAmbassador(props.volunteer, false)}>
+        Deny
       </Button>
-    ) : (
-      <Button onClick={() => props.refer._lockVolunteer(props.volunteer, true)}>
-        Deny Access
+      <Button onClick={() => props.refer._approveAmbassador(props.volunteer, true)}>
+        Approve
       </Button>
-    )}
+    </div>
+        :
+    <b> - This ambassador has not completed signup form</b>
+    }
     <br />
-    Last Seen:{' '}
-    {new TimeAgo('en-US').format(new Date(props.volunteer.last_seen - 30000))}
+    Approved: {props.volunteer.approved ? "Yes" : "No"}
     <br />
     Email: {props.volunteer.email ? props.volunteer.email : 'N/A'}
     <br />
     Phone: {props.volunteer.phone ? props.volunteer.phone : 'N/A'}
     <br />
-    Address:{' '}
+    Address:
     <VolunteerAddress global={global} refer={props.refer} volunteer={props.volunteer} />
     <br />
-    {props.refer.state.hometurf.length?
-      <div>
-        Turf this volunteer's home address is in:
-        {props.refer.state.hometurf.map(t => <div>{t.name}</div>)}
-      </div>
-      :
-      <div>This volunteer's home address isn't in any turf.</div>
-    }
+      {props.volunteer.quiz_results && props.volunteer.quiz_results.map((qr)=> {return <div key={qr.question}><b>question:</b> {qr.question}, <b>answer:</b> {qr.answer}<br /><br /></div>})}
     <br />
-    {props.refer.state.nearbyturf.length?
-      <div>
-        Turf this volunteer's home address is near by:
-        {props.refer.state.nearbyturf.slice(0,5).map(t => <div>{t.name}</div>)}
-      </div>
-      :
-      <div>No turfs are within {NEARBY_DIST}km of this volunteer.</div>
-    }
-    <br />
-    # of doors knocked: N/A
-    <br />
-    <br />
-    <div>
-      Forms this volunteer is assigned to:
-      <Select
-        value={props.refer.state.selectedFormsOption}
-        onChange={props.refer.handleFormsChange}
-        options={props.refer.state.formOptions}
-        isMulti={true}
-        isSearchable={true}
-        placeholder="None"
-      />
-      <br />
-      Turf this volunteer is assigned to:
-      <Select
-        value={props.refer.state.selectedTurfOption}
-        onChange={props.refer.handleTurfChange}
-        options={props.refer.state.turfOptions}
-        isMulti={true}
-        isSearchable={true}
-        placeholder="None"
-      />
-    </div>
   </div>
 );
 
 export class VolunteerAddress extends Component {
   constructor(props) {
     super(props);
+    let addr = this.props.volunteer.address;
     this.state = {
       global: props.global,
       edit: false,
-      address: this.props.volunteer.locationstr
-        ? this.props.volunteer.locationstr
-        : ''
+      address: `${addr.address1} ${addr.city}, ${addr.state} ${addr.zip}`
     };
     this.onTypeAddress = address => this.setState({ address });
   }
@@ -143,9 +105,6 @@ export class VolunteerAddress extends Component {
     return (
       <div>
         {this.state.address}{' '}
-        <Button onClick={() => this.setState({ edit: true })}>
-          click to edit
-        </Button>
       </div>
     );
   }

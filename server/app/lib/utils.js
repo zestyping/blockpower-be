@@ -1,6 +1,8 @@
 
 import crypto from 'crypto';
-
+import FormData from 'form-data';
+import fetch from 'node-fetch';
+import papa from 'papaparse';
 import { ov_config } from './ov_config';
 
 export var min_neo4j_version = 3.5;
@@ -24,6 +26,7 @@ export async function cqdo(req, res, q, p, a) {
 
   let ref;
 
+  // TODO don't go to database to get timestamp
   try {
     ref = await req.db.query(q, p);
   } catch (e) {
@@ -39,7 +42,7 @@ export async function onMyTurf(req, ida, idb) {
   if (ov_config.disable_spatial !== false) return false;
   try {
     // TODO: extend to also seach for direct turf assignments with leader:true
-    let ref = await req.db.query('match (v:Volunteer {id:{idb}}) where exists(v.location) call spatial.intersects("turf", v.location) yield node match (:Volunteer {id:{ida}})-[:MEMBERS {leader:true}]-(:Team)-[:ASSIGNED]-(node) return count(v)', {ida: ida, idb: idb});
+    let ref = await req.db.query('match (v:Ambassador {id:{idb}}) where exists(v.location) call spatial.intersects("turf", v.location) yield node match (:Ambassador {id:{ida}})-[:MEMBERS {leader:true}]-(:Team)-[:ASSIGNED]-(node) return count(v)', {ida: ida, idb: idb});
     if (ref.data[0] > 0) return true;
   } catch (e) {
     console.warn(e);
@@ -49,7 +52,7 @@ export async function onMyTurf(req, ida, idb) {
 
 export async function sameTeam(req, ida, idb) {
   try {
-    let ref = await req.db.query('match (a:Volunteer {id:{ida}})-[:MEMBERS]-(:Team)-[:MEMBERS]-(b:Volunteer {id:{idb}}) return b', {ida: ida, idb: idb});
+    let ref = await req.db.query('match (a:Ambassador {id:{ida}})-[:MEMBERS]-(:Team)-[:MEMBERS]-(b:Ambassador {id:{idb}}) return b', {ida: ida, idb: idb});
     if (ref.data.length > 0) return true;
   } catch (e) {
     console.warn(e);
@@ -104,7 +107,7 @@ export async function _volunteersFromCypher(req, query, args) {
   let ref = await req.db.query(query, args)
   for (let i in ref.data) {
     let c = ref.data[i];
-    c.ass = await volunteerAssignments(req, 'Volunteer', c);
+    c.ass = await volunteerAssignments(req, 'Ambassador', c);
     volunteers.push(c);
   }
 
@@ -130,6 +133,10 @@ export function base64edit(str) {
     .replace(/\//g, '-');
 }
 
+export function _204(res) {
+  return res.status(204).send();
+}
+
 export function _400(res, msg) {
   return sendError(res, 400, msg);
 }
@@ -140,6 +147,10 @@ export function _401(res, msg) {
 
 export function _403(res, msg) {
   return sendError(res, 403, msg);
+}
+
+export function _404(res, msg) {
+  return sendError(res, 404, msg);
 }
 
 export function _422(res, msg) {
@@ -164,4 +175,36 @@ export function valid(str) {
   if (typeof str !== "string") return true;
   if (str.match(/\*/)) return false;
   return true;
+}
+
+export async function geoCode(address) {
+  let file = "1," + address.address1 + "," + 
+             address.city + "," + address.state + "," + address.zip;
+
+  let fd = new FormData();
+  fd.append('benchmark', 'Public_AR_Current');
+  fd.append('returntype', 'locations');
+  fd.append('addressFile', file, 'import.csv');
+
+  let res = null;
+
+  try {
+    res = await fetch('https://geocoding.geo.census.gov/geocoder/locations/addressbatch', {method: 'POST', body: fd });
+  } catch (err) {
+    throw(err);
+  }
+
+  // they return a csv file, parse it
+  let pp = papa.parse(await res.text());
+
+  // if invalid address, return no match
+  if (pp.data[0][2] === "No_Match" || !pp.data[0][5]) {
+    return null;
+  }
+
+  let coordinates = pp.data[0][5].split(',');
+  return {
+    longitude: parseFloat(coordinates[0]),
+    latitude: parseFloat(coordinates[1])
+  };
 }
