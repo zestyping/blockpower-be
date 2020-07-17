@@ -112,7 +112,7 @@ async function fetchTripler(req, res) {
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
   
   if (!tripler) {
-    return _400(res, "Invalid triper id");
+    return _400(res, "Invalid tripler id");
   }
   return res.json(serializeTripler(tripler));
 }
@@ -182,7 +182,7 @@ async function startTriplerConfirmation(req, res) {
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
   
   if (!tripler) {
-    return _400(res, "Invalid triper id");
+    return _400(res, "Invalid tripler id");
   }
   else if (tripler.get('status') !== 'unconfirmed') {
     return _400(res, "Invalid status, cannot proceed")
@@ -233,7 +233,7 @@ async function remindTripler(req, res) {
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
   
   if (!tripler) {
-    return _400(res, "Invalid triper id");
+    return _400(res, "Invalid tripler id");
   }
   else if (tripler.get('status') !== 'pending') {
     return _400(res, "Invalid status, cannot proceed")

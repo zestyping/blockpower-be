@@ -4,6 +4,7 @@ import neode  from '../lib/neode';
 import { normalize } from '../lib/phone';
 import { ov_config } from '../lib/ov_config';
 import sms from '../lib/sms';
+import stripe from 'stripe';
 
 async function findById(triplerId) {
   return await neode.first('Tripler', 'id', triplerId);
@@ -17,6 +18,24 @@ async function confirmTripler(triplerId) {
   let tripler = await neode.first('Tripler', 'id', triplerId);
   if (tripler && tripler.get('status') === 'pending') {
     await tripler.update({ status: 'confirmed' });    
+
+    // Send a payment to this tripler's ambassador
+    let ambassador = tripler.get('claimed');
+
+    let stripeResponse
+    let intentResponse
+
+    try {
+
+      stripeResponse = await stripe(ov_config.stripe_secret_key).transfers.create({
+        amount: 5000,
+        currency: 'usd',
+        description: 'voter ambassador payout',
+        destination: ambassador.get('payout_account_id')
+      })
+    } catch (err) {
+      console.log('stripe errored: ', err)
+    }
   }
   else {
     throw "Invalid status, cannot confirm";
