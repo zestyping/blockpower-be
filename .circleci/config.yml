@@ -7,12 +7,11 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "94:a6:df:e0:d7:c5:92:55:dc:80:73:c2:29:67:18:7d"
+      - checkout
       - run:
           name: Clone Operations Repository
           command: |
-            cd ~/
-            ssh-keyscan -t rsa bitbucket.org  >> $SSH_CONFIG_DIR/known_hosts
-            git clone git@bitbucket.org:colabcoop-ondemand/hvbp-operations.git operations
+            git clone git@bitbucket.org:colabcoop-ondemand/hvbp-operations.git ~/operations
       - restore_cache:
           keys:
           - deps-{{ checksum "~/operations/ansible/api/requirements.txt" }}
