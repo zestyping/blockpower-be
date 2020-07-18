@@ -11,7 +11,7 @@ jobs:
           name: Clone Operations Repository
           command: |
             cd ~/
-            ssh-keyscan -t rsa bitbucket.org
+            ssh-keyscan -t rsa bitbucket.org  >> ~/.ssh/known_hosts
             git clone git@bitbucket.org:colabcoop-ondemand/hvbp-operations.git operations
       - restore_cache:
           keys:
