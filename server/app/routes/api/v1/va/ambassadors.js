@@ -400,7 +400,10 @@ async function claimTriplers(req, res) {
 
 async function completeOnboarding(req, res) {
   let found = req.user;
-  let updated = await found.update({onboarding_completed: true});
+  let updated = await found.update({
+    onboarding_completed: true,
+    quiz_results: JSON.stringify(req.body.quiz_results) || null,
+  });
   return res.json(serializeAmbassador(updated));
 }
 
