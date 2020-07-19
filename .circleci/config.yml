@@ -156,11 +156,11 @@ workflows:
           filters:
             branches:
               only: ambassador-stage
-#      - production_api:
-#          filters:
-#            branches:
-#              only: ambassador
-#      - production_admin:
-#          filters:
-#            branches:
-#              only: ambassador
+      - production_api:
+          filters:
+            branches:
+              only: ambassador
+      - production_admin:
+          filters:
+            branches:
+              only: ambassador
