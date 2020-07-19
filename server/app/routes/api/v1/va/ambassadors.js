@@ -402,7 +402,7 @@ async function completeOnboarding(req, res) {
   let found = req.user;
   let updated = await found.update({
     onboarding_completed: true,
-    quiz_results: JSON.stringify(req.body.quiz_results) || null,
+    quiz_results: req.body.quiz_results ? JSON.stringify(req.body.quiz_results) : req.body ? JSON.stringify(req.body) : null,
   });
   return res.json(serializeAmbassador(updated));
 }
