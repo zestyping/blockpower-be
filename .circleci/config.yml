@@ -107,7 +107,7 @@ jobs:
           command: |
             . env/bin/activate
             cd ~/operations/ansible/api
-            ansible-playbook -i hosts deploy.yml --limit production_v1 --vault-password-file ~/operations/ansible/api/.vault-pass
+            ansible-playbook -i hosts deploy.yml --limit production_* --vault-password-file ~/operations/ansible/api/.vault-pass
   production_admin:
     docker:
       - image: circleci/python:3.6
