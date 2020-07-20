@@ -49,13 +49,15 @@ export const CardVolunteerFull = props => (
     <VolunteerAddress global={global} refer={props.refer} volunteer={props.volunteer} />
     <br />
       {
-        props.volunteer.quiz_results && props.volunteer.quiz_results.map ?
+        props.volunteer.quiz_results ?
+        props.volunteer.quiz_results.map ?
         props.volunteer.quiz_results.map((qr)=> {
           return <div key={qr.question}><b>question:</b> {qr.question} <b>answer:</b> {qr.answer}<br /><br /></div>
         }) : 
         Object.keys(props.volunteer.quiz_results).map((key) => {
           return <div key={key}><b>question:</b> {key} <b>answer:</b> {props.volunteer.quiz_results[key]}<br /><br /></div>
-        })
+        }) :
+        <div>no quiz results</div>
       }
     <br />
   </div>
