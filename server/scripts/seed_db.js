@@ -36,6 +36,13 @@ const argv = yargs
                  }
                })
                .option({
+                 'max-relationships': {
+                   alias: 'mr',
+                   describe: 'defines a maximum number of relationships between Triplers to generate',
+                   type: 'number'
+                 }
+               })
+               .option({
                  'empty': {
                    describe: 'empty the database before you seed it',
                    type: 'boolean'
@@ -50,6 +57,12 @@ const argv = yargs
                .option({
                  'force-unconfirmed': {
                    describe: 'force all triplers to be created with "unconfirmed" status',
+                   type: 'boolean'
+                 }
+               })
+               .option({
+                 'real-geocode': {
+                   describe: 'use real geocode data, do not use random lat/long (default)',
                    type: 'boolean'
                  }
                })
@@ -76,8 +89,17 @@ async function createTripler(opts) {
   let phone = await randomPhone('Ambassador');
   let email = faker.internet.email();
   let address = addresses[faker.random.number({min: 0, max: addresses.length - 1})];
-  let coordinates = await geoCode(address);
   let triplees = [faker.name.findName(), faker.name.findName(), faker.name.findName()];
+  let coordinates = null;
+
+  if (opts.realGeocode) {
+    coordinates = await geoCode(address);
+  } else {
+    coordinates = {
+      latitude: Math.random(),
+      longitude: Math.random()
+    };
+  }
 
   let json = {
     id: uuidv4(),
@@ -102,7 +124,16 @@ async function createAmbassador(opts) {
   let phone = await randomPhone('Ambassador');
   let email = faker.internet.email();
   let address = addresses[faker.random.number({min: 0, max: addresses.length - 1})];
-  let coordinates = await geoCode(address);
+  let coordinates = null
+
+  if (opts.realGeocode) {
+    coordinates = await geoCode(address);
+  } else {
+    coordinates = {
+      latitude: Math.random(),
+      longitude: Math.random()
+    };
+  }
 
   let json = {
     id: uuidv4(),
@@ -186,6 +217,16 @@ async function seed(argv) {
   for (let index = 0; index < max; index++) {
     console.log(`Creating ${status} tripler ${index + 1} of ${max} ...`);
     let tripler = await createTripler({ status: status } );
+  }
+
+  // Create some relationships between triplers (random btw 1 - 30 if not specified in args)
+  max = argv['max-relationships'] || faker.random.number({min: 1, max: 30});
+  let triplers = await neode.model('Tripler').all();
+  for (let index = 0; index < max; index++) {
+    let tripler1 = triplers.get(faker.random.number({min: 0, max: triplers.length - 1}));
+    let tripler2 = triplers.get(faker.random.number({min: 0, max: triplers.length - 1}));
+    await tripler1.relateTo(tripler2, 'knows', {distance: Math.random()});
+    console.log(`Relating ${tripler1.get('id')} to ${tripler2.get('id')}`);
   }
 }
 

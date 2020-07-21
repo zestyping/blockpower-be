@@ -93,12 +93,31 @@ async function suggestTriplers(req, res) {
     .where('a.id', req.user.get('id'))
     .match('t', 'Tripler')
     .whereRaw('NOT ()-[:CLAIMS]->(t)')
+    .whereRaw('NOT EXISTS(t.potential_ambassador_id)')
     .whereRaw(`distance(t.location, a.location) <= ${ov_config.ambassador_tripler_relation_max_distance}`) // distance in meters (10km)
     .return('t')
     .limit(ov_config.suggest_tripler_limit)
     .execute()
 
   let models = [];
+  let knows = await req.user.get('matches');
+  if (knows.length > 0) {
+    knows.forEach((match) => {
+      models.push(serializeTripler(match.otherNode()));
+    });
+    models = models.sort((tripler1, tripler2) => {
+      let distance1, distance2;
+      knows.forEach((match) => {
+        if (match.otherNode().get('id') === tripler1.id) {
+          distance1 = match.get('distance');
+        } else if (match.otherNode().get('id') === tripler2.id) {
+          distance2 = match.get('distance');
+        }
+      });
+      return distance1 < distance2;
+    });
+  }
+
   for (var index = 0; index < collection.records.length; index++) {
     let entry = collection.records[index]._fields[0].properties;
     models.push(serializeNeo4JTripler(entry));

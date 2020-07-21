@@ -105,9 +105,9 @@ async function parseRecord(record, argv) {
 
 function parseEdge(record) {
   return {
-    tripler1_voter_id: record[1],
-    tripler2_voter_id: record[2],
-    distance: record[4]
+    tripler1_voter_id: record[0],
+    tripler2_voter_id: record[1],
+    distance: record[2]
   }
 }
 
@@ -135,17 +135,27 @@ async function parseCsv(argv) {
       try {
         tripler1 = await neode.first('Tripler', 'voter_id', parsedRecord.tripler1_voter_id);
       } catch (err) {
-        console.log('error finding tripler for relationship: ', err);
+        console.log('\nerror finding tripler for relationship: ', err);
       }
       try {
         tripler2 = await neode.first('Tripler', 'voter_id', parsedRecord.tripler2_voter_id);
       } catch (err) {
-        console.log('error finding tripler for relationship: ', err);
+        console.log('\nerror finding tripler for relationship: ', err);
+      }
+      if (!tripler1) {
+        console.log('\ncould not find tripler: ', parsedRecord.tripler1_voter_id);
+        continue;
+      }
+      if (!tripler2) {
+        console.log('\ncould not find tripler: ', parsedRecord.tripler2_voter_id);
+        continue;
       }
       try {
         await tripler1.relateTo(tripler2, 'knows', {distance: parsedRecord.distance});
       } catch (err) {
-        console.log('error creating relationship: ', err);
+        console.log('\ntripler1.id: ', tripler1.id);
+        console.log('\ntripler2.id: ', tripler2.id);
+        console.log('\nerror creating relationship: ', err);
       }
     } else {
       parsedRecord = await parseRecord(record, argv);

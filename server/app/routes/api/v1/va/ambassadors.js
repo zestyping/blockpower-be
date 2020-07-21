@@ -208,6 +208,11 @@ async function signup(req, res) {
       return _400(res, "Invalid address, ambassador cannot sign up with this address");
     }
 
+    let matching_tripler = await req.neode.first('Tripler', {
+      first_name: req.body.first_name,
+      address: JSON.stringify(req.body.address)
+    })
+
     new_ambassador = await req.neode.create('Ambassador', {
       id: uuidv4(),
       first_name: req.body.first_name,
@@ -226,6 +231,24 @@ async function signup(req, res) {
       },
       external_id: req.externalId
     });
+
+    if (matching_tripler) {
+      try {
+        matching_tripler.get('knows').forEach((match) => {
+          new_ambassador.relateTo(match.otherNode(), 'matches', {distance: match.get('distance')});
+        });
+      } catch (err) {
+        req.logger.error("Could not update matching tripler social distance in %s: %s", req.url, err);
+      }
+      try {
+        await matching_tripler.update({
+          potential_ambassador_id: new_ambassador.get('id')
+        });
+      } catch (err) {
+        req.logger.error("Could not update matching tripler in %s: %s", req.url, err);
+      }
+    }
+
   } catch(err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
     return _500(res, 'Unable to update ambassador form data');

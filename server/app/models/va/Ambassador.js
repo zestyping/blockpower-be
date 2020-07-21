@@ -45,6 +45,20 @@ module.exports = {
     },
     eager: true
   },
+  matches: {
+    type: 'relationships',
+    relationship: 'MATCHES',
+    direction: 'out',
+    target: 'Tripler',
+    properties: {
+      distance: 'float',
+      since: {
+        type: 'localdatetime',
+        default: () => new Date,
+      },
+    },
+    eager: true
+  },
   signup_completed: {
     type: 'boolean',
     default: false

@@ -51,5 +51,6 @@ module.exports = {
     relationship: 'CLAIMS',
     direction: 'in',
     eager: true
-  }
+  },
+  potential_ambassador_id: 'string'
 };
