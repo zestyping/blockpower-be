@@ -13,7 +13,10 @@ module.exports = {
     type: 'string',
     required: true
   },
-  last_name: 'string',
+  last_name: {
+    type: 'string',
+    required: true
+  },
   date_of_birth: 'string',
   phone: {
     type: 'string',

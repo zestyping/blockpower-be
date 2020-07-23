@@ -39,6 +39,7 @@ For this server, configure an `.env` file. The following is a complete list of v
     TWILIO_SUPPORT_PROXY_RESPONSE=
     ORGANIZATION_NAME=
     AMBASSADOR_LANDING_PAGE=
+    BUSINESS_URL=
     AMBASSADOR_APPROVED_MESSAGE=
     TRIPLER_REMINDER_MESSAGE=
     TRIPLER_CONFIRMATION_MESSAGE=
@@ -89,6 +90,7 @@ The meaning of each config item is as follows:
 * `TWILIO_SUPPORT_PROXY_RESPONSE`: Support proxy messages for development; message and proxy number separated by =>. For example: yes=>+1 111-111-1111
 * `ORGANIZATION_NAME`: The name of the org
 * `AMBASSADOR_LANDING_PAGE`: Link to the webpage where ambassador lands after approval, this is sent in SMS
+* `BUSINESS_URL`: URL of the business running the platform or url of the organization; used in stripe while creating connect accounts
 * `AMBASSADOR_APPROVED_MESSAGE`: The SMS message when an ambassador is approved
 * `TRIPLER_REMINDER_MESSAGE`: The SMS message when a tripler is reminded
 * `TRIPLER_CONFIRMATION_MESSAGE`: The SMS message when a tripler begins confirmation process

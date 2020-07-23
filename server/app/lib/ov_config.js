@@ -40,6 +40,8 @@ export const ov_config = {
   plaid_environment: getConfig('plaid_environment', true, null),
   stripe_secret_key: getConfig('stripe_secret_key', true, null),
   organization_name: getConfig('organization_name', false, 'unknown org name'),
+  ambassador_landing_page: getConfig('ambassador_landing_page', true, null),
+  business_url: getConfig('business_url', true, null),
   ambassador_approved_message: getConfig('ambassador_approved_message', true, null),
   tripler_confirmation_message: getConfig('tripler_confirmation_message', true, null),
   tripler_reminder_message: getConfig('tripler_reminder_message', true, null),

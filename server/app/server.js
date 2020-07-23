@@ -8,6 +8,7 @@ import { ov_config } from './lib/ov_config';
 import neode  from './lib/neode';
 import neo4j from './lib/neo4j';
 import queue from './lib/queue';
+import { ip } from './lib/ip';
 
 const db = new neo4j(ov_config);
 const qq = new queue(db);
@@ -34,9 +35,8 @@ db.query('return timestamp()')
       ).listen(ov_config.server_ssl_port);
     } else {
       const server = app.listen(ov_config.server_port, () => {
-        const { address, port } = server.address();
         console.log('express.js startup');
-        console.log(`Listening at http://${address}:${port}`);
+        console.log(`Listening at http://${ip()}:${ov_config.server_port}`);
       });
     }
   });

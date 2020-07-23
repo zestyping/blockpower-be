@@ -1,17 +1,19 @@
 import { Router } from 'express';
+
 import plaid from 'plaid';
 import stripe from 'stripe';
+
 import {
   _400, _401, _204
 } from '../../../../lib/utils';
 import { ov_config } from '../../../../lib/ov_config';
 
 module.exports = Router({mergeParams: true})
-.post('/payouts/account/token/exchange', async (req, res) => {
-  return exchangeToken(req, res);
+.post('/payouts/stripe/account', async (req, res) => {
+  return createStripeAccount(req, res);
 });
 
-async function exchangeToken(req, res) {
+async function createStripeAccount(req, res) {
   if (!req.authenticated) return _401(res, 'Permission denied.');
   if (!req.user.get('email')) return _400(res, "Incomplete user data 'email'.");
   if (!req.body.token) return _400(res, "Invalid value to parameter 'token'.");
@@ -32,6 +34,7 @@ async function exchangeToken(req, res) {
   }
 
   const accessToken = plaidTokenRes.access_token;
+  
   // Generate a bank account token
   let stripeTokenRes;
   try {
@@ -41,17 +44,48 @@ async function exchangeToken(req, res) {
   }
   
   const bankAccountToken = stripeTokenRes.stripe_bank_account_token;
-  let customer;
+  let address = JSON.parse(req.user.get('address'));
+  let stripeConnectAccount = null;
   try {
-    customer = await stripe(ov_config.stripe_secret_key).customers.create({
-      source: bankAccountToken,
-      email: req.user.get('email'),
+    stripeConnectAccount = await stripe(ov_config.stripe_secret_key).accounts.create({
+      type: 'custom',
+      country: 'US',
+      email: req.user.get('email') ? req.user.get('email') : undefined,
+      requested_capabilities: [
+        'transfers',
+      ],
+      business_type: 'individual',
+      individual: {
+        first_name: req.user.get('first_name'),
+        last_name: req.user.get('last_name'),
+        address: {
+          line1: address.address1,
+          city: address.city,
+          state: address.state,
+          postal_code: address.zip,
+          country: 'US'
+        },
+        email: req.user.get('email') ? req.user.get('email') : undefined,
+        phone: req.user.get('phone')
+      },
+      business_profile: {
+        url: ov_config.business_url
+      },
+      external_account: bankAccountToken,
+      tos_acceptance: {
+        date: Math.floor(new Date() / 1000),
+        ip: req.publicIP
+      }
     });
   } catch (err) {
     return _400(res, err);
   }
   
-  req.user.update({ payout_provider: 'stripe', payout_account_id: customer.id, payout_additional_data: customer.sources.data[0].last4 });
+  await req.user.update({ 
+    payout_provider: 'stripe', 
+    payout_account_id: stripeConnectAccount.id
+  });
+  
   return _204(res);
 }
 
