@@ -14,7 +14,7 @@ async function send(ambassador, tripler) {
   }
 
   let query = `MATCH (a:Ambassador{id: \'${ambassador.get('id')}\'})-[r:EARNS_OFF]->(t:Tripler{id: \'${tripler.get('id')}\'}) RETURN r`;
-  await res = neode.cypher(query);
+  let res = await neode.cypher(query);
   if (res.records.length > 0) {
     let properties = res.records[0]._fields[0].properties;
     if (properties.status !== 'pending') {
@@ -37,3 +37,7 @@ async function send(ambassador, tripler) {
 function retry() {
 
 }
+
+module.exports = {
+  send: send
+};

@@ -11,6 +11,9 @@ import { ov_config } from '../../../../lib/ov_config';
 module.exports = Router({mergeParams: true})
 .post('/payouts/stripe/account', async (req, res) => {
   return createStripeAccount(req, res);
+})
+.get('/payouts/stripe/list', async (req, res) => {
+  return getStripePayouts(req, res);
 });
 
 async function createStripeAccount(req, res) {
@@ -87,5 +90,21 @@ async function createStripeAccount(req, res) {
   });
   
   return _204(res);
+}
+
+async function getStripePayouts (req, res) {
+  if (!req.authenticated) return _401(res, 'Permission denied.');
+  let ambassador = req.user;
+
+  let payouts = [];
+  ambassador.get('earns_off').forEach((payout) => {
+    payouts.push({
+      name: payout.otherNode().get('first_name') + ' ' + payout.otherNode().get('last_name'),
+      status: payout.get('status'),
+      amount: payout.get('amount')
+    });
+  });
+
+  return res.json(payouts);
 }
 

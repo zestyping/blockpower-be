@@ -4,6 +4,7 @@ import neode  from '../lib/neode';
 import { normalize } from '../lib/phone';
 import { ov_config } from '../lib/ov_config';
 import sms from '../lib/sms';
+import payouts from './payouts';
 
 async function findById(triplerId) {
   return await neode.first('Tripler', 'id', triplerId);
@@ -15,8 +16,10 @@ async function findByPhone(phone) {
 
 async function confirmTripler(triplerId) {
   let tripler = await neode.first('Tripler', 'id', triplerId);
+  let ambassador = tripler.get('claimed');
   if (tripler && tripler.get('status') === 'pending') {
     await tripler.update({ status: 'confirmed' });    
+    await payouts.send(ambassador, tripler);
   }
   else {
     throw "Invalid status, cannot confirm";
