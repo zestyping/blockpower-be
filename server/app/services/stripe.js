@@ -1,3 +1,4 @@
+import neode from '../lib/neode';
 import stripe from 'stripe';
 import { ov_config } from '../lib/ov_config';
 
@@ -75,10 +76,12 @@ async function disburse(ambassador, tripler) {
   ambassador.get('owns_account').forEach((entry) => {
     if (entry.otherNode().get('account_type') == 'stripe') {
       stripe_account = entry.otherNode();
+    } else {
+      throw 'Stripe account not set for ambassador, cannot pay';
     }
   });
 
-  let stripe_account_id = stripe_account.get('account_id');
+  let stripe_account_id = stripe_account && stripe_account.get('account_id');
   if (!stripe_account_id) {
     throw 'Stripe account not set for ambassador, cannot pay';
   }
@@ -89,7 +92,7 @@ async function disburse(ambassador, tripler) {
   let payout = null;
 
   try {
-    payout = await stripe(process.env.stripe_secret_key).transfers.create({
+    payout = await stripe(ov_config.stripe_secret_key).transfers.create({
       amount: amount,
       currency: 'usd',
       destination: stripe_account_id,

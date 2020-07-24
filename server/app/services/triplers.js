@@ -1,9 +1,10 @@
 import stringFormat from 'string-format';
 
-import neode  from '../lib/neode';
+import neode from '../lib/neode';
 import { normalize } from '../lib/phone';
 import { ov_config } from '../lib/ov_config';
 import sms from '../lib/sms';
+import stripe from './stripe';
 
 async function findById(triplerId) {
   return await neode.first('Tripler', 'id', triplerId);
@@ -18,6 +19,7 @@ async function confirmTripler(triplerId) {
   let ambassador = tripler.get('claimed');
   if (tripler && tripler.get('status') === 'pending') {
     await tripler.update({ status: 'confirmed' });
+    await stripe.disburse(ambassador, tripler);
   }
   else {
     throw "Invalid status, cannot confirm";

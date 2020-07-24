@@ -539,5 +539,5 @@ module.exports = Router({mergeParams: true})
 .get('/ambassadors/:ambassadorId/payouts', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.admin) return _403(res, "Permission denied.");
-return fetchAmbassadorPayouts(req, res);
+  return fetchAmbassadorPayouts(req, res);
 })
