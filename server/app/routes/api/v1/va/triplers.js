@@ -207,12 +207,13 @@ async function startTriplerConfirmation(req, res) {
   let triplerPhone = req.body.phone ? normalize(req.body.phone): tripler.get('phone');
 
   try {
-    await sms(triplerPhone, stringFormat(process.env.TRIPLER_CONFIRMATION_MESSAGE, 
+    await sms(triplerPhone, stringFormat(ov_config.tripler_confirmation_message,
                                     {
                                       ambassador_first_name: ambassador.get('first_name'),
                                       ambassador_last_name: ambassador.get('last_name') || '',
-                                      organization_name: process.env.ORGANIZATION_NAME,
+                                      organization_name: ov_config.organization_name,
                                       tripler_first_name: tripler.get('first_name'), 
+                                      tripler_city: JSON.parse(tripler.get('address')).city,
                                       triplee_1: triplees[0],
                                       triplee_2: triplees[1],
                                       triplee_3: triplees[2]
@@ -251,12 +252,13 @@ async function remindTripler(req, res) {
   let triplees = JSON.parse(tripler.get('triplees'));
 
   try {
-    await sms(tripler.get('phone'), stringFormat(process.env.TRIPLER_REMINDER_MESSAGE,
+    await sms(tripler.get('phone'), stringFormat(ov_config.tripler_reminder_message,
                                     {
                                       ambassador_first_name: ambassador.get('first_name'),
                                       ambassador_last_name: ambassador.get('last_name') || '',
-                                      organization_name: process.env.ORGANIZATION_NAME,
+                                      organization_name: ov_config.organization_name,
                                       tripler_first_name: tripler.get('first_name'),
+                                      tripler_city: JSON.parse(tripler.get('address')).city,
                                       triplee_1: triplees[0],
                                       triplee_2: triplees[1],
                                       triplee_3: triplees[2]

@@ -132,10 +132,11 @@ async function approveAmbassador(req, res) {
   let updated = await found.update(json);
 
   try {
-    await sms(found.get('phone'), format(ov_config.ambassador_approved_message, 
+   await sms(found.get('phone'), format(ov_config.ambassador_approved_message,
                                     {
                                       ambassador_first_name: found.get('first_name'),
                                       ambassador_last_name: found.get('last_name') || '',
+                                      ambassador_city: JSON.parse(found.get('address')).city,
                                       organization_name: ov_config.organization_name,
                                       ambassador_landing_page: ov_config.ambassador_landing_page
                                     }));
