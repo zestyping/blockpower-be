@@ -124,6 +124,10 @@ async function approveAmbassador(req, res) {
     return _404(res, "Ambassador not found");
   }
 
+  if (!found.get('onboarding_completed')) {
+    return _400(res, "Onboarding not completed for the user yet");
+  }
+
   let json = {...{approved: true, locked: false}};
   let updated = await found.update(json);
 
@@ -400,6 +404,10 @@ async function claimTriplers(req, res) {
 
 async function completeOnboarding(req, res) {
   let found = req.user;
+  if (!found.get('signup_completed')) {
+    return _400(res, "Signup not completed for user yet");
+  }
+
   let updated = await found.update({
     onboarding_completed: true,
     quiz_results: req.body.quiz_results ? JSON.stringify(req.body.quiz_results) : req.body ? JSON.stringify(req.body) : null,
@@ -407,7 +415,7 @@ async function completeOnboarding(req, res) {
   return res.json(serializeAmbassador(updated));
 }
 
-async function ambassadorPayouts(ambassador) {
+async function ambassadorPayouts(ambassador, neode) {
   let query = `MATCH (:Ambassador{id: \'${ambassador.get('id')}\'})-[r:EARNS_OFF]->(:Tripler) RETURN r`;
   let res = await neode.cypher(query);
   
@@ -421,13 +429,13 @@ async function ambassadorPayouts(ambassador) {
 }
 
 async function fetchCurrentAmbassadorPayouts(req, res) {
-  return res.json(ambassadorPayouts(req.user));
+  return res.json(await ambassadorPayouts(req.user, req.neode));
 }
 
 async function fetchAmbassadorPayouts(req, res) {
   let ambassador = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
   if (ambassador) {
-    return res.json(ambassadorPayouts(ambassador));
+    return res.json(await ambassadorPayouts(ambassador, req.neode));
   }
   else {
     return _404(res, "Ambassador not found");
@@ -478,7 +486,7 @@ module.exports = Router({mergeParams: true})
 })
 .get('/ambassadors/current/payouts', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
-  
+  return fetchCurrentAmbassadorPayouts(req, res);
 })
 
 .post('/ambassadors', (req, res) => {
@@ -530,4 +538,5 @@ module.exports = Router({mergeParams: true})
 .get('/ambassadors/:ambassadorId/payouts', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.admin) return _403(res, "Permission denied.");
+return fetchAmbassadorPayouts(req, res);
 })

@@ -73,9 +73,6 @@ module.exports = {
     type: 'boolean',
     default: false
   },
-  payout_provider: 'string',
-  payout_account_id: 'string',
-  payout_additional_data: 'string',
   earns_off: {
     type: 'relationships',
     relationship: 'EARNS_OFF',
@@ -86,12 +83,25 @@ module.exports = {
         type: 'localdatetime',
         default: () => new Date,
       },
-      initiated_at: 'localdatetime',
-      paid_at: 'localdatetime',
-      amount: 'float',
+      disbursed_at: 'localdatetime',
+      settled_at: 'localdatetime',
+      amount: 'integer',
       status: 'string',
-      payment_id: 'string',
+      payout_id: 'string',
       error: 'string'
+    },
+    eager: true
+  },
+  owns_account: {
+    type: 'relationships',
+    relationship: 'OWNS_ACCOUNT',
+    direction: 'out',
+    target: 'Account',
+    properties: {
+      since: {
+        type: 'localdatetime',
+        default: () => new Date,
+      }
     },
     eager: true
   }

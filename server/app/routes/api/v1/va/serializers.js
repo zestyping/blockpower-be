@@ -23,10 +23,13 @@ function serializeAmbassador(ambassador) {
 }
 
 function serializePayout(payout) {
-  let obj = {};
-  ['initiated_at', 'paid_at', 'amount', 'status', 'error'].forEach(x => obj[x] = payout[x]);
-
-  return obj;
+  return {
+    amount: payout.amount.low,
+    status: payout.status,
+    disbursed_at: payout.disbursed_at ? new Date(payout.disbursed_at.toString()) : null,
+    settled_at: payout.settled_at ? new Date(payout.settled_at.toString()) : null,
+    error: payout.error ? JSON.parse(payout.error) : null
+  };
 }
 
 function serializeTripler(tripler) {
@@ -49,9 +52,9 @@ function serializeNeo4JTripler(tripler) {
   return obj;
 }
 
-
 module.exports = {
   serializeAmbassador: serializeAmbassador,
   serializeTripler: serializeTripler,
-  serializeNeo4JTripler: serializeNeo4JTripler
+  serializeNeo4JTripler: serializeNeo4JTripler,
+  serializePayout: serializePayout
 };
