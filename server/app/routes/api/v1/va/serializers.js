@@ -18,7 +18,6 @@ function serializeAmbassador(ambassador) {
   obj['display_address'] = !!obj['address'] ? _displayAddress(obj['address']) : null;
   obj['display_name'] = _displayName(ambassador.get('first_name'), ambassador.get('last_name'));
   obj['quiz_results'] = !!ambassador.get('quiz_results') ? JSON.parse(ambassador.get('quiz_results')) : null;
-
   return obj;
 }
 

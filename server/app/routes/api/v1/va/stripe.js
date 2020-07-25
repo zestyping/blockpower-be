@@ -21,6 +21,7 @@ async function createStripeAccount(req, res) {
       account_id: stripeConnectAccount.id
     });
     await req.user.relateTo(account, 'owns_account');
+    await req.user.update({payout_provider: 'stripe'});
   } catch (err) {
     return _400(res, err);
   }

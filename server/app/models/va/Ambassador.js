@@ -69,6 +69,7 @@ module.exports = {
     type: 'boolean',
     default: false
   },
+  payout_provider: 'string',
   admin: {
     type: 'boolean',
     default: false
