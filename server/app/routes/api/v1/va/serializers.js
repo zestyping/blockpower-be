@@ -23,7 +23,7 @@ function serializeAmbassador(ambassador) {
 
 function serializePayout(payout) {
   return {
-    amount: payout.amount.low,
+    amount: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(payout.amount.low/100),
     status: payout.status,
     disbursed_at: payout.disbursed_at ? new Date(payout.disbursed_at.toString()) : null,
     settled_at: payout.settled_at ? new Date(payout.settled_at.toString()) : null,
