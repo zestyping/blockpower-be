@@ -12,7 +12,7 @@ async function createStripeAccount(req, res) {
   if (!req.body.account_id) return _400(res, "Invalid value to parameter 'account_id'.");
 
   try {
-    const bankAccountToken = plaidSvc.createStripeBankToken(req.body.token, req.body.account_id);
+    const bankAccountToken = await plaidSvc.createStripeBankToken(req.body.token, req.body.account_id);
     const stripeConnectAccount = await stripeSvc.createConnectAccount(req.user, bankAccountToken, req.publicIP);
 
     const account = await req.neode.create('Account', {
