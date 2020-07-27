@@ -14,6 +14,7 @@ import audit from 'morgan-body';
 
 import { ov_config } from './lib/ov_config';
 import ambassadorSvc from './services/ambassadors';
+import { ip } from './lib/ip';
 
 import {
   cqdo, _400, _401, _403, _500, _503
@@ -90,6 +91,7 @@ export function doExpressInit(log, db, qq, neode) {
     req.qq = qq;
     req.neode = neode;
     req.logger = logger;
+    req.publicIP = ip();
     req.models = require('./models/va');
 
     req.isLocal = req.connection.remoteAddress === req.connection.localAddress;

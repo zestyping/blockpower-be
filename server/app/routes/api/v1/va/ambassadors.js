@@ -12,7 +12,7 @@ import {
 } from '../../../../lib/validations';
 
 import { v4 as uuidv4 } from 'uuid';
-import { serializeAmbassador, serializeTripler } from './serializers';
+import { serializeAmbassador, serializeTripler, serializePayout } from './serializers';
 import sms from '../../../../lib/sms';
 import { ov_config } from '../../../../lib/ov_config';
 
@@ -124,11 +124,15 @@ async function approveAmbassador(req, res) {
     return _404(res, "Ambassador not found");
   }
 
+  if (!found.get('onboarding_completed')) {
+    return _400(res, "Onboarding not completed for the user yet");
+  }
+
   let json = {...{approved: true, locked: false}};
   let updated = await found.update(json);
 
   try {
-    await sms(found.get('phone'), format(ov_config.ambassador_approved_message,
+   await sms(found.get('phone'), format(ov_config.ambassador_approved_message,
                                     {
                                       ambassador_first_name: found.get('first_name'),
                                       ambassador_last_name: found.get('last_name') || '',
@@ -401,11 +405,42 @@ async function claimTriplers(req, res) {
 
 async function completeOnboarding(req, res) {
   let found = req.user;
+  if (!found.get('signup_completed')) {
+    return _400(res, "Signup not completed for user yet");
+  }
+
   let updated = await found.update({
     onboarding_completed: true,
     quiz_results: req.body.quiz_results ? JSON.stringify(req.body.quiz_results) : req.body ? JSON.stringify(req.body) : null,
   });
   return res.json(serializeAmbassador(updated));
+}
+
+async function ambassadorPayouts(ambassador, neode) {
+  let query = `MATCH (:Ambassador{id: \'${ambassador.get('id')}\'})-[r:EARNS_OFF]->(:Tripler) RETURN r`;
+  let res = await neode.cypher(query);
+  
+  let arr = [];
+  res.records.forEach((row) => {
+    let properties = row._fields[0].properties;
+    arr.push(serializePayout(properties));
+  });
+
+  return arr;
+}
+
+async function fetchCurrentAmbassadorPayouts(req, res) {
+  return res.json(await ambassadorPayouts(req.user, req.neode));
+}
+
+async function fetchAmbassadorPayouts(req, res) {
+  let ambassador = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
+  if (ambassador) {
+    return res.json(await ambassadorPayouts(ambassador, req.neode));
+  }
+  else {
+    return _404(res, "Ambassador not found");
+  }
 }
 
 function claimedTriplers(req, res) {
@@ -449,6 +484,10 @@ module.exports = Router({mergeParams: true})
 .put('/ambassadors/current/complete-onboarding', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   return completeOnboarding(req, res);
+})
+.get('/ambassadors/current/payouts', (req, res) => {
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  return fetchCurrentAmbassadorPayouts(req, res);
 })
 
 .post('/ambassadors', (req, res) => {
@@ -496,4 +535,9 @@ module.exports = Router({mergeParams: true})
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.admin) return _403(res, "Permission denied.");
   return deleteAmbassador(req, res);
+})
+.get('/ambassadors/:ambassadorId/payouts', (req, res) => {
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!req.admin) return _403(res, "Permission denied.");
+  return fetchAmbassadorPayouts(req, res);
 })

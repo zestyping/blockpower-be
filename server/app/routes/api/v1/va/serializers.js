@@ -18,8 +18,17 @@ function serializeAmbassador(ambassador) {
   obj['display_address'] = !!obj['address'] ? _displayAddress(obj['address']) : null;
   obj['display_name'] = _displayName(ambassador.get('first_name'), ambassador.get('last_name'));
   obj['quiz_results'] = !!ambassador.get('quiz_results') ? JSON.parse(ambassador.get('quiz_results')) : null;
+  return obj;
+}
 
-  return obj
+function serializePayout(payout) {
+  return {
+    amount: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(payout.amount.low/100),
+    status: payout.status,
+    disbursed_at: payout.disbursed_at ? new Date(payout.disbursed_at.toString()) : null,
+    settled_at: payout.settled_at ? new Date(payout.settled_at.toString()) : null,
+    error: payout.error ? JSON.parse(payout.error) : null
+  };
 }
 
 function serializeTripler(tripler) {
@@ -29,7 +38,7 @@ function serializeTripler(tripler) {
   obj['display_address'] = !!obj['address'] ? _displayAddress(obj['address']) : null;
   obj['display_name'] = _displayName(tripler.get('first_name'), tripler.get('last_name'));
   obj['triplees'] = !!tripler.get('triplees') ? JSON.parse(tripler.get('triplees')) : null;
-  return obj
+  return obj;
 }
 
 function serializeNeo4JTripler(tripler) {
@@ -42,9 +51,9 @@ function serializeNeo4JTripler(tripler) {
   return obj;
 }
 
-
 module.exports = {
   serializeAmbassador: serializeAmbassador,
   serializeTripler: serializeTripler,
-  serializeNeo4JTripler: serializeNeo4JTripler
+  serializeNeo4JTripler: serializeNeo4JTripler,
+  serializePayout: serializePayout
 };

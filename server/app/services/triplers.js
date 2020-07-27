@@ -1,9 +1,10 @@
 import stringFormat from 'string-format';
 
-import neode  from '../lib/neode';
+import neode from '../lib/neode';
 import { normalize } from '../lib/phone';
 import { ov_config } from '../lib/ov_config';
 import sms from '../lib/sms';
+import stripe from './stripe';
 
 async function findById(triplerId) {
   return await neode.first('Tripler', 'id', triplerId);
@@ -15,8 +16,10 @@ async function findByPhone(phone) {
 
 async function confirmTripler(triplerId) {
   let tripler = await neode.first('Tripler', 'id', triplerId);
+  let ambassador = tripler.get('claimed');
   if (tripler && tripler.get('status') === 'pending') {
-    await tripler.update({ status: 'confirmed' });    
+    await tripler.update({ status: 'confirmed' });
+    await stripe.disburse(ambassador, tripler);
   }
   else {
     throw "Invalid status, cannot confirm";
@@ -28,9 +31,7 @@ async function detachTripler(triplerId) {
   if (tripler) {
     let ambassador = tripler.get('claimed');
     if (ambassador) {
-      let query = `MATCH (t:Tripler{id: \'${tripler.get('id')}\'}) DETACH DELETE t`;
-      console.log(query);
-      await neode.cypher(query);
+      await tripler.delete();
     }
   }
   else {

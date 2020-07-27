@@ -198,7 +198,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Tomaz\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 8537\",\n\t\"quiz_results\": [\n\t\t{\n\t\t\t\"question\": \"hello there\",\n\t\t\t\"answer\": \"general kenobi!\"\n\t\t},\n\t\t{\n\t\t\t\"question\": \"do you like sand?\",\n\t\t\t\"answer\": \"I hate it\"\n\t\t}\n\t]\n}",
+					"raw": "{\n\t\"first_name\": \"Tomaz\",\n\t\"last_name\": \"Korenika\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 8537\",\n\t\"quiz_results\": [\n\t\t{\n\t\t\t\"question\": \"hello there\",\n\t\t\t\"answer\": \"general kenobi!\"\n\t\t},\n\t\t{\n\t\t\t\"question\": \"do you like sand?\",\n\t\t\t\"answer\": \"I hate it\"\n\t\t}\n\t]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -607,7 +607,7 @@
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
 							"",
-							"    postman.setNextRequest(\"Check ambassador exists (true)\");",
+							"    postman.setNextRequest(\"Fetch current ambassador payouts\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -634,6 +634,50 @@
 						"va",
 						"ambassadors",
 						"current"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch current ambassador payouts",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2a3f14f6-d91b-4e6f-aa6b-29d28101553d",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    postman.setNextRequest(\"Check ambassador exists (true)\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/current/payouts",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"current",
+						"payouts"
 					]
 				}
 			},
@@ -754,7 +798,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"the admin\",\n\t\"phone\": \"+1 205 852 8537\",\n\t\"address\": {\n        \"address1\": \"1653 Logan St\",\n        \"city\": \"Denver\",\n        \"state\": \"CO\",\n        \"zip\": 80203\n    }\n}",
+					"raw": "{\n\t\"first_name\": \"the admin\",\n    \"last_name\": \"King\",\n\t\"phone\": \"+1 205 852 8537\",\n\t\"address\": {\n        \"address1\": \"1653 Logan St\",\n        \"city\": \"Denver\",\n        \"state\": \"CO\",\n        \"zip\": 80203\n    },\n    \"email\": \"aman@colab.coop\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -783,7 +827,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "22254200-cd81-4dcd-ba3f-e3c23bd627ae",
+						"id": "d8112b95-5e68-4901-bf29-9018ae4e59b3",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -1117,7 +1161,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"From\": \"+1 205 852 8537\",\n\t\"Body\": \"yes\"\n}"
+					"raw": "{\n\t\"From\": \"+1 500 555 0006\",\n\t\"Body\": \"yes\"\n}"
 				},
 				"url": {
 					"raw": "{{base_url}}/api/v1/public/va/sms/receive",
@@ -1439,7 +1483,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+15005550006\",\n    \"email\": \"aman@colab.coop\"\n}",
+					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"last_name\": \"Winn\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+15005550006\",\n    \"email\": \"aman1@colab.coop\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1472,7 +1516,7 @@
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
 							"",
-							"    postman.setNextRequest(\"Fetch all ambassadors (admin api)\");",
+							"    postman.setNextRequest(\"Delete an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1526,6 +1570,132 @@
 						"v1",
 						"va",
 						"ambassadors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete an ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "69679376-f3a8-44ac-97a7-193fa9c7199e",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"",
+							"    postman.setNextRequest(\"Signup (other ambassador)\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"{{other_ambassador_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Signup (other ambassador)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "305a847a-9c2c-48ef-a095-da5ce6b94735",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    let jsonData = pm.response.json()",
+							"    pm.globals.set('other_ambassador_id', jsonData.id);",
+							"",
+							"    postman.setNextRequest(\"Fetch all ambassadors (admin api)\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{other_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"David\",\n\t\"last_name\": \"Brooks\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+15005550006\",\n\t\"quiz_results\": [\n\t\t{\n\t\t\t\"question\": \"hello there\",\n\t\t\t\"answer\": \"general kenobi!\"\n\t\t},\n\t\t{\n\t\t\t\"question\": \"do you like sand?\",\n\t\t\t\"answer\": \"I hate it\"\n\t\t}\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/signup",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"signup"
 					]
 				}
 			},
@@ -1970,7 +2140,7 @@
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
 							"",
-							"    postman.setNextRequest(\"Approve an ambassador (admin api)\");",
+							"    postman.setNextRequest(\"Complete onboarding (other ambassador)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1988,7 +2158,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+15005550006\",\n\t\"email\": \"aman@colab.coop\"\n}",
+					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+15005550006\",\n\t\"email\": \"aman2@colab.coop\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -2006,6 +2176,50 @@
 						"va",
 						"ambassadors",
 						"{{other_ambassador_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Complete onboarding (other ambassador)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "22254200-cd81-4dcd-ba3f-e3c23bd627ae",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    postman.setNextRequest(\"Approve an ambassador (admin api)\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{other_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/current/complete-onboarding",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"current",
+						"complete-onboarding"
 					]
 				}
 			},
@@ -2127,7 +2341,7 @@
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
 							"",
-							"    postman.setNextRequest(\"Delete an ambassador (admin api)\");",
+							"    postman.setNextRequest(\"Delete a tripler (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2164,58 +2378,6 @@
 						"ambassadors",
 						"{{other_ambassador_id}}",
 						"disapprove"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Delete an ambassador (admin api)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"id": "7c2ec3d0-2c1f-4fbf-b32e-a42719f38564",
-						"exec": [
-							"pm.test(\"Status test\", function () {",
-							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Delete a tripler (admin api)\");",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Authorization",
-						"type": "text",
-						"value": "Bearer {{token}}"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"v1",
-						"va",
-						"ambassadors",
-						"{{other_ambassador_id}}"
 					]
 				}
 			},
