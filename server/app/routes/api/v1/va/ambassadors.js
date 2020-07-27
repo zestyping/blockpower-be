@@ -417,16 +417,15 @@ async function completeOnboarding(req, res) {
 }
 
 async function ambassadorPayouts(ambassador, neode) {
-  let query = `MATCH (:Ambassador{id: \'${ambassador.get('id')}\'})-[r:EARNS_OFF]->(:Tripler) RETURN r`;
-  let res = await neode.cypher(query);
-  
-  let arr = [];
-  res.records.forEach((row) => {
-    let properties = row._fields[0].properties;
-    arr.push(serializePayout(properties));
+  let payouts = [];
+
+  ambassador.get('earns_off').forEach((entry) => {
+    let obj = serializePayout(entry);
+    obj.name = `${entry.otherNode().get('first_name')} ${entry.otherNode().get('last_name')}`;
+    payouts.push(obj);
   });
 
-  return arr;
+  return payouts;
 }
 
 async function fetchCurrentAmbassadorPayouts(req, res) {
