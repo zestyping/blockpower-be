@@ -7,7 +7,7 @@ function runOnce() {
 
 function schedule() {
   // TODO read from yaml configuration file
-  cron.schedule('* * * * *', payouts );
+  cron.schedule('*/10 * * * *', payouts);
 }
 
 module.exports = {

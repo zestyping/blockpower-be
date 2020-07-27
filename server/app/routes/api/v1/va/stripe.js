@@ -18,7 +18,8 @@ async function createStripeAccount(req, res) {
     const account = await req.neode.create('Account', {
       id: uuidv4(),
       account_type: 'stripe',
-      account_id: stripeConnectAccount.id
+      account_id: stripeConnectAccount.id,
+      account_data: JSON.stringify({last4: stripeConnectAccount.external_accounts.data[0].last4})
     });
     await req.user.relateTo(account, 'owns_account');
     await req.user.update({payout_provider: 'stripe'});

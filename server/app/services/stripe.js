@@ -36,9 +36,7 @@ async function createConnectAccount(user, bankAccountToken, acceptanceIp) {
   });
 }
 
-async function disburse(ambassador, tripler) {
-  // pending => disbursed => settled
-
+function validateForPayment(ambassador, tripler) {
   if (!ambassador.get('approved')) {
     throw 'Ambassador not approved, cannot pay';
   }
@@ -56,6 +54,29 @@ async function disburse(ambassador, tripler) {
   if (status !== 'confirmed') {
     throw 'Tripler not confirmed yet, cannot pay';
   }
+}
+
+function getStripeAccountId(ambassador) {
+  let stripe_account = null;
+  ambassador.get('owns_account').forEach((entry) => {
+    if (entry.otherNode().get('account_type') == 'stripe') {
+      stripe_account = entry.otherNode();
+    } else {
+      throw 'Stripe account not set for ambassador, cannot pay';
+    }
+  });
+
+  return stripe_account && stripe_account.get('account_id');
+}
+
+function getPayoutDescription(ambassador, tripler) {
+  return `A: ${ambassador.get('phone')} T: ${tripler.get('phone')}`;
+}
+
+async function disburse(ambassador, tripler) {
+  // pending => disbursed => settled
+
+  validateForPayment(ambassador, tripler);
 
   let query = `MATCH (a:Ambassador{id: \'${ambassador.get('id')}\'})-[r:EARNS_OFF]->(t:Tripler{id: \'${tripler.get('id')}\'}) RETURN r`;
   let res = await neode.cypher(query);
@@ -72,31 +93,21 @@ async function disburse(ambassador, tripler) {
   }
   amount = parseInt(amount);
 
-  let stripe_account = null;
-  ambassador.get('owns_account').forEach((entry) => {
-    if (entry.otherNode().get('account_type') == 'stripe') {
-      stripe_account = entry.otherNode();
-    } else {
-      throw 'Stripe account not set for ambassador, cannot pay';
-    }
-  });
-
-  let stripe_account_id = stripe_account && stripe_account.get('account_id');
+  let stripe_account_id = getStripeAccountId(ambassador);
   if (!stripe_account_id) {
     throw 'Stripe account not set for ambassador, cannot pay';
   }
 
   // create relationship and send money
 
-  await ambassador.relateTo(tripler, 'earns_off', { status: 'pending' });
-  let payout = null;
+  let transfer = null;
 
   try {
-    payout = await stripe(ov_config.stripe_secret_key).transfers.create({
+    transfer = await stripe(ov_config.stripe_secret_key).transfers.create({
       amount: amount,
       currency: 'usd',
       destination: stripe_account_id,
-      transfer_group: `A: ${ambassador.get('phone')} T: ${tripler.get('phone')}`
+      transfer_group: getPayoutDescription(ambassador, tripler)
     });
   } catch(err) {
     await ambassador.relateTo(tripler, 'earns_off', { error: JSON.stringify(err) });
@@ -104,11 +115,46 @@ async function disburse(ambassador, tripler) {
   }
 
   // update relationship details
-  await ambassador.relateTo(tripler, 'earns_off', { status: 'disbursed', disbursed_at: new Date(), amount: amount, payout_id: payout.id });
+  await ambassador.relateTo(tripler, 'earns_off', { status: 'disbursed', disbursed_at: new Date(), amount: amount, disbursement_id: transfer.id });
 }
 
-async function settle() {
+async function settle(ambassador, tripler) {
+  validateForPayment(ambassador, tripler);
 
+  let query = `MATCH (a:Ambassador{id: \'${ambassador.get('id')}\'})-[r:EARNS_OFF]->(t:Tripler{id: \'${tripler.get('id')}\'}) RETURN r`;
+  let res = await neode.cypher(query);
+  if (res.records.length > 0) {
+    let properties = res.records[0]._fields[0].properties;
+    if (properties.status !== 'disbursed') {
+      return;
+    }
+  } 
+
+  let amount = ov_config.payout_per_tripler;
+  if (!amount) {
+    throw 'Configuration error, cannot pay';
+  }
+  amount = parseInt(amount);
+
+  let stripe_account_id = getStripeAccountId(ambassador);
+  if (!stripe_account_id) {
+    throw 'Stripe account not set for ambassador, cannot pay';
+  }
+
+  let payout = null;
+  try {
+    payout = await stripe(ov_config.stripe_secret_key).payouts.create({
+      amount: amount, 
+      currency: 'usd', 
+      description: getPayoutDescription(ambassador, tripler)
+    });
+  } catch(err) {
+    await ambassador.relateTo(tripler, 'earns_off', { error: JSON.stringify(err) });
+    throw err;      
+  }
+
+  // update relationship details
+  await ambassador.relateTo(tripler, 'earns_off', { status: 'settled', settled_at: new Date(), amount: amount, settlement_id: payout.id });
 }
 
 module.exports = {

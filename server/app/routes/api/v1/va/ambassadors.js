@@ -446,9 +446,15 @@ async function fetchAmbassadorPayouts(req, res) {
 function claimedTriplers(req, res) {
   let ambassador = req.user;
 
-  let triplers = [];
-  ambassador.get('claims').forEach((entry) => triplers.push(serializeTripler(entry.otherNode())));
-  return res.json(triplers);
+  let triplers = {};
+  ambassador.get('claims').forEach((entry) => triplers[entry.otherNode().get('id')] = serializeTripler(entry.otherNode()));
+
+  ambassador.get('earns_off').forEach((entry) => {
+    let tripler = triplers[entry.otherNode().get('id')];
+    tripler.payout = serializePayout(entry);
+  });
+
+  return res.json(Object.values(triplers));
 }
 
 function checkAmbassador(req, res) {

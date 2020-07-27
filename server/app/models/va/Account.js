@@ -12,5 +12,9 @@ module.exports = {
   account_id: {
     type: 'string',
     required: true
+  },
+  account_data: {
+    type: 'string',
+    required: false
   }
 };
