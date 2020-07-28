@@ -12,7 +12,7 @@ import {
 } from '../../../../lib/validations';
 
 import { v4 as uuidv4 } from 'uuid';
-import { serializeAmbassador, serializeTripler, serializePayout } from './serializers';
+import { serializeAmbassador, serializeTripler, serializePayout, serializeName } from './serializers';
 import sms from '../../../../lib/sms';
 import { ov_config } from '../../../../lib/ov_config';
 
@@ -421,7 +421,7 @@ async function ambassadorPayouts(ambassador, neode) {
 
   ambassador.get('earns_off').forEach((entry) => {
     let obj = serializePayout(entry);
-    obj.name = `${entry.otherNode().get('first_name')} ${entry.otherNode().get('last_name')}`;
+    obj.tripler_name = serializeName(entry.otherNode().get('first_name'), entry.otherNode().get('last_name'));
     payouts.push(obj);
   });
 
