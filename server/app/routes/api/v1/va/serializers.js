@@ -33,7 +33,7 @@ function serializeAmbassador(ambassador) {
 
 function serializePayout(payout) {
   return {
-    amount: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(payout.get('amount').low/100),
+    amount: payout.get('amount') ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(payout.get('amount').low/100) : null,
     status: payout.get('status'),
     disbursement_id: payout.get('disbursement_id'),
     settlement_id: payout.get('settlement_id'),
