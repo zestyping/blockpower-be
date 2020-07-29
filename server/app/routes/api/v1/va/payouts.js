@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import stripeSvc from '../../../../services/stripe';
+import paypalSvc from '../../../../services/paypal';
 import ambassadorSvc from '../../../../services/ambassadors';
 import triplerSvc from '../../../../services/triplers';
 
@@ -10,6 +11,7 @@ import {
 import { ov_config } from '../../../../lib/ov_config';
 
 import stripe from './stripe';
+import paypal from './paypal';
 
 function stripePayout(req) {
   return req.query.stripe && req.query.stripe.toLowerCase() === 'true' && ov_config.payout_stripe;
@@ -27,7 +29,7 @@ module.exports = Router({mergeParams: true})
     return stripe.createStripeAccount(req, res);
   }
   else if (paypalPayout(req)) {
-    return _400(res, 'Not implemented.');
+    return paypal.createPaypalAccount(req, res);
   }
   else {
     return _400(res, 'Payouts not supported.');
@@ -54,16 +56,26 @@ module.exports = Router({mergeParams: true})
     return _400(res, 'Invalid tripler, cannot disburse.');
   }
 
-  // TODO: See what the default account is, and invoke appropriate payment provider api
+  let payoutType = '';
+  req.user.get('owns_account').forEach(async (entry) => {
+    if (entry.otherNode().get('account_type') === 'stripe' && entry.otherNode().get('is_primary')) {
+      payoutType = 'stripe';
+    } else if (entry.otherNode().get('account_type') === 'paypal' && entry.otherNode().get('is_primary')) {
+      payoutType = 'paypal';
+    }
+  });
 
   try {
-    await stripeSvc.disburse(ambassador, tripler);
+    if (payoutType === 'stripe') {
+      await stripeSvc.disburse(ambassador, tripler);
+    } else if (payoutType === 'paypal') {
+      await paypalSvc.disburse(ambassador, tripler);
+    }
   }
   catch (err) {
-    req.logger.error('Unable to disburse money to ambassador (%s) for tripler (%s): %s', ambassador.get('phone'), tripler.get('phone'), err);
-    return _500(res, 'Unable to disburse money, please check logs.');
+    req.logger.error('Unable to disburse money via (%s) to ambassador (%s) for tripler (%s): %s', payoutType, ambassador.get('phone'), tripler.get('phone'), err);
+    return _500(res, 'Unable to disburse money via (%s), please check logs.', payoutType);
   }
-
   return _204(res);
 })
 .put('/payouts/settle', async (req, res) => {

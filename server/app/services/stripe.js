@@ -59,12 +59,12 @@ function validateForPayment(ambassador, tripler) {
 function getStripeAccountId(ambassador) {
   let stripe_account = null;
   ambassador.get('owns_account').forEach((entry) => {
-    if (entry.otherNode().get('account_type') == 'stripe') {
+    if (entry.otherNode().get('account_type') == 'stripe' && entry.otherNode().get('is_primary')) {
       stripe_account = entry.otherNode();
-    } else {
-      throw 'Stripe account not set for ambassador, cannot pay';
     }
   });
+
+  if (!stripe_account) throw 'Stripe account not set for ambassador, cannot pay';
 
   return stripe_account && stripe_account.get('account_id');
 }
