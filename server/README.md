@@ -54,6 +54,8 @@ For this server, configure an `.env` file. The following is a complete list of v
     AMBASSADOR_TRIPLER_RELATION_MAX_DISTANCE=
     SUGGEST_TRIPLER_LIMIT=
     CLAIM_TRIPLER_LIMIT=
+    PAYOUT_SCHEDULE=
+    FIFO_WAKEUP=
 
 The meaning of each config item is as follows:
 
@@ -108,3 +110,5 @@ The meaning of each config item is as follows:
 * `AMBASSADOR_TRIPLER_RELATION_MAX_DISTANCE`: Distance in meters to decide if a tripler can be suggested to ambassador, default set to 10000
 * `SUGGEST_TRIPLER_LIMIT`: Maximum number of triplers returned by suggest-triplers api, default set to 1000
 * `CLAIM_TRIPLER_LIMIT`: Maximum number of triplers an ambassador can claim, default set to 12
+* `PAYOUT_SCHEDULE`: Payout schedule in minutes, default set to 60 minutes
+* `FIFO_WAKEUP`: FIFO queue wakeup/sleep interval in milliseconds, default set to 300 msec
