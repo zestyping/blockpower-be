@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a95d4540-a519-4990-83f2-affdc7faa15d",
+		"_postman_id": "59b33dc9-5f84-44f2-a160-2bcf7c3981e0",
 		"name": "VoterAmbassador",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -15,8 +15,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Check address (invalid)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -86,8 +84,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Signup\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -160,8 +156,6 @@
 							"",
 							"    let jsonData = pm.response.json()",
 							"    pm.globals.set('ambassador_id', jsonData.id);",
-							"",
-							"    postman.setNextRequest(\"Signup failure due to duplicate external id\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -231,8 +225,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
-							"",
-							"    postman.setNextRequest(\"Signup failure due to invalid email\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -302,8 +294,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
-							"",
-							"    postman.setNextRequest(\"Make admin (localhost api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -373,8 +363,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Create test account (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -436,8 +424,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Create tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -507,8 +493,6 @@
 							"",
 							"    let jsonData = pm.response.json()",
 							"    pm.globals.set('tripler_id', jsonData.id);",
-							"",
-							"    postman.setNextRequest(\"Create other tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -580,8 +564,6 @@
 							"",
 							"    let jsonData = pm.response.json()",
 							"    pm.globals.set('other_tripler_id', jsonData.id);",
-							"",
-							"    postman.setNextRequest(\"Claim triplers\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -650,8 +632,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Fetch claimed triplers\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -703,8 +683,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Fetch current ambassador\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -747,8 +725,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Fetch current ambassador payouts\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -790,8 +766,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Check ambassador exists (true)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -834,8 +808,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Check ambassador exists (false)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -877,8 +849,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Update current ambassador\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -920,8 +890,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Complete onboarding\");    ",
 							"});"
 						],
 						"type": "text/javascript"
@@ -972,8 +940,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Approve current ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1016,8 +982,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Suggest triplers\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1088,8 +1052,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Start confirmation process for claimed tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1130,8 +1092,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Start confirmation process for other claimed tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1202,8 +1162,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Remind tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1274,8 +1232,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Fetch a tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1346,8 +1302,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Confirm tripler via SMS\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1408,8 +1362,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Confirm other tripler via SMS\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1475,8 +1427,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Confirm tripler via SMS (proxy)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1542,8 +1492,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Update tripler (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1609,8 +1557,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Confirm tripler (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1680,8 +1626,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Fetch all triplers (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1752,8 +1696,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Create ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1797,8 +1739,6 @@
 							"",
 							"    let jsonData = pm.response.json()",
 							"    pm.globals.set('other_ambassador_id', jsonData.id);",
-							"",
-							"    postman.setNextRequest(\"Create ambassador failure due to duplicate email (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1867,8 +1807,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
-							"",
-							"    postman.setNextRequest(\"Delete an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1937,8 +1875,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Signup (other ambassador)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1992,8 +1928,6 @@
 							"",
 							"    let jsonData = pm.response.json()",
 							"    pm.globals.set('other_ambassador_id', jsonData.id);",
-							"",
-							"    postman.setNextRequest(\"Fetch all ambassadors (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2063,8 +1997,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by phone (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2105,8 +2037,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by email (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2153,8 +2083,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by approved (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2201,8 +2129,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by disapproved (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2249,8 +2175,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by external id (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2301,8 +2225,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by pending (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2349,8 +2271,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Count all ambassadors (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2405,8 +2325,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Fetch an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2448,8 +2366,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Update an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2491,8 +2407,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Complete onboarding (other ambassador)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2543,8 +2457,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Approve an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2587,8 +2499,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Update ambassador failure due to duplicate phone\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2640,8 +2550,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
-							"",
-							"    postman.setNextRequest(\"Disapprove an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2692,8 +2600,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Disburse to ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2745,8 +2651,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Settle for ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2798,8 +2702,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Get current ambassador payouts\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2851,8 +2753,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Delete a tripler (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
