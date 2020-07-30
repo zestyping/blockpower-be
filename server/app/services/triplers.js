@@ -19,7 +19,8 @@ async function confirmTripler(triplerId) {
   let ambassador = tripler.get('claimed');
   if (tripler && tripler.get('status') === 'pending') {
     await tripler.update({ status: 'confirmed' });
-    await ambassador.relateTo(tripler, 'earns_off', { status: 'pending' });
+    let payout = await neode.create('Payout', {amount: ov_config.payout_per_tripler, status: 'pending'});
+    await ambassador.relateTo(payout, 'gets_paid', {tripler_id: tripler.get('id')});
   }
   else {
     throw "Invalid status, cannot confirm";

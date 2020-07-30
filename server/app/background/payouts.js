@@ -3,6 +3,7 @@ import logger from 'logops';
 import ambassadorSvc from '../services/ambassadors';
 import stripeSvc from '../services/stripe';
 import fifo from '../lib/fifo';
+import triplerSvc from '../services/triplers';
 
 function disburse_task(ambassador, tripler) {
   return {
@@ -41,9 +42,10 @@ async function disburse() {
   logger.debug('%d ambassadors to be processed', ambassadors.length);
 
   await Promise.all(ambassadors.map(async(ambassador) => {
-    await Promise.all(ambassador.get('earns_off').map(async(relationship) => {
-      let tripler = relationship.otherNode();
-      if (relationship.get('status') === 'pending') {
+    await Promise.all(ambassador.get('gets_paid').map(async(relationship) => {
+      let payout = relationship.otherNode();
+      if (payout.get('status') === 'pending') {
+        let tripler = await triplerSvc.findById(relationship.get('tripler_id'));
         fifo.add(disburse_task(ambassador, tripler));
       }      
     }));
@@ -57,9 +59,10 @@ async function settle() {
   logger.debug('%d ambassadors to be processed', ambassadors.length);
 
   await Promise.all(ambassadors.map(async(ambassador) => {
-    await Promise.all(ambassador.get('earns_off').map(async(relationship) => {
-      let tripler = relationship.otherNode();
-      if (relationship.get('status') === 'disbursed') {
+    await Promise.all(ambassador.get('gets_paid').map(async(relationship) => {
+      let payout = relationship.otherNode();
+      if (payout.get('status') === 'disbursed') {
+        let tripler = await triplerSvc.findById(relationship.get('tripler_id'));
         fifo.add(disburse_task(ambassador, tripler));
       } 
     }));

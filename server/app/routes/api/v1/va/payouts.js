@@ -4,7 +4,7 @@ import ambassadorSvc from '../../../../services/ambassadors';
 import triplerSvc from '../../../../services/triplers';
 
 import {
-  _400, _401, _204, _500
+  _400, _401, _403, _204, _500
 } from '../../../../lib/utils';
 
 import { ov_config } from '../../../../lib/ov_config';
@@ -32,6 +32,20 @@ module.exports = Router({mergeParams: true})
   else {
     return _400(res, 'Payouts not supported.');
   }  
+})
+.post('/payouts/test-account', async (req, res) => {
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!req.admin) return _403(res, "Permission denied.");
+
+  if (stripePayout(req)) {
+    return stripe.createStripeTestAccount(req, res);
+  }
+  else if (paypalPayout(req)) {
+    return _400(res, 'Not implemented.');
+  }
+  else {
+    return _400(res, 'Payouts not supported.');
+  } 
 })
 .put('/payouts/disburse', async (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
