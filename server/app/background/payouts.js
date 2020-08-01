@@ -60,7 +60,7 @@ async function settle() {
     await Promise.all(ambassador.get('earns_off').map(async(relationship) => {
       let tripler = relationship.otherNode();
       if (relationship.get('status') === 'disbursed') {
-        fifo.add(disburse_task(ambassador, tripler));
+        fifo.add(settle_task(ambassador, tripler));
       } 
     }));
   }));
