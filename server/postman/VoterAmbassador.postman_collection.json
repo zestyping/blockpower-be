@@ -2341,7 +2341,7 @@
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
 							"",
-							"    postman.setNextRequest(\"Delete a tripler (admin api)\");",
+							"    postman.setNextRequest(\"Disburse to ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2378,6 +2378,112 @@
 						"ambassadors",
 						"{{other_ambassador_id}}",
 						"disapprove"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Disburse to ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "23f9dd73-8aa9-49b8-82bd-7f5500db2638",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"",
+							"    postman.setNextRequest(\"Settle for ambassador (admin api)\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/payouts/disburse?ambassador-id={{ambassador_id}}&tripler-id={{tripler_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"payouts",
+						"disburse"
+					],
+					"query": [
+						{
+							"key": "ambassador-id",
+							"value": "{{ambassador_id}}"
+						},
+						{
+							"key": "tripler-id",
+							"value": "{{tripler_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Settle for ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2999472c-9b20-4f4a-8c69-d8c1f8d32443",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"",
+							"    postman.setNextRequest(\"Delete a tripler (admin api)\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/payouts/settle?ambassador-id={{ambassador_id}}&tripler-id={{tripler_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"payouts",
+						"settle"
+					],
+					"query": [
+						{
+							"key": "ambassador-id",
+							"value": "{{ambassador_id}}"
+						},
+						{
+							"key": "tripler-id",
+							"value": "{{tripler_id}}"
+						}
 					]
 				}
 			},

@@ -2,6 +2,7 @@
 import { asyncForEach, sleep } from './common';
 
 import { ov_config } from './ov_config';
+import fifo from './fifo';
 import { min_neo4j_version } from './utils';
 import queue from './queue';
 import cron from './cron';
@@ -24,6 +25,7 @@ export async function doStartupTasks(db, qq, neode) {
   await doNeodeInit(neode);
   // can happen in parallel
   postDbInit(qq);
+  fifo.init();
   cron.schedule();
 }
 

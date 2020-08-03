@@ -19,7 +19,7 @@ async function confirmTripler(triplerId) {
   let ambassador = tripler.get('claimed');
   if (tripler && tripler.get('status') === 'pending') {
     await tripler.update({ status: 'confirmed' });
-    await stripe.disburse(ambassador, tripler);
+    await ambassador.relateTo(tripler, 'earns_off', { status: 'pending' });
   }
   else {
     throw "Invalid status, cannot confirm";

@@ -52,5 +52,7 @@ export const ov_config = {
   make_admin_api: getConfig('make_admin_api', false, false),
   ambassador_tripler_relation_max_distance: getConfig('ambassador_tripler_relation_max_distance', false, 10000),
   suggest_tripler_limit: getConfig('suggest_tripler_limit', false, 1000),
-  claim_tripler_limit: getConfig('claim_tripler_limit', false, 12)
+  claim_tripler_limit: getConfig('claim_tripler_limit', false, 12),
+  payout_schedule: getConfig('payout_schedule', false, 60),
+  fifo_wakeup: getConfig('fifo_wakeup', false, 300)
 };

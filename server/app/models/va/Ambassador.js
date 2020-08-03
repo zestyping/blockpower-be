@@ -88,7 +88,8 @@ module.exports = {
       settled_at: 'localdatetime',
       amount: 'integer',
       status: 'string',
-      payout_id: 'string',
+      disbursement_id: 'string',
+      settlement_id: 'string',
       error: 'string'
     },
     eager: true
@@ -98,6 +99,10 @@ module.exports = {
     relationship: 'OWNS_ACCOUNT',
     direction: 'out',
     target: 'Account',
+    primary: {
+      type: 'Boolean',
+      default: true
+    },
     properties: {
       since: {
         type: 'localdatetime',

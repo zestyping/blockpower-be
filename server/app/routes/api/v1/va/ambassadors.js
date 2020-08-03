@@ -12,7 +12,7 @@ import {
 } from '../../../../lib/validations';
 
 import { v4 as uuidv4 } from 'uuid';
-import { serializeAmbassador, serializeTripler, serializePayout } from './serializers';
+import { serializeAmbassador, serializeTripler, serializePayout, serializeName } from './serializers';
 import sms from '../../../../lib/sms';
 import { ov_config } from '../../../../lib/ov_config';
 
@@ -417,16 +417,15 @@ async function completeOnboarding(req, res) {
 }
 
 async function ambassadorPayouts(ambassador, neode) {
-  let query = `MATCH (:Ambassador{id: \'${ambassador.get('id')}\'})-[r:EARNS_OFF]->(:Tripler) RETURN r`;
-  let res = await neode.cypher(query);
-  
-  let arr = [];
-  res.records.forEach((row) => {
-    let properties = row._fields[0].properties;
-    arr.push(serializePayout(properties));
+  let payouts = [];
+
+  ambassador.get('earns_off').forEach((entry) => {
+    let obj = serializePayout(entry);
+    obj.tripler_name = serializeName(entry.otherNode().get('first_name'), entry.otherNode().get('last_name'));
+    payouts.push(obj);
   });
 
-  return arr;
+  return payouts;
 }
 
 async function fetchCurrentAmbassadorPayouts(req, res) {
@@ -446,9 +445,15 @@ async function fetchAmbassadorPayouts(req, res) {
 function claimedTriplers(req, res) {
   let ambassador = req.user;
 
-  let triplers = [];
-  ambassador.get('claims').forEach((entry) => triplers.push(serializeTripler(entry.otherNode())));
-  return res.json(triplers);
+  let triplers = {};
+  ambassador.get('claims').forEach((entry) => triplers[entry.otherNode().get('id')] = serializeTripler(entry.otherNode()));
+
+  ambassador.get('earns_off').forEach((entry) => {
+    let tripler = triplers[entry.otherNode().get('id')];
+    tripler.payout = serializePayout(entry);
+  });
+
+  return res.json(Object.values(triplers));
 }
 
 function checkAmbassador(req, res) {
