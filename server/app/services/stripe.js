@@ -1,3 +1,4 @@
+import logger from 'logops';
 import stripe from 'stripe';
 import neo4j from 'neo4j-driver';
 
@@ -113,7 +114,6 @@ function getPayoutDescription(ambassador, tripler) {
 
 async function disburse(ambassador, tripler) {
   // pending => disbursed => settled
-
   validateForPayment(ambassador, tripler);
 
   let query = `MATCH (:Ambassador{id: \'${ambassador.get('id')}\'})-[r:GETS_PAID{tripler_id: \'${tripler.get('id')}\'}]->(p:Payout{status: \'pending\'}) RETURN p.id`;
@@ -137,6 +137,7 @@ async function disburse(ambassador, tripler) {
   let transfer = null;
 
   try {
+    logger.debug('disbursing to ambassador %s due to tripler %s', ambassador.get('id'), tripler.get('id'));
     transfer = await stripe(ov_config.stripe_secret_key).transfers.create({
       amount: amount,
       currency: 'usd',
@@ -170,6 +171,7 @@ async function settle(ambassador, tripler) {
 
   let stripe_payout = null;
   try {
+    logger.debug('settling ambassador %s due to tripler %s', ambassador.get('id'), tripler.get('id'));
     stripe_payout = await stripe(ov_config.stripe_secret_key).payouts.create({
       amount: amount, 
       currency: 'usd', 
