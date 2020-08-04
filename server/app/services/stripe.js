@@ -1,5 +1,7 @@
-import neode from '../lib/neode';
 import stripe from 'stripe';
+import neo4j from 'neo4j-driver';
+
+import neode from '../lib/neode';
 import { ov_config } from '../lib/ov_config';
 
 async function createConnectAccount(user, bankAccountToken, acceptanceIp) {
@@ -36,6 +38,42 @@ async function createConnectAccount(user, bankAccountToken, acceptanceIp) {
   });
 }
 
+async function createConnectTestAccount(user, bankAccountToken, acceptanceIp) {
+  let address = JSON.parse(user.get('address'));
+  let accountInfo = {
+    type: 'custom',
+    country: 'US',
+    email: user.get('email') ? user.get('email') : undefined,
+    requested_capabilities: [
+      'transfers',
+    ],
+    business_type: 'individual',
+    individual: {
+      first_name: user.get('first_name'),
+      last_name: user.get('last_name'),
+      address: {
+        line1: address.address1,
+        city: address.city,
+        state: address.state,
+        postal_code: address.zip,
+        country: 'US'
+      },
+      email: user.get('email') ? user.get('email') : undefined,
+      phone: user.get('phone')
+    },
+    business_profile: {
+      url: ov_config.business_url
+    },
+    external_account: bankAccountToken,
+    tos_acceptance: {
+      date: Math.floor(new Date() / 1000),
+      ip: acceptanceIp
+    }
+  }
+
+  return await stripe(process.env.STRIPE_SECRET_KEY).accounts.create(accountInfo);
+}
+
 function validateForPayment(ambassador, tripler) {
   if (!ambassador.get('approved')) {
     throw 'Ambassador not approved, cannot pay';
@@ -56,17 +94,17 @@ function validateForPayment(ambassador, tripler) {
   }
 }
 
-function getStripeAccountId(ambassador) {
-  let stripe_account = null;
+function getStripeAccount(ambassador) {
+  let payout_account = null;
+
   ambassador.get('owns_account').forEach((entry) => {
-    if (entry.otherNode().get('account_type') == 'stripe') {
-      stripe_account = entry.otherNode();
-    } else {
-      throw 'Stripe account not set for ambassador, cannot pay';
+    if (entry.otherNode().get('account_type') === 'stripe') {
+      payout_account = entry.otherNode();
     }
   });
 
-  return stripe_account && stripe_account.get('account_id');
+  if (payout_account) return payout_account;
+  throw 'Stripe account not set for ambassador, cannot pay';
 }
 
 function getPayoutDescription(ambassador, tripler) {
@@ -78,27 +116,23 @@ async function disburse(ambassador, tripler) {
 
   validateForPayment(ambassador, tripler);
 
-  let query = `MATCH (a:Ambassador{id: \'${ambassador.get('id')}\'})-[r:EARNS_OFF]->(t:Tripler{id: \'${tripler.get('id')}\'}) RETURN r`;
+  let query = `MATCH (:Ambassador{id: \'${ambassador.get('id')}\'})-[r:GETS_PAID{tripler_id: \'${tripler.get('id')}\'}]->(p:Payout{status: \'pending\'}) RETURN p.id`;
   let res = await neode.cypher(query);
-  if (res.records.length > 0) {
-    let properties = res.records[0]._fields[0].properties;
-    if (properties.status !== 'pending') {
-      return;
-    }
+  if (res.records.length === 0) {
+    return;    
   } 
 
-  let amount = ov_config.payout_per_tripler;
-  if (!amount) {
-    throw 'Configuration error, cannot pay';
-  }
-  amount = parseInt(amount);
+  let payout_id = res.records[0]._fields[0];
+  let payout = await neode.first('Payout', 'id', payout_id);
 
-  let stripe_account_id = getStripeAccountId(ambassador);
-  if (!stripe_account_id) {
+  let amount = parseInt(ov_config.payout_per_tripler);
+
+  let payout_account = getStripeAccount(ambassador);  
+  if (!payout_account) {
     throw 'Stripe account not set for ambassador, cannot pay';
   }
 
-  // create relationship and send money
+  // create relationships and send money
 
   let transfer = null;
 
@@ -106,59 +140,54 @@ async function disburse(ambassador, tripler) {
     transfer = await stripe(ov_config.stripe_secret_key).transfers.create({
       amount: amount,
       currency: 'usd',
-      destination: stripe_account_id,
+      destination: payout_account.get('account_id'),
       transfer_group: getPayoutDescription(ambassador, tripler)
     });
   } catch(err) {
-    await ambassador.relateTo(tripler, 'earns_off', { error: JSON.stringify(err) });
+    await payout.update({ error: JSON.stringify(err) });
     throw err;  
   }
 
   // update relationship details
-  await ambassador.relateTo(tripler, 'earns_off', { status: 'disbursed', disbursed_at: new Date(), amount: amount, disbursement_id: transfer.id });
+  let disbursed_at =  neo4j.default.types.LocalDateTime.fromStandardDate(new Date());
+  await payout.update({ status: 'disbursed', disbursed_at: disbursed_at, amount: amount, disbursement_id: transfer.id, error: null });
+  await payout.relateTo(payout_account, 'to_account');
 }
 
 async function settle(ambassador, tripler) {
   validateForPayment(ambassador, tripler);
 
-  let query = `MATCH (a:Ambassador{id: \'${ambassador.get('id')}\'})-[r:EARNS_OFF]->(t:Tripler{id: \'${tripler.get('id')}\'}) RETURN r`;
+  let query = `MATCH (:Ambassador{id: \'${ambassador.get('id')}\'})-[r:GETS_PAID{tripler_id: \'${tripler.get('id')}\'}]->(p:Payout{status: \'disbursed\'}) RETURN p.id`;
   let res = await neode.cypher(query);
-  if (res.records.length > 0) {
-    let properties = res.records[0]._fields[0].properties;
-    if (properties.status !== 'disbursed') {
-      return;
-    }
-  } 
-
-  let amount = ov_config.payout_per_tripler;
-  if (!amount) {
-    throw 'Configuration error, cannot pay';
-  }
-  amount = parseInt(amount);
-
-  let stripe_account_id = getStripeAccountId(ambassador);
-  if (!stripe_account_id) {
-    throw 'Stripe account not set for ambassador, cannot pay';
+  if (res.records.length === 0) {
+    return;    
   }
 
-  let payout = null;
+  let payout_id = res.records[0]._fields[0];
+  let payout = await neode.first('Payout', 'id', payout_id);
+
+  let amount = parseInt(ov_config.payout_per_tripler);
+
+  let stripe_payout = null;
   try {
-    payout = await stripe(ov_config.stripe_secret_key).payouts.create({
+    stripe_payout = await stripe(ov_config.stripe_secret_key).payouts.create({
       amount: amount, 
       currency: 'usd', 
       description: getPayoutDescription(ambassador, tripler)
     });
   } catch(err) {
-    await ambassador.relateTo(tripler, 'earns_off', { error: JSON.stringify(err) });
+    await payout.update({ error: JSON.stringify(err) });
     throw err;      
   }
 
   // update relationship details
-  await ambassador.relateTo(tripler, 'earns_off', { status: 'settled', settled_at: new Date(), amount: amount, settlement_id: payout.id });
+  let settled_at =  neo4j.default.types.LocalDateTime.fromStandardDate(new Date());
+  await payout.update({ status: 'settled', settled_at: settled_at, amount: amount, settlement_id: stripe_payout.id, error: null });
 }
 
 module.exports = {
   createConnectAccount: createConnectAccount,
+  createConnectTestAccount: createConnectTestAccount,
   disburse: disburse,
   settle: settle
 };

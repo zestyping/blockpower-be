@@ -419,11 +419,16 @@ async function completeOnboarding(req, res) {
 async function ambassadorPayouts(ambassador, neode) {
   let payouts = [];
 
-  ambassador.get('earns_off').forEach((entry) => {
-    let obj = serializePayout(entry);
-    obj.tripler_name = serializeName(entry.otherNode().get('first_name'), entry.otherNode().get('last_name'));
+  if (!ambassador.get('gets_paid') || ambassador.get('gets_paid').length === 0) 
+    return payouts;
+
+  await Promise.all(ambassador.get('gets_paid').map(async (entry) => {
+    let payout = entry.otherNode();
+    let obj = serializePayout(payout);
+    let tripler = await neode.first('Tripler', 'id', entry.get('tripler_id'));
+    obj.tripler_name = serializeName(tripler.get('first_name'), tripler.get('last_name'));
     payouts.push(obj);
-  });
+  }));
 
   return payouts;
 }
@@ -447,11 +452,6 @@ function claimedTriplers(req, res) {
 
   let triplers = {};
   ambassador.get('claims').forEach((entry) => triplers[entry.otherNode().get('id')] = serializeTripler(entry.otherNode()));
-
-  ambassador.get('earns_off').forEach((entry) => {
-    let tripler = triplers[entry.otherNode().get('id')];
-    tripler.payout = serializePayout(entry);
-  });
 
   return res.json(Object.values(triplers));
 }
@@ -528,7 +528,7 @@ module.exports = Router({mergeParams: true})
 .put('/ambassadors/:ambassadorId/admin', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.isLocal) return _403(res, "Permission denied.");
-  if (ov_config.make_admin_api !== 'true') return _403(res, 'Permission denied.');
+  if (!ov_config.make_admin_api) return _403(res, 'Permission denied.');
   return makeAdmin(req, res);
 })
 .put('/ambassadors/:ambassadorId', (req, res) => {
