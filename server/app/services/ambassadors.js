@@ -29,7 +29,7 @@ async function findById(id) {
 }
 
 async function findAmbassadorsWithPendingDisbursements() {
-  let query = `MATCH (p:Ambassador)-[:GETS_PAID]->(:Payout {status: \'pending\'}) RETURN a.id`;
+  let query = `MATCH (a:Ambassador)-[:GETS_PAID]->(:Payout {status: \'pending\'}) RETURN a.id`;
   let res = await neode.cypher(query);
   let ambassadors = [];
   if (res.records.length > 0) {
@@ -41,7 +41,7 @@ async function findAmbassadorsWithPendingDisbursements() {
 }
 
 async function findAmbassadorsWithPendingSettlements() {
-  let query = `MATCH (p:Ambassador)-[:GETS_PAID]->(:Payout {status: \'disbursed\'}) RETURN a.id`;
+  let query = `MATCH (a:Ambassador)-[:GETS_PAID]->(:Payout {status: \'disbursed\'}) RETURN a.id`;
   let res = await neode.cypher(query);
   let ambassadors = [];
   if (res.records.length > 0) {
