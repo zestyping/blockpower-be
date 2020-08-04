@@ -1,6 +1,4 @@
-import { ov_config } from '../../lib/ov_config';
-
-let enforceUnique = !ov_config.stress_testing;
+let enforceUnique = !process.env.STRESS_TESTING;
 
 module.exports = {
   id: {
@@ -76,6 +74,26 @@ module.exports = {
     type: 'boolean',
     default: false
   },
+  earns_off: {
+    type: 'relationships',
+    relationship: 'EARNS_OFF',
+    direction: 'out',
+    target: 'Tripler',
+    properties: {
+      since: {
+        type: 'localdatetime',
+        default: () => new Date,
+      },
+      disbursed_at: 'localdatetime',
+      settled_at: 'localdatetime',
+      amount: 'integer',
+      status: 'string',
+      payout_id: 'string',
+      settlement_id: 'string',
+      error: 'string'
+    },
+    eager: true
+  },
   gets_paid: {
     type: 'relationships',
     relationship: 'GETS_PAID',
@@ -108,3 +126,4 @@ module.exports = {
     eager: true
   }
 };
+

@@ -1,6 +1,4 @@
-import { ov_config } from '../../lib/ov_config';
-
-let enforceUnique = !ov_config.stress_testing;
+let enforceUnique = !process.env.STRESS_TESTING;
 
 module.exports = {
   id: {
