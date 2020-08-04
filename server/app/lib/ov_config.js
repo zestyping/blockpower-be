@@ -63,5 +63,16 @@ export const ov_config = {
   claim_tripler_limit: getConfig('claim_tripler_limit', false, 12),
   payout_schedule: getConfig('payout_schedule', false, 60),
   fifo_wakeup: getConfig('fifo_wakeup', false, 300),
-  disable_auto_payouts: getConfig('disable_auto_payouts', true, false)
+  disable_auto_payouts: getConfig('disable_auto_payouts', true, false),
+  disable_emails: getConfig('disable_emails', false, false),
+  smtp_service: getConfig('smtp_service', true, null),
+  smtp_from: getConfig('smtp_from', true, null),
+  smtp_user: getConfig('smtp_user', true, null),
+  smtp_password: getConfig('smtp_password', true, null),
+  smtp_server: getConfig('smtp_server', true, null),
+  smtp_use_tls: getConfig('smtp_use_tls', true, null),
+  smtp_port: getConfig('smtp_port', true, null),
+  admin_emails: getConfig('admin_emails', false, null),
+  new_ambassador_signup_admin_email_subject: getConfig('new_ambassador_signup_admin_email_subject', false, null),
+  new_ambassador_signup_admin_email_body: getConfig('new_ambassador_signup_admin_email_body', false, null)
 };

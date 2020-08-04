@@ -58,6 +58,17 @@ For this server, configure an `.env` file. The following is a complete list of v
     FIFO_WAKEUP=
     DISABLE_AUTO_PAYOUTS=
     DISABLE_JMX=
+    DISABLE_EMAILS=
+    SMTP_SERVICE=
+    SMTP_FROM=
+    SMTP_USER=
+    SMTP_PASSWORD=
+    SMTP_SERVER=
+    SMTP_USE_TLS=
+    SMTP_PORT=
+    ADMIN_EMAILS=
+    NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_SUBJECT=
+    NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_BODY=
 
 The meaning of each config item is as follows:
 
@@ -116,3 +127,14 @@ The meaning of each config item is as follows:
 * `FIFO_WAKEUP`: FIFO queue wakeup/sleep interval in milliseconds, default set to 300 msec
 * `DISABLE_AUTO_PAYOUTS`: Disable automatic payouts
 * `DISABLE_JMX`: Disable JMX check from startup
+* `DISABLE_EMAILS`: Disable email notifications
+* `SMTP_SERVICE`: Name of the SMTP service being used
+* `SMTP_FROM`: Email from which emails are to be sent
+* `SMTP_USER`: User name for authorizing with SMTP server
+* `SMTP_PASSWORD`: Password for authorizing with SMTP server
+* `SMTP_SERVER`: Address of SMTP server
+* `SMTP_USE_TLS`: Set to true if SMTP server supports secure connections
+* `SMTP_PORT`: Port at which SMTP server is listening for connections
+* `ADMIN_EMAILS`: Comma separated list of admin emails
+* `NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_SUBJECT`: Subject of the email sent to admins when new ambassador signs up
+* `NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_BODY`: Body of the email sent to admins when new ambassador signs up
