@@ -1,59 +1,91 @@
 'use strict'
 
-import neode from '../app/lib/neode';
-import cliProgress from 'cli-progress';
+require('dotenv').config();
 
-async function up (next) {
+let neo4j = require('neo4j-driver').v1;
+let BoltAdapter = require('node-neo4j-bolt-adapter');
+let authToken = neo4j.auth.basic(process.env.NEO4J_USERNAME, process.env.NEO4J_PASSWORD);
+let db = new BoltAdapter(neo4j.driver('bolt://'+process.env.NEO4J_HOST+':'+process.env.NEO4J_PORT, authToken), neo4j);
+
+module.exports.up = function (next) {
   console.log('starting migration.....');
 
   let query = `MATCH (a:Ambassador)-[r:EARNS_OFF]->(t:Tripler) MATCH (a)-[:OWNS_ACCOUNT]->(ac:Account) RETURN a, r, t, ac`;
 
-  let res = await neode.cypher(query);
-  
-  console.log(`${res.records.length} ambassadors to migrate....`);
+  let createQueries = [];
+  let deleteQueries = [];
 
-  const bar1 = new cliProgress.SingleBar({
-    format: 'progress [{bar}] Elapsed: {duration_formatted} | ETA: {eta_formatted} | {percentage}% | {value}/{total}'
-  }, cliProgress.Presets.shades_classic);
+  let toComplete = 0;
 
-  bar1.start(res.records.length, 0);
+  db.cypherQueryAsync(query).then(result => {
+    console.log(`${result.data.length} ambassadors to migrate....`);
 
-  //for (let x = 0; x < res.records.length; x++) {
-  for await (const record of res.records) {
-    // let fields = res.records[x]._fields;
-    let fields = record._fields;
-    let ambassador = fields[0];
-    let earns_off = fields[1];
-    let tripler = fields[2];
-    let account = fields[3];
+    for (let x = 0; x < result.data.length; x++) {
+      let fields = result.data[x];
+      let ambassador = fields[0];
+      let earns_off = fields[1];
+      let tripler = fields[2];
+      let account = fields[3];
 
-    let query2 = `
-    MATCH (a:Ambassador {id: "${ambassador.properties.id}"})-[:OWNS_ACCOUNT]->(ac:Account)
-    CREATE (a)-[r:GETS_PAID {tripler_id: "${tripler.properties.id}"}]->(p:Payout {
-      amount: ${earns_off.properties.amount},
-      disbursement_id: "${earns_off.properties.disbursement_id}",
-      disbursed_at: datetime(${earns_off.properties.disbursed_at ? '"' + earns_off.properties.disbursed_at + '"' : null}),
-      settlement_id: "${earns_off.properties.settlement_id}",
-      settled_at: datetime(${earns_off.properties.settled_at ? '"' + earns_off.properties.settled_at + '"': null}),
-      status: "${earns_off.properties.status}",
-      since: datetime("${earns_off.properties.since}"),
-      error: ${earns_off.properties.error ? "'" + earns_off.properties.error + "'" : null}
-    })-[:TO_ACCOUNT]->(ac)`;
+      let old = earns_off.disbursed_at;
+      let disbursed_at = old ? new Date(old.year, old.month, old.day, old.hour, old.minute, old.second, old.nanosecond).toISOString() : null;
+      old = earns_off.settled_at;
+      let settled_at = old ? new Date(old.year, old.month, old.day, old.hour, old.minute, old.second, old.nanosecond).toISOString() : null;
+      old = earns_off.since;
+      let since = new Date(old.year, old.month, old.day, old.hour, old.minute, old.second, old.nanosecond).toISOString();
 
-    res = await neode.cypher(query2);
+      createQueries.push(`
+      MATCH (a:Ambassador {id: "${ambassador.id}"})-[:OWNS_ACCOUNT]->(ac:Account)
+      CREATE (a)-[r:GETS_PAID {tripler_id: "${tripler.id}"}]->(p:Payout {
+        amount: ${earns_off.amount},
+        disbursement_id: "${earns_off.disbursement_id}",
+        disbursed_at: datetime(${disbursed_at ? '"' + disbursed_at + '"' : null}),
+        settlement_id: ${earns_off.settlement_id ? '"' + earns_off.settlement_id + '"' : null},
+        settled_at: datetime(${settled_at ? '"' + settled_at + '"': null}),
+        status: "${earns_off.status}",
+        since: datetime("${since}"),
+        error: ${earns_off.error ? "'" + earns_off.error + "'" : null}
+      })-[:TO_ACCOUNT]->(ac)`);
 
-    let query3 = `MATCH (a:Ambassador {id: "${ambassador.properties.id}"})-[r:EARNS_OFF]->(t:Tripler {id: "${tripler.properties.id}"}) DETACH DELETE r`;
+      deleteQueries.push(`MATCH (a:Ambassador {id: "${ambassador.id}"})-[r:EARNS_OFF]->(t:Tripler {id: "${tripler.id}"}) DETACH DELETE r`);
 
-    res = await neode.cypher(query3);
-
-    bar1.increment();
-  }
-
-  console.log('\n.... done.\n');
-  return true;
+      toComplete += 2;
+    }
+  })
+  .then(() => {
+    for (let x = 0; x < createQueries.length; x++) {
+      db.cypherQueryAsync(createQueries[x]).then(() => {
+        toComplete--;
+        console.log('creating payout');
+        if (toComplete < 1) {
+          console.log('.... finished migration');
+          next();
+        }
+      }).catch((err) => {
+        console.log('error creating payout: ', err);
+      });
+    }
+  })
+  .then(() => {
+    for (let x = 0; x < deleteQueries.length; x++) {
+      db.cypherQueryAsync(deleteQueries[x]).then(() => {
+        toComplete--;
+        console.log('deleting earns_off relationship');
+        if (toComplete < 1) {
+          console.log('.... finished migration');
+          next();
+        }
+      }).catch((err) => {
+        console.log('error deleting earns_off relationship: ', err);
+      });
+    }
+  })
+  .catch((err) => {
+    console.log('error with migration', err);
+    next();
+  });
 }
 
 module.exports.down = async function (next) {
 }
 
-up()
