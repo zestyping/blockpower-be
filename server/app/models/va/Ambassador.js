@@ -1,4 +1,4 @@
-let enforceUnique = !process.env.STRESS_TESTING;
+let enforceUnique = process.env.STRESS_TESTING !== 'true';
 
 module.exports = {
   id: {

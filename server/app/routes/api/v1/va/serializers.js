@@ -35,7 +35,7 @@ function serializeAmbassador(ambassador) {
 
 function serializePayout(payout) {
   return {
-    amount: payout.get('amount') ? payout.get('amount') : null,
+    amount: payout.get('amount') ? payout.get('amount').low : null,
     status: payout.get('status'),
     disbursement_id: payout.get('disbursement_id'),
     settlement_id: payout.get('settlement_id'),

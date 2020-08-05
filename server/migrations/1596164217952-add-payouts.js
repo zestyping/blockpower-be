@@ -38,7 +38,7 @@ module.exports.up = async function (next) {
         error: error
       };
       let payout = await neode.create('Payout', payload);
-      await ambassador.relateTo(payout, 'gets_paid', {since: entry.get('since')});
+      await ambassador.relateTo(payout, 'gets_paid', {since: entry.get('since'), tripler_id: tripler.get('id')});
       await payout.relateTo(payout_account, 'to_account');      
     }  
   }
