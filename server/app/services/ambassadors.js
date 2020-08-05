@@ -8,17 +8,12 @@ import {
 } from '../lib/validations';
 
 import { ValidationError }  from '../lib/errors';
-import { geoCode } from '../lib/utils';
+import { geoCode, serializeName } from '../lib/utils';
 import { normalize } from '../lib/phone';
 import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
 
 import models from '../models/va';
-
-function serializeName(first_name, last_name) {
-  if (!last_name) return first_name;
-  return [first_name, last_name].join(" ");
-}
 
 async function findByExternalId(externalId) {
   return await neode.first('Ambassador', 'external_id', externalId);
@@ -111,13 +106,17 @@ async function signup(json) {
   // send email in the background
   let ambassador_name = serializeName(new_ambassador.get('first_name'), new_ambassador.get('last_name'))
   setTimeout(async ()=> {
+    let subject = stringFormat(ov_config.new_ambassador_signup_admin_email_subject,
+                            {
+                              organization_name: ov_config.organization_name
+                            });
     let body = stringFormat(ov_config.new_ambassador_signup_admin_email_body,
                             {
                               ambassador_name: ambassador_name,
                               organization_name: ov_config.organization_name
                             });
     await mail(ov_config.admin_emails, null, null, 
-               ov_config.new_ambassador_signup_admin_email_subject,
+               subject,
                body);
   }, 100);
 

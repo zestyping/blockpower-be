@@ -7,6 +7,11 @@ import { ov_config } from './ov_config';
 
 export var min_neo4j_version = 3.5;
 
+export function serializeName(first_name, last_name) {
+  if (!last_name) return first_name;
+  return [first_name, last_name].join(" ");
+}
+
 export function getClientIP(req) {
   if (ov_config.ip_header) return req.header(ov_config.ip_header);
   else return req.connection.remoteAddress;
