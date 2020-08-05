@@ -97,10 +97,10 @@ async function signup(json) {
     email: json.email || null,
     address: JSON.stringify(json.address),
     quiz_results: JSON.stringify(json.quiz_results) || null,
-    approved: false,
+    approved: true,
     locked: false,
     signup_completed: true,
-    onboarding_completed: false,
+    onboarding_completed: true,
     location: {
       latitude: parseFloat(coordinates.latitude, 10),
       longitude: parseFloat(coordinates.longitude, 10)
