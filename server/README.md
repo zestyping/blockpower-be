@@ -69,6 +69,8 @@ For this server, configure an `.env` file. The following is a complete list of v
     ADMIN_EMAILS=
     NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_SUBJECT=
     NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_BODY=
+    TRIPLER_CONFIRM_ADMIN_EMAIL_SUBJECT=
+    TRIPLER_CONFIRM_ADMIN_EMAIL_BODY=
 
 The meaning of each config item is as follows:
 
@@ -138,3 +140,5 @@ The meaning of each config item is as follows:
 * `ADMIN_EMAILS`: Comma separated list of admin emails
 * `NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_SUBJECT`: Subject of the email sent to admins when new ambassador signs up
 * `NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_BODY`: Body of the email sent to admins when new ambassador signs up
+* `TRIPLER_CONFIRM_ADMIN_EMAIL_SUBJECT`: Subject of the email sent to admins when a tripler confirms
+* `TRIPLER_CONFIRM_ADMIN_EMAIL_BODY`: Body of the email sent to admins when a tripler confirms

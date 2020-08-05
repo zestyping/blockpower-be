@@ -74,5 +74,7 @@ export const ov_config = {
   smtp_port: getConfig('smtp_port', true, null),
   admin_emails: getConfig('admin_emails', false, null),
   new_ambassador_signup_admin_email_subject: getConfig('new_ambassador_signup_admin_email_subject', false, null),
-  new_ambassador_signup_admin_email_body: getConfig('new_ambassador_signup_admin_email_body', false, null)
+  new_ambassador_signup_admin_email_body: getConfig('new_ambassador_signup_admin_email_body', false, null),
+  tripler_confirm_admin_email_subject: getConfig('tripler_confirm_admin_email_subject', false, null),
+  tripler_confirm_admin_email_body: getConfig('tripler_confirm_admin_email_body', false, null)
 };
