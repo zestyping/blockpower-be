@@ -35,16 +35,18 @@ function serializeAmbassador(ambassador) {
 
 function serializePayout(payout) {
   return {
-    amount: payout.get('amount') ? payout.get('amount').low / 100 : null,
+    id: payout.get('id'),
+    amount: payout.get('amount') ? payout.get('amount').low : null,
     status: payout.get('status'),
     disbursement_id: payout.get('disbursement_id'),
     settlement_id: payout.get('settlement_id'),
     disbursed_at: payout.get('disbursed_at') ? new Date(payout.get('disbursed_at').toString()) : null,
     settled_at: payout.get('settled_at') ? new Date(payout.get('settled_at').toString()) : null,
     error: payout.get('error') ? JSON.parse(payout.get('error')) : null,
-    formatted_amount: payout.get('amount') ? formatNumber(payout.get('amount').low / 100) : null,
+    formatted_amount: payout.get('amount') ? formatNumber(payout.get('amount') / 100) : null,
     formatted_disbursed_at: payout.get('disbursed_at') ? formatDate(new Date(payout.get('disbursed_at').toString())) : null,
-    formatted_settled_at: payout.get('settled_at') ? formatDate(new Date(payout.get('settled_at').toString())) : null
+    formatted_settled_at: payout.get('settled_at') ? formatDate(new Date(payout.get('settled_at').toString())) : null,
+    account: payout.get('to_account') ? serializeAccount(payout.get('to_account')) : null
   };
 }
 

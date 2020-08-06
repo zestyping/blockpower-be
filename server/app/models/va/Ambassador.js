@@ -88,9 +88,23 @@ module.exports = {
       settled_at: 'localdatetime',
       amount: 'integer',
       status: 'string',
-      disbursement_id: 'string',
+      payout_id: 'string',
       settlement_id: 'string',
       error: 'string'
+    },
+    eager: true
+  },
+  gets_paid: {
+    type: 'relationships',
+    relationship: 'GETS_PAID',
+    direction: 'out',
+    target: 'Payout',
+    properties: {
+      since: {
+        type: 'localdatetime',
+        default: () => new Date,
+      },
+      tripler_id: 'uuid'
     },
     eager: true
   },
@@ -112,3 +126,4 @@ module.exports = {
     eager: true
   }
 };
+

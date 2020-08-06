@@ -1,7 +1,9 @@
 import stringFormat from 'string-format';
 
 import neode from '../lib/neode';
+import { serializeName } from '../lib/utils';
 import { normalize } from '../lib/phone';
+import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
 import sms from '../lib/sms';
 import stripe from './stripe';
@@ -19,11 +21,32 @@ async function confirmTripler(triplerId) {
   let ambassador = tripler.get('claimed');
   if (tripler && tripler.get('status') === 'pending') {
     await tripler.update({ status: 'confirmed' });
-    await ambassador.relateTo(tripler, 'earns_off', { status: 'pending' });
+    let payout = await neode.create('Payout', {amount: ov_config.payout_per_tripler, status: 'pending'});
+    await ambassador.relateTo(payout, 'gets_paid', {tripler_id: tripler.get('id')});
   }
   else {
     throw "Invalid status, cannot confirm";
   }
+
+  // send email in the background
+  let tripler_name = serializeName(tripler.get('first_name'), tripler.get('last_name'));
+  let ambassador_name = serializeName(ambassador.get('first_name'), ambassador.get('last_name'));
+
+  setTimeout(async ()=> {
+    let subject = stringFormat(ov_config.tripler_confirm_admin_email_subject,
+                            {
+                              organization_name: ov_config.organization_name
+                            });
+    let body = stringFormat(ov_config.tripler_confirm_admin_email_body,
+                            {
+                              tripler_name: tripler_name,
+                              ambassador_name: ambassador_name,
+                              organization_name: ov_config.organization_name
+                            });
+    await mail(ov_config.admin_emails, null, null,
+               subject,
+               body);
+  }, 100);
 }
 
 async function detachTripler(triplerId) {
