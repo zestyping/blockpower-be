@@ -54,7 +54,7 @@ export const ov_config = {
   stress_testing: getConfig('stress_testing', false, false),
   log_requests: getConfig('log_requests', false, false),
   log_request_max_body_length: getConfig('log_request_max_body_length', false, 1000),
-  make_admin_api: getConfig('make_admin_api', false, false),
+  enable_admin_apis: getConfig('enable_admin_apis', false, false),
   tripler_confirmation_message: getConfig('tripler_confirmation_message', true, null),
   tripler_reminder_message: getConfig('tripler_reminder_message', true, null),
   tripler_reconfirmation_message: getConfig('tripler_reconfirmation_message', true, null),

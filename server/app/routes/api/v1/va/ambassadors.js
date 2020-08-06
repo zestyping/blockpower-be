@@ -454,52 +454,61 @@ module.exports = Router({mergeParams: true})
 
 .post('/ambassadors', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   return createAmbassador(req, res);
 })
 .get('/ambassadors', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   return fetchAmbassadors(req, res);
 })
 .get('/ambassadors/count', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   return countAmbassadors(req, res);
 })
 .get('/ambassadors/:ambassadorId', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   return fetchAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId/approve', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   return approveAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId/disapprove', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   return disapproveAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId/admin', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.isLocal) return _403(res, "Permission denied.");
-  if (!ov_config.make_admin_api) return _403(res, 'Permission denied.');
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   return makeAdmin(req, res);
 })
 .put('/ambassadors/:ambassadorId', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   return updateAmbassador(req, res);
 })
 .delete('/ambassadors/:ambassadorId', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   return deleteAmbassador(req, res);
 })
 .get('/ambassadors/:ambassadorId/payouts', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   return fetchAmbassadorPayouts(req, res);
 })

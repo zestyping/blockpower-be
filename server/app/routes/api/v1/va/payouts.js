@@ -35,6 +35,7 @@ module.exports = Router({mergeParams: true})
 })
 .post('/payouts/test-account', async (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
 
   if (stripePayout(req)) {
@@ -49,6 +50,7 @@ module.exports = Router({mergeParams: true})
 })
 .put('/payouts/disburse', async (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   
   let ambassadorId = req.query['ambassador-id'];
@@ -82,6 +84,7 @@ module.exports = Router({mergeParams: true})
 })
 .put('/payouts/settle', async (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   
   let ambassadorId = req.query['ambassador-id'];
