@@ -1,7 +1,11 @@
 import { Router } from 'express';
-import { normalize } from '../../../../lib/phone';
 import neo4j from 'neo4j-driver';
 import format from 'string-format';
+import { v4 as uuidv4 } from 'uuid';
+
+import { normalize } from '../../../../lib/phone';
+import { ValidationError } from '../../../../lib/errors';
+import ambassadorsSvc from '../../../../services/ambassadors';
 
 import {
   _204, _400, _401, _403, _404, _500, geoCode
@@ -11,7 +15,7 @@ import {
   validateEmpty, validatePhone, validateEmail
 } from '../../../../lib/validations';
 
-import { v4 as uuidv4 } from 'uuid';
+
 import { serializeAmbassador, serializeTripler, serializePayout, serializeName } from './serializers';
 import sms from '../../../../lib/sms';
 import { ov_config } from '../../../../lib/ov_config';
@@ -175,65 +179,18 @@ async function makeAdmin(req, res) {
 }
 
 async function signup(req, res) {
+  req.body.externalId = req.externalId;
   let new_ambassador = null;
   try {
-    if (!validateEmpty(req.body, ['first_name', 'phone', 'address'])) {
-      return _400(res, "Invalid payload, ambassador cannot be created");
+    new_ambassador = await ambassadorsSvc.signup(req.body);
+  }
+  catch (err) {
+    if (err instanceof ValidationError) {
+      return _400(res, err.message);
+    } else {
+      req.logger.error("Unhandled error in %s: %s", req.url, err);
+      return _500(res, 'Unable to update ambassador form data');
     }
-
-    if (!validatePhone(req.body.phone)) {
-      return _400(res, "Invalid phone");
-    }
-
-    if (req.models.Ambassador.phone.unique) {
-      let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
-      if(existing_ambassador) {
-        return _400(res, "Ambassador with this phone already exists");
-      }
-    }
-
-    if (req.models.Ambassador.external_id.unique) {
-      let existing_ambassador = await req.neode.first('Ambassador', 'external_id', req.externalId);
-      if(existing_ambassador) {
-        return _400(res, "Ambassador with this external id already exists");
-      }
-    }
-
-    if (req.body.email) {
-      if (!validateEmail(req.body.email)) return _400(res, "Invalid email");  
-
-      if (req.models.Ambassador.email.unique && 
-        await req.neode.first('Ambassador', 'email', req.body.email)) {
-        return _400(res, "Ambassador with this email already exists");
-      }
-    }
-
-    let coordinates = await geoCode(req.body.address);
-    if (coordinates === null) {
-      return _400(res, "Invalid address, ambassador cannot sign up with this address");
-    }
-
-    new_ambassador = await req.neode.create('Ambassador', {
-      id: uuidv4(),
-      first_name: req.body.first_name,
-      last_name: req.body.last_name || null,
-      phone: normalize(req.body.phone),
-      email: req.body.email || null,
-      address: JSON.stringify(req.body.address),
-      quiz_results: JSON.stringify(req.body.quiz_results) || null,
-      approved: false,
-      locked: false,
-      signup_completed: true,
-      onboarding_completed: false,
-      location: {
-        latitude: parseFloat(coordinates.latitude, 10),
-        longitude: parseFloat(coordinates.longitude, 10)
-      },
-      external_id: req.externalId
-    });
-  } catch(err) {
-    req.logger.error("Unhandled error in %s: %s", req.url, err);
-    return _500(res, 'Unable to update ambassador form data');
   }
   return res.json(serializeAmbassador(new_ambassador));
 }
@@ -419,11 +376,16 @@ async function completeOnboarding(req, res) {
 async function ambassadorPayouts(ambassador, neode) {
   let payouts = [];
 
-  ambassador.get('earns_off').forEach((entry) => {
-    let obj = serializePayout(entry);
-    obj.tripler_name = serializeName(entry.otherNode().get('first_name'), entry.otherNode().get('last_name'));
+  if (!ambassador.get('gets_paid') || ambassador.get('gets_paid').length === 0) 
+    return payouts;
+
+  await Promise.all(ambassador.get('gets_paid').map(async (entry) => {
+    let payout = entry.otherNode();
+    let obj = serializePayout(payout);
+    let tripler = await neode.first('Tripler', 'id', entry.get('tripler_id'));
+    obj.tripler_name = serializeName(tripler.get('first_name'), tripler.get('last_name'));
     payouts.push(obj);
-  });
+  }));
 
   return payouts;
 }
@@ -447,11 +409,6 @@ function claimedTriplers(req, res) {
 
   let triplers = {};
   ambassador.get('claims').forEach((entry) => triplers[entry.otherNode().get('id')] = serializeTripler(entry.otherNode()));
-
-  ambassador.get('earns_off').forEach((entry) => {
-    let tripler = triplers[entry.otherNode().get('id')];
-    tripler.payout = serializePayout(entry);
-  });
 
   return res.json(Object.values(triplers));
 }
@@ -528,7 +485,7 @@ module.exports = Router({mergeParams: true})
 .put('/ambassadors/:ambassadorId/admin', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.isLocal) return _403(res, "Permission denied.");
-  if (ov_config.make_admin_api !== 'true') return _403(res, 'Permission denied.');
+  if (!ov_config.make_admin_api) return _403(res, 'Permission denied.');
   return makeAdmin(req, res);
 })
 .put('/ambassadors/:ambassadorId', (req, res) => {

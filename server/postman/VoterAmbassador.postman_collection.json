@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a95d4540-a519-4990-83f2-affdc7faa15d",
+		"_postman_id": "59b33dc9-5f84-44f2-a160-2bcf7c3981e0",
 		"name": "VoterAmbassador",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -15,8 +15,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Check address (invalid)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -86,8 +84,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Signup\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -160,8 +156,6 @@
 							"",
 							"    let jsonData = pm.response.json()",
 							"    pm.globals.set('ambassador_id', jsonData.id);",
-							"",
-							"    postman.setNextRequest(\"Signup failure due to duplicate external id\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -231,8 +225,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
-							"",
-							"    postman.setNextRequest(\"Signup failure due to invalid email\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -302,8 +294,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
-							"",
-							"    postman.setNextRequest(\"Make admin (localhost api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -373,8 +363,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Create tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -427,20 +415,84 @@
 			"response": []
 		},
 		{
+			"name": "Create test account (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a5a7fda3-a329-478f-a07d-9e89f4e3cffd",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/payouts/test-account?stripe=true",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"payouts",
+						"test-account"
+					],
+					"query": [
+						{
+							"key": "stripe",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Create tripler",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "da1a0aad-baad-464f-b51e-d47accf5c627",
+						"id": "e9070774-142b-4262-ac12-68f73e34e9f9",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
 							"",
 							"    let jsonData = pm.response.json()",
 							"    pm.globals.set('tripler_id', jsonData.id);",
-							"",
-							"    postman.setNextRequest(\"Claim triplers\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -500,6 +552,77 @@
 			"response": []
 		},
 		{
+			"name": "Create other tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "60e96ca7-83e1-426a-9f7b-ddf89c35176f",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    let jsonData = pm.response.json()",
+							"    pm.globals.set('other_tripler_id', jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Satan\",\n\t\"address\": {\"address1\": \"508 Post Rd\", \"city\": \"Woodward\", \"state\": \"OK\", \"zip\": 73801},\n\t\"phone\": \"+1 620 275 4609\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Claim triplers",
 			"event": [
 				{
@@ -509,8 +632,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Fetch claimed triplers\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -528,7 +649,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"triplers\": [\"{{tripler_id}}\"]\n}",
+					"raw": "{\n\t\"triplers\": [\"{{tripler_id}}\", \"{{other_tripler_id}}\"]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -562,8 +683,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Fetch current ambassador\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -606,8 +725,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Fetch current ambassador payouts\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -649,8 +766,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Check ambassador exists (true)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -693,8 +808,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Check ambassador exists (false)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -736,8 +849,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Update current ambassador\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -779,8 +890,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Complete onboarding\");    ",
 							"});"
 						],
 						"type": "text/javascript"
@@ -831,8 +940,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Suggest triplers\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -866,6 +973,76 @@
 			"response": []
 		},
 		{
+			"name": "Approve current ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "da1a0aad-baad-464f-b51e-d47accf5c627",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 8537\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{ambassador_id}}/approve",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"{{ambassador_id}}",
+						"approve"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Suggest triplers",
 			"event": [
 				{
@@ -875,8 +1052,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Start confirmation process for claimed tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -917,8 +1092,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Remind tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -980,6 +1153,76 @@
 			"response": []
 		},
 		{
+			"name": "Start confirmation process for other claimed tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "14d4ab21-bfbe-4b6f-b15c-055e0cbbb5ee",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"triplees\": [\"Aman\", \"David\", \"Ethan\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers/{{other_tripler_id}}/start-confirm",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers",
+						"{{other_tripler_id}}",
+						"start-confirm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Remind tripler",
 			"event": [
 				{
@@ -989,8 +1232,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Fetch a tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1061,8 +1302,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Confirm tripler via SMS\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1123,8 +1362,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Confirm tripler via SMS (proxy)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1181,6 +1418,71 @@
 			"response": []
 		},
 		{
+			"name": "Confirm other tripler via SMS",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "17f26354-ff8a-4002-83fb-164f4c4c7aa2",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"From\": \"+1 620 275 4609\",\n\t\"Body\": \"yes\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/public/va/sms/receive",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"public",
+						"va",
+						"sms",
+						"receive"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Confirm tripler via SMS (proxy)",
 			"event": [
 				{
@@ -1190,8 +1492,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Update tripler (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1257,8 +1557,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Confirm tripler (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1328,8 +1626,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Fetch all triplers (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1400,8 +1696,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Create ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1445,8 +1739,6 @@
 							"",
 							"    let jsonData = pm.response.json()",
 							"    pm.globals.set('other_ambassador_id', jsonData.id);",
-							"",
-							"    postman.setNextRequest(\"Create ambassador failure due to duplicate email (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1515,8 +1807,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
-							"",
-							"    postman.setNextRequest(\"Delete an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1585,8 +1875,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Signup (other ambassador)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1640,8 +1928,6 @@
 							"",
 							"    let jsonData = pm.response.json()",
 							"    pm.globals.set('other_ambassador_id', jsonData.id);",
-							"",
-							"    postman.setNextRequest(\"Fetch all ambassadors (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1711,8 +1997,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by phone (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1753,8 +2037,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by email (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1801,8 +2083,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by approved (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1849,8 +2129,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by disapproved (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1897,8 +2175,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by external id (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1949,8 +2225,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by pending (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1997,8 +2271,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Count all ambassadors (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2053,8 +2325,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Fetch an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2096,8 +2366,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Update an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2139,8 +2407,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Complete onboarding (other ambassador)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2191,8 +2457,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Approve an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2235,8 +2499,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Update ambassador failure due to duplicate phone\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2288,8 +2550,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
-							"",
-							"    postman.setNextRequest(\"Disapprove an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2340,8 +2600,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Disburse to ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2393,8 +2651,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Settle for ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2446,8 +2702,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Delete a tripler (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2484,6 +2738,48 @@
 							"key": "tripler-id",
 							"value": "{{tripler_id}}"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get current ambassador payouts",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9025b3e2-892e-404c-8ca1-dd3be901f4b8",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/current/payouts",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"current",
+						"payouts"
 					]
 				}
 			},
