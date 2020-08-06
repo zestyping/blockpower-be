@@ -71,9 +71,9 @@ async function signup(json) {
   }
 
   if (json.email) {
-    if (!validateEmail(json.email)) throw "Invalid email";  
+    if (!validateEmail(json.email)) throw "Invalid email";
 
-    if (models.Ambassador.email.unique && 
+    if (models.Ambassador.email.unique &&
       await neode.first('Ambassador', 'email', json.email)) {
       throw new ValidationError("Ambassador with this email already exists");
     }
@@ -115,7 +115,7 @@ async function signup(json) {
                               ambassador_name: ambassador_name,
                               organization_name: ov_config.organization_name
                             });
-    await mail(ov_config.admin_emails, null, null, 
+    await mail(ov_config.admin_emails, null, null,
                subject,
                body);
   }, 100);
@@ -123,10 +123,26 @@ async function signup(json) {
   return new_ambassador;
 }
 
+async function getPrimaryAccount(ambassador) {
+  let relationships = ambassador.get('owns_account');
+  let primaryAccount = null;
+
+  if (relationships.length > 0) {
+    relationships.forEach((ownsAccount) => {
+      if (ownsAccount.otherNode().get('is_primary')) {
+        primaryAccount = ownsAccount.otherNode();
+      }
+    });
+  }
+
+  return primaryAccount;
+}
+
 module.exports = {
   findByExternalId: findByExternalId,
   findById: findById,
   findAmbassadorsWithPendingDisbursements: findAmbassadorsWithPendingDisbursements,
   findAmbassadorsWithPendingSettlements: findAmbassadorsWithPendingSettlements,
-  signup: signup
+  signup: signup,
+  getPrimaryAccount: getPrimaryAccount
 };

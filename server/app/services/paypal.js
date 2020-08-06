@@ -1,5 +1,8 @@
-import neode from '../lib/neode';
+import logger from 'logops';
 const paypal = require('@paypal/payouts-sdk');
+import neo4j from 'neo4j-driver';
+
+import neode from '../lib/neode';
 import { ov_config } from '../lib/ov_config';
 
 let environment = null;
@@ -29,39 +32,59 @@ function validateForPayment(ambassador, tripler) {
   }
 }
 
+function getPaypalAccount(ambassador) {
+  console.log('getting paypal account')
+  let payout_account = null;
+
+  ambassador.get('owns_account').forEach((entry) => {
+   if (entry.otherNode().get('account_type') === 'paypal' && entry.otherNode().get('is_primary')) {
+      payout_account = entry.otherNode();
+    }
+  });
+
+  if (payout_account) return payout_account;
+  throw 'Paypal account not set for ambassador, cannot pay';
+}
+
 async function disburse(ambassador, tripler) {
   // pending => disbursed => settled
 
   validateForPayment(ambassador, tripler);
 
-  let query = `MATCH (a:Ambassador{id: \'${ambassador.get('id')}\'})-[r:EARNS_OFF]->(t:Tripler{id: \'${tripler.get('id')}\'}) RETURN r`;
+  let query = `MATCH (:Ambassador{id: \'${ambassador.get('id')}\'})-[:GETS_PAID {tripler_id: \'${tripler.get('id')}\'}]->(p:Payout{status: \'pending\'}) RETURN p.id`;
   let res = await neode.cypher(query);
-  if (res.records.length > 0) {
-    let properties = res.records[0]._fields[0].properties;
-    if (properties.status !== 'pending') {
-      return;
-    }
-  } 
+  if (res.records.length === 0) {
+    return;
+  }
 
-  let amount = ov_config.payout_per_tripler;
+  let payout_id = res.records[0]._fields[0];
+  let payout = await neode.first('Payout', 'id', payout_id);
+
+  let amount = parseInt(ov_config.payout_per_tripler);
+
   if (!amount) {
     throw 'Configuration error, cannot pay';
   }
-  amount = parseInt(amount);
+
+  let payout_account = getPaypalAccount(ambassador);
+  if (!payout_account) {
+    throw 'Stripe account not set for ambassador, cannot pay';
+  }
 
   let transfer = null;
 
   try {
+    logger.debug('disbursing to ambassador %s due to tripler %s', ambassador.get('id'), tripler.get('id'));
     let requestBody = {
       "sender_batch_header": {
         "recipient_type": "EMAIL",
         "email_message": "Ambassador payout",
         "note": "Ambassador payout",
         "sender_batch_id": new Date(),
-        "email_subject": "This is a test transaction from SDK"
+        "email_subject": "This is a paypal transaction"
       },
       "items": [{
-        "note": "Your Ambassador Payout!",
+        "note": "Your Ambassador Payout",
         "amount": {
           "currency": "USD",
           "value": amount / 100
@@ -76,12 +99,14 @@ async function disburse(ambassador, tripler) {
 
     transfer = await client.execute(request);
   } catch(err) {
-    await ambassador.relateTo(tripler, 'earns_off', { error: JSON.stringify(err) });
-    throw err;  
+    await payout.update({ error: JSON.stringify(err) });
+    throw err;
   }
 
-  // update relationship details
-  await ambassador.relateTo(tripler, 'earns_off', { status: 'disbursed', disbursed_at: new Date(), amount: amount, disbursement_id: transfer.result.batch_header.payout_batch_id });
+  // update relationship details (skip disbursement)
+  let settled_at =  neo4j.default.types.LocalDateTime.fromStandardDate(new Date());
+  await payout.update({ status: 'settled', settled_at: settled_at, amount: amount, settlement_id: transfer.result.batch_header.payout_batch_id, error: null });
+  await payout.relateTo(payout_account, 'to_account');
 }
 
 module.exports = {

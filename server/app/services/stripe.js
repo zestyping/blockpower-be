@@ -116,18 +116,18 @@ async function disburse(ambassador, tripler) {
   // pending => disbursed => settled
   validateForPayment(ambassador, tripler);
 
-  let query = `MATCH (:Ambassador{id: \'${ambassador.get('id')}\'})-[r:GETS_PAID{tripler_id: \'${tripler.get('id')}\'}]->(p:Payout{status: \'pending\'}) RETURN p.id`;
+  let query = `MATCH (:Ambassador{id: \'${ambassador.get('id')}\'})-[:GETS_PAID{tripler_id: \'${tripler.get('id')}\'}]->(p:Payout{status: \'pending\'}) RETURN p.id`;
   let res = await neode.cypher(query);
   if (res.records.length === 0) {
-    return;    
-  } 
+    return;
+  }
 
   let payout_id = res.records[0]._fields[0];
   let payout = await neode.first('Payout', 'id', payout_id);
 
   let amount = parseInt(ov_config.payout_per_tripler);
 
-  let payout_account = getStripeAccount(ambassador);  
+  let payout_account = getStripeAccount(ambassador);
   if (!payout_account) {
     throw 'Stripe account not set for ambassador, cannot pay';
   }
@@ -146,7 +146,7 @@ async function disburse(ambassador, tripler) {
     });
   } catch(err) {
     await payout.update({ error: JSON.stringify(err) });
-    throw err;  
+    throw err;
   }
 
   // update relationship details
@@ -161,7 +161,7 @@ async function settle(ambassador, tripler) {
   let query = `MATCH (:Ambassador{id: \'${ambassador.get('id')}\'})-[r:GETS_PAID{tripler_id: \'${tripler.get('id')}\'}]->(p:Payout{status: \'disbursed\'}) RETURN p.id`;
   let res = await neode.cypher(query);
   if (res.records.length === 0) {
-    return;    
+    return;
   }
 
   let payout_id = res.records[0]._fields[0];
@@ -173,13 +173,13 @@ async function settle(ambassador, tripler) {
   try {
     logger.debug('settling ambassador %s due to tripler %s', ambassador.get('id'), tripler.get('id'));
     stripe_payout = await stripe(ov_config.stripe_secret_key).payouts.create({
-      amount: amount, 
-      currency: 'usd', 
+      amount: amount,
+      currency: 'usd',
       description: getPayoutDescription(ambassador, tripler)
     });
   } catch(err) {
     await payout.update({ error: JSON.stringify(err) });
-    throw err;      
+    throw err;
   }
 
   // update relationship details
