@@ -33,12 +33,12 @@ export async function cqdo(req, res, q, p, a) {
 
   // TODO don't go to database to get timestamp
   try {
-    ref = await req.db.query(q, p);
+    ref = + new Date();
   } catch (e) {
     return _500(res, e);
   }
 
-  return res.status(200).json({msg: "OK", data: ref.data});
+  return res.status(200).json({msg: "OK", data: [ref]});
 }
 
 export async function onMyTurf(req, ida, idb) {
