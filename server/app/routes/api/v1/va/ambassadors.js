@@ -387,6 +387,10 @@ async function ambassadorPayouts(ambassador, neode) {
     payouts.push(obj);
   }));
 
+  payouts.sort((p1, p2) => {
+    return p1.disbursed_at < p2.disbursed_at ? -1 : 1;
+  });
+
   return payouts;
 }
 
