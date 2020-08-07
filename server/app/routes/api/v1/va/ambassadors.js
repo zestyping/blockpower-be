@@ -478,13 +478,11 @@ module.exports = Router({mergeParams: true})
 })
 .put('/ambassadors/:ambassadorId/approve', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
-  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   return approveAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId/disapprove', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
-  if (!ov_config.enable_admin_apis) return _403(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");
   return disapproveAmbassador(req, res);
 })
