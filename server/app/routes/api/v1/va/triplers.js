@@ -77,6 +77,13 @@ async function createTripler(req, res) {
   return res.json(serializeTripler(new_tripler));
 }
 
+async function findTripler(req, res) {
+  let found = null;
+  found = await req.neode.first('Tripler', {first_name: req.query.firstName, last_name: req.query.lastName});
+  if (!found) return _400(res, "Tripler not found");
+  return res.json(serializeTripler(found));
+}
+
 async function fetchAllTriplers(req, res) {
   const collection = await req.neode.model('Tripler').all();
   let models = [];
@@ -320,7 +327,10 @@ module.exports = Router({mergeParams: true})
 })
 .get('/triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
-  if (!req.admin) return _403(res, "Permission denied.");;
+  if (req.query.firstName && req.query.lastName) {
+    return findTripler(req, res);
+  }
+  if (!req.admin) return _403(res, "Permission denied.");
   return fetchAllTriplers(req, res);
 })
 .delete('/triplers/:triplerId', (req, res) => {
