@@ -39,7 +39,7 @@ async function createTripler(req, res) {
     }
 
     if (req.body.email) {
-      if (!validateEmail(req.body.email)) return _400(res, "Invalid email");  
+      if (!validateEmail(req.body.email)) return _400(res, "Invalid email");
 
       if (req.models.Tripler.email.unique) {
         let existing_tripler = await req.neode.first('Tripler', 'email', req.body.email);
@@ -77,11 +77,26 @@ async function createTripler(req, res) {
   return res.json(serializeTripler(new_tripler));
 }
 
-async function findTripler(req, res) {
+async function findTriplers(req, res) {
   let found = null;
-  found = await req.neode.first('Tripler', {first_name: req.query.firstName, last_name: req.query.lastName});
-  if (!found) return _400(res, "Tripler not found");
-  return res.json(serializeTripler(found));
+  let query = {};
+
+  if (req.query.firstName) {
+    query['first_name'] = req.query.firstName;
+  }
+
+  if (req.query.lastName) {
+    query['last_name'] = req.query.lastName;
+  }
+
+  found = await req.neode.model('Tripler').all(query);
+  let triplers = []
+
+  found.forEach((entry) => {
+    triplers.push(serializeTripler(entry));
+  });
+
+  return res.json(triplers);
 }
 
 async function fetchAllTriplers(req, res) {
@@ -117,7 +132,7 @@ async function fetchTripler(req, res) {
   let ambassador = req.user;
   let tripler = null;
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
-  
+
   if (!tripler) {
     return _400(res, "Invalid triper id");
   }
@@ -141,7 +156,7 @@ async function updateTripler(req, res) {
   }
 
   if (req.body.email) {
-    if (!validateEmail(req.body.email)) return _400(res, "Invalid email");  
+    if (!validateEmail(req.body.email)) return _400(res, "Invalid email");
 
     if (req.models.Tripler.email.unique) {
       let existing_tripler = await req.neode.first('Tripler', 'email', req.body.email);
@@ -187,7 +202,7 @@ async function startTriplerConfirmation(req, res) {
   let ambassador = req.user;
   let tripler = null;
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
-  
+
   if (!tripler) {
     return _400(res, "Invalid triper id");
   }
@@ -219,7 +234,7 @@ async function startTriplerConfirmation(req, res) {
                                       ambassador_first_name: ambassador.get('first_name'),
                                       ambassador_last_name: ambassador.get('last_name') || '',
                                       organization_name: ov_config.organization_name,
-                                      tripler_first_name: tripler.get('first_name'), 
+                                      tripler_first_name: tripler.get('first_name'),
                                       tripler_city: JSON.parse(tripler.get('address')).city,
                                       triplee_1: triplees[0],
                                       triplee_2: triplees[1],
@@ -239,7 +254,7 @@ async function remindTripler(req, res) {
 
   // TODO get ambassador directory from tripler, and then compare
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
-  
+
   if (!tripler) {
     return _400(res, "Invalid triper id");
   }
@@ -252,7 +267,7 @@ async function remindTripler(req, res) {
     if (!validatePhone(req.body.phone)) {
       return _400(res, "Invalid phone");
     }
-    
+
     await tripler.update({ phone: new_phone });
   }
 
@@ -280,7 +295,7 @@ async function remindTripler(req, res) {
 
 async function confirmTripler(req, res) {
   let tripler = await triplersSvc.findById(req.params.triplerId);
-  
+
   if (!tripler) {
     return _404(res, "Invalid tripler");
   }
@@ -293,14 +308,14 @@ async function confirmTripler(req, res) {
     await triplersSvc.confirmTripler(req.params.triplerId);
   } catch(err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
-    return _500(res, 'Error confirming a tripler'); 
+    return _500(res, 'Error confirming a tripler');
   }
   return _204(res);
 }
 
 async function deleteTripler(req, res) {
   let tripler = await triplersSvc.findById(req.params.triplerId);
-  
+
   if (!tripler) {
     return _404(res, "Invalid tripler");
   }
@@ -327,8 +342,8 @@ module.exports = Router({mergeParams: true})
 })
 .get('/triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
-  if (req.query.firstName && req.query.lastName) {
-    return findTripler(req, res);
+  if (req.query.firstName || req.query.lastName) {
+    return findTriplers(req, res);
   }
   if (!req.admin) return _403(res, "Permission denied.");
   return fetchAllTriplers(req, res);
