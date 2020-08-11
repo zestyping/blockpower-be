@@ -62,7 +62,7 @@ function serializeTripler(tripler) {
 
 function serializeNeo4JTripler(tripler) {
   let obj = {};
-  ['id', 'first_name', 'last_name', 'status', 'phone', 'location', 'email'].forEach(x => obj[x] = tripler[x]);
+  ['distance', 'id', 'first_name', 'last_name', 'status', 'phone', 'location', 'email'].forEach(x => obj[x] = tripler[x]);
   obj['address'] = !!tripler.address ? JSON.parse(tripler.address) : null;
   obj['display_address'] = !!obj['address'] ? serializeAddress(obj['address']) : null;
   obj['display_name'] = serializeName(tripler.first_name, tripler.last_name);
