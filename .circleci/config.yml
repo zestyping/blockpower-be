@@ -35,7 +35,43 @@ jobs:
           command: |
             . env/bin/activate
             cd ~/operations/ansible/api
-            ansible-playbook -i hosts deploy.yml --limit staging_* --vault-password-file ~/operations/ansible/api/.vault-pass
+            ansible-playbook -i hosts deploy.yml --limit staging_*_v1 --vault-password-file ~/operations/ansible/api/.vault-pass
+  staging2:
+    docker:
+      - image: circleci/python:3.6
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "94:a6:df:e0:d7:c5:92:55:dc:80:73:c2:29:67:18:7d"
+            - "1a:51:45:73:23:c6:45:e5:98:9f:70:21:78:71:81:a1"
+      - checkout
+      - run:
+          name: Clone Operations Repository
+          command: |
+            git clone git@bitbucket.org:colabcoop-ondemand/hvbp-operations.git ~/operations
+      - restore_cache:
+          keys:
+          - deps-{{ checksum "~/operations/ansible/api/requirements.txt" }}
+      - run:
+          name: Install PIP Dependencies
+          command: |
+            python3 -m venv env
+            . env/bin/activate
+            pip install -r ~/operations/ansible/api/requirements.txt
+      - save_cache:
+          key: deps-{{ checksum "~/operations/ansible/api/requirements.txt" }}
+          paths:
+            - "env"
+      - run:
+          name: Setup Ansible Vault pass
+          command: |
+            echo $VAULT_PASS | tee ~/operations/ansible/api/.vault-pass
+      - run:
+          name: Deploy with Ansible
+          command: |
+            . env/bin/activate
+            cd ~/operations/ansible/api
+            ansible-playbook -i hosts deploy.yml --limit staging_*_v2 --vault-password-file ~/operations/ansible/api/.vault-pass
   production:
     docker:
       - image: circleci/python:3.6
@@ -71,7 +107,7 @@ jobs:
           command: |
             . env/bin/activate
             cd ~/operations/ansible/api
-            ansible-playbook -i hosts deploy.yml --limit production_* --vault-password-file ~/operations/ansible/api/.vault-pass
+            ansible-playbook -i hosts deploy.yml --limit production_*_v1 --vault-password-file ~/operations/ansible/api/.vault-pass
 workflows:
   version: 2
   build-and-deploy:
@@ -79,8 +115,15 @@ workflows:
       - staging:
           filters:
             branches:
-              only: ambassador-stage
+              only:
+                - ambassador-stage
+      - staging2:
+          filters:
+            branches:
+              only:
+                - ambassador-stage2
       - production:
           filters:
             branches:
-              only: ambassador
+              only:
+                - ambassador

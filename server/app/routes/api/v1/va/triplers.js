@@ -94,13 +94,16 @@ async function suggestTriplers(req, res) {
     .match('t', 'Tripler')
     .whereRaw('NOT ()-[:CLAIMS]->(t)')
     .whereRaw(`distance(t.location, a.location) <= ${ov_config.ambassador_tripler_relation_max_distance}`) // distance in meters (10km)
-    .return('t')
+    .with('a, t, distance(t.location, a.location) AS distance')
+    .orderBy('distance')
+    .return('t, distance')
     .limit(ov_config.suggest_tripler_limit)
     .execute()
 
   let models = [];
   for (var index = 0; index < collection.records.length; index++) {
     let entry = collection.records[index]._fields[0].properties;
+    entry['distance'] = collection.records[index]._fields[1];
     models.push(serializeNeo4JTripler(entry));
   }
   return res.json(models);
