@@ -81,6 +81,10 @@ async function findTriplers(req, res) {
   let found = null;
   let query = '';
 
+  if (!req.query.firstName && !req.query.lastName) {
+    return [];
+  }
+
   if (req.query.firstName) {
     query += ` apoc.text.levenshteinDistance("${req.query.firstName}", t.first_name) < 3.0`
   }
@@ -355,11 +359,16 @@ module.exports = Router({mergeParams: true})
 })
 .get('/triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
-  if (req.query.firstName || req.query.lastName) {
-    return findTriplers(req, res);
+
+  if (req.admin) {
+    if (req.query.firstName || req.query.lastName) {
+      return findTriplers(req, res);
+    } else {
+      return fetchAllTriplers(req, res);
+    }
   }
-  if (!req.admin) return _403(res, "Permission denied.");
-  return fetchAllTriplers(req, res);
+
+  return findTriplers(req, res);
 })
 .delete('/triplers/:triplerId', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
