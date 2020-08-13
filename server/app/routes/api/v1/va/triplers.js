@@ -82,7 +82,7 @@ async function findTriplers(req, res) {
   let query = '';
 
   if (!req.query.firstName && !req.query.lastName) {
-    return [];
+    return res.json([]);
   }
 
   if (req.query.firstName) {
@@ -110,16 +110,6 @@ async function findTriplers(req, res) {
     models.push(serializeNeo4JTripler(entry));
   }
 
-  return res.json(models);
-}
-
-async function fetchAllTriplers(req, res) {
-  const collection = await req.neode.model('Tripler').all();
-  let models = [];
-  for (var index = 0; index < collection.length; index++) {
-    let entry = collection.get(index);
-    models.push(serializeTripler(entry))
-  }
   return res.json(models);
 }
 
@@ -357,25 +347,16 @@ module.exports = Router({mergeParams: true})
   if (!req.admin) return _403(res, "Permission denied.");;
   return confirmTripler(req, res);
 })
-.get('/triplers', (req, res) => {
-  if (!req.authenticated) return _401(res, 'Permission denied.');
-
-  if (req.admin) {
-    if (req.query.firstName || req.query.lastName) {
-      return findTriplers(req, res);
-    } else {
-      return fetchAllTriplers(req, res);
-    }
-  }
-
-  return findTriplers(req, res);
-})
 .delete('/triplers/:triplerId', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");;
   return deleteTripler(req, res);
 })
 
+.get('/triplers', (req, res) => {
+  if (!req.authenticated) return _401(res, 'Permission denied.');
+  return findTriplers(req, res);
+})
 .get('/suggest-triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
   return suggestTriplers(req, res);
