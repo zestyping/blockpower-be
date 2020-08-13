@@ -79,24 +79,34 @@ async function createTripler(req, res) {
 
 async function findTriplers(req, res) {
   let found = null;
-  let query = {};
+  let query = '';
 
   if (req.query.firstName) {
-    query['first_name'] = req.query.firstName;
+    query += ` apoc.text.levenshteinDistance("${req.query.firstName}", t.first_name) < 3.0`
   }
 
   if (req.query.lastName) {
-    query['last_name'] = req.query.lastName;
+    if (req.query.firstName) {
+      query += ' AND'
+    }
+    query += ` apoc.text.levenshteinDistance("${req.query.lastName}", t.last_name) < 3.0`
   }
 
-  found = await req.neode.model('Tripler').all(query);
-  let triplers = []
+  let collection = await req.neode.query()
+    .match('t', 'Tripler')
+    .whereRaw(query)
+    .return('t')
+    .limit(ov_config.suggest_tripler_limit)
+    .execute()
 
-  found.forEach((entry) => {
-    triplers.push(serializeTripler(entry));
-  });
+  let models = [];
 
-  return res.json(triplers);
+  for (var index = 0; index < collection.records.length; index++) {
+    let entry = collection.records[index]._fields[0].properties;
+    models.push(serializeNeo4JTripler(entry));
+  }
+
+  return res.json(models);
 }
 
 async function fetchAllTriplers(req, res) {
