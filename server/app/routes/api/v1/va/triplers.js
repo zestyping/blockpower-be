@@ -86,14 +86,14 @@ async function findTriplers(req, res) {
   }
 
   if (req.query.firstName) {
-    query += ` apoc.text.levenshteinDistance("${req.query.firstName}", t.first_name) < 3.0`
+    query += ` apoc.text.levenshteinDistance("${req.query.firstName}", t.first_name) < 2.0`
   }
 
   if (req.query.lastName) {
     if (req.query.firstName) {
       query += ' AND'
     }
-    query += ` apoc.text.levenshteinDistance("${req.query.lastName}", t.last_name) < 3.0`
+    query += ` apoc.text.levenshteinDistance("${req.query.lastName}", t.last_name) < 2.0`
   }
 
   let collection = await req.neode.query()
