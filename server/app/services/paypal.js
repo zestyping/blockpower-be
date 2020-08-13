@@ -8,6 +8,8 @@ import { ov_config } from '../lib/ov_config';
 let environment = null;
 if (ov_config.paypal_environment === 'sandbox') {
    environment = new paypal.core.SandboxEnvironment(ov_config.paypal_client_id, ov_config.paypal_client_secret);
+} else if (ov_config.paypal_environment === 'production') {
+   environment = new paypal.core.LiveEnvironment(ov_config.paypal_client_id, ov_config.paypal_client_secret);
 }
 
 let client = new paypal.core.PayPalHttpClient(environment);

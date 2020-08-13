@@ -13,6 +13,7 @@ function disburse_task(ambassador, tripler) {
       try {
         logger.debug('Trying disbursement for ambassador (%s) for tripler (%s)', ambassador.get('phone'), tripler.get('phone'));
         let account = await ambassadorSvc.getPrimaryAccount(ambassador);
+        if (!account) return;
         if (account.get('account_type') === 'stripe') {
           await stripeSvc.disburse(ambassador, tripler);
         } else if (account.get('account_type') === 'paypal') {
