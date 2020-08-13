@@ -39,7 +39,7 @@ async function createTripler(req, res) {
     }
 
     if (req.body.email) {
-      if (!validateEmail(req.body.email)) return _400(res, "Invalid email");  
+      if (!validateEmail(req.body.email)) return _400(res, "Invalid email");
 
       if (req.models.Tripler.email.unique) {
         let existing_tripler = await req.neode.first('Tripler', 'email', req.body.email);
@@ -77,13 +77,39 @@ async function createTripler(req, res) {
   return res.json(serializeTripler(new_tripler));
 }
 
-async function fetchAllTriplers(req, res) {
-  const collection = await req.neode.model('Tripler').all();
-  let models = [];
-  for (var index = 0; index < collection.length; index++) {
-    let entry = collection.get(index);
-    models.push(serializeTripler(entry))
+async function findTriplers(req, res) {
+  let found = null;
+  let query = '';
+
+  if (!req.query.firstName && !req.query.lastName) {
+    return res.json([]);
   }
+
+  if (req.query.firstName) {
+    query += ` apoc.text.levenshteinDistance("${req.query.firstName}", t.first_name) < 2.0`
+  }
+
+  if (req.query.lastName) {
+    if (req.query.firstName) {
+      query += ' AND'
+    }
+    query += ` apoc.text.levenshteinDistance("${req.query.lastName}", t.last_name) < 2.0`
+  }
+
+  let collection = await req.neode.query()
+    .match('t', 'Tripler')
+    .whereRaw(query)
+    .return('t')
+    .limit(ov_config.suggest_tripler_limit)
+    .execute()
+
+  let models = [];
+
+  for (var index = 0; index < collection.records.length; index++) {
+    let entry = collection.records[index]._fields[0].properties;
+    models.push(serializeNeo4JTripler(entry));
+  }
+
   return res.json(models);
 }
 
@@ -113,7 +139,7 @@ async function fetchTripler(req, res) {
   let ambassador = req.user;
   let tripler = null;
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
-  
+
   if (!tripler) {
     return _400(res, "Invalid triper id");
   }
@@ -137,7 +163,7 @@ async function updateTripler(req, res) {
   }
 
   if (req.body.email) {
-    if (!validateEmail(req.body.email)) return _400(res, "Invalid email");  
+    if (!validateEmail(req.body.email)) return _400(res, "Invalid email");
 
     if (req.models.Tripler.email.unique) {
       let existing_tripler = await req.neode.first('Tripler', 'email', req.body.email);
@@ -183,7 +209,7 @@ async function startTriplerConfirmation(req, res) {
   let ambassador = req.user;
   let tripler = null;
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
-  
+
   if (!tripler) {
     return _400(res, "Invalid triper id");
   }
@@ -215,7 +241,7 @@ async function startTriplerConfirmation(req, res) {
                                       ambassador_first_name: ambassador.get('first_name'),
                                       ambassador_last_name: ambassador.get('last_name') || '',
                                       organization_name: ov_config.organization_name,
-                                      tripler_first_name: tripler.get('first_name'), 
+                                      tripler_first_name: tripler.get('first_name'),
                                       tripler_city: JSON.parse(tripler.get('address')).city,
                                       triplee_1: triplees[0],
                                       triplee_2: triplees[1],
@@ -235,7 +261,7 @@ async function remindTripler(req, res) {
 
   // TODO get ambassador directory from tripler, and then compare
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
-  
+
   if (!tripler) {
     return _400(res, "Invalid triper id");
   }
@@ -248,7 +274,7 @@ async function remindTripler(req, res) {
     if (!validatePhone(req.body.phone)) {
       return _400(res, "Invalid phone");
     }
-    
+
     await tripler.update({ phone: new_phone });
   }
 
@@ -276,7 +302,7 @@ async function remindTripler(req, res) {
 
 async function confirmTripler(req, res) {
   let tripler = await triplersSvc.findById(req.params.triplerId);
-  
+
   if (!tripler) {
     return _404(res, "Invalid tripler");
   }
@@ -289,14 +315,14 @@ async function confirmTripler(req, res) {
     await triplersSvc.confirmTripler(req.params.triplerId);
   } catch(err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
-    return _500(res, 'Error confirming a tripler'); 
+    return _500(res, 'Error confirming a tripler');
   }
   return _204(res);
 }
 
 async function deleteTripler(req, res) {
   let tripler = await triplersSvc.findById(req.params.triplerId);
-  
+
   if (!tripler) {
     return _404(res, "Invalid tripler");
   }
@@ -321,17 +347,16 @@ module.exports = Router({mergeParams: true})
   if (!req.admin) return _403(res, "Permission denied.");;
   return confirmTripler(req, res);
 })
-.get('/triplers', (req, res) => {
-  if (!req.authenticated) return _401(res, 'Permission denied.');
-  if (!req.admin) return _403(res, "Permission denied.");;
-  return fetchAllTriplers(req, res);
-})
 .delete('/triplers/:triplerId', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
   if (!req.admin) return _403(res, "Permission denied.");;
   return deleteTripler(req, res);
 })
 
+.get('/triplers', (req, res) => {
+  if (!req.authenticated) return _401(res, 'Permission denied.');
+  return findTriplers(req, res);
+})
 .get('/suggest-triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
   return suggestTriplers(req, res);
