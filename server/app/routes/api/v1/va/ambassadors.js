@@ -194,11 +194,11 @@ async function signup(req, res) {
   }
 
   try {
-   await sms(found.get('phone'), format(ov_config.ambassador_signup_message,
+   await sms(new_ambassador.get('phone'), format(ov_config.ambassador_signup_message,
                                     {
-                                      ambassador_first_name: found.get('first_name'),
-                                      ambassador_last_name: found.get('last_name') || '',
-                                      ambassador_city: JSON.parse(found.get('address')).city,
+                                      ambassador_first_name: new_ambassador.get('first_name'),
+                                      ambassador_last_name: new_ambassador.get('last_name') || '',
+                                      ambassador_city: JSON.parse(new_ambassador.get('address')).city,
                                       organization_name: ov_config.organization_name,
                                       ambassador_landing_page: ov_config.ambassador_landing_page
                                     }));
