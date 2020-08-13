@@ -7,10 +7,11 @@ import {
   validateEmpty, validatePhone, validateEmail
 } from '../lib/validations';
 
-import { ValidationError }  from '../lib/errors';
+import { ValidationError, SMSError }  from '../lib/errors';
 import { geoCode, serializeName } from '../lib/utils';
 import { normalize } from '../lib/phone';
 import mail from '../lib/mail';
+import sms from '../lib/sms';
 import { ov_config } from '../lib/ov_config';
 
 import models from '../models/va';
@@ -119,6 +120,20 @@ async function signup(json) {
                subject,
                body);
   }, 100);
+
+  // send SMS to the ambassador
+  try {
+   await sms(new_ambassador.get('phone'), format(ov_config.ambassador_signup_message,
+                                    {
+                                      ambassador_first_name: new_ambassador.get('first_name'),
+                                      ambassador_last_name: new_ambassador.get('last_name') || '',
+                                      ambassador_city: JSON.parse(new_ambassador.get('address')).city,
+                                      organization_name: ov_config.organization_name,
+                                      ambassador_landing_page: ov_config.ambassador_landing_page
+                                    }));
+  } catch (err) {
+    throw new SMSError("Error sending signup SMS to new ambassador");
+  }
 
   return new_ambassador;
 }
