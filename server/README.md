@@ -44,6 +44,7 @@ For this server, configure an `.env` file. The following is a complete list of v
     AMBASSADOR_LANDING_PAGE=
     BUSINESS_URL=
     AMBASSADOR_APPROVED_MESSAGE=
+    AMBASSADOR_SIGNUP_MESSAGE=
     TRIPLER_REMINDER_MESSAGE=
     TRIPLER_CONFIRMATION_MESSAGE=
     TRIPLER_RECONFIRMATION_MESSAGE=
@@ -115,6 +116,7 @@ The meaning of each config item is as follows:
 * `AMBASSADOR_LANDING_PAGE`: Link to the webpage where ambassador lands after approval, this is sent in SMS
 * `BUSINESS_URL`: URL of the business running the platform or url of the organization; used in stripe while creating connect accounts
 * `AMBASSADOR_APPROVED_MESSAGE`: The SMS message when an ambassador is approved
+* `AMBASSADOR_SIGNUP_MESSAGE`: The SMS message when an ambassador signs up
 * `TRIPLER_REMINDER_MESSAGE`: The SMS message when a tripler is reminded
 * `TRIPLER_CONFIRMATION_MESSAGE`: The SMS message when a tripler begins confirmation process
 * `TRIPLER_RECONFIRMATION_MESSAGE`: The SMS message when a tripler responds to other than YES or NO in response to confirmation message

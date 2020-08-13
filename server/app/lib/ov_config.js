@@ -51,6 +51,7 @@ export const ov_config = {
   ambassador_landing_page: getConfig('ambassador_landing_page', true, null),
   business_url: getConfig('business_url', true, null),
   ambassador_approved_message: getConfig('ambassador_approved_message', true, null),
+  ambassador_signup_message: getConfig('ambassador_signup_message', true, null),
   stress_testing: getConfig('stress_testing', false, false),
   log_requests: getConfig('log_requests', false, false),
   log_request_max_body_length: getConfig('log_request_max_body_length', false, 1000),

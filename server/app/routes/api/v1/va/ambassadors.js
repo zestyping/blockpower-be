@@ -192,6 +192,21 @@ async function signup(req, res) {
       return _500(res, 'Unable to update ambassador form data');
     }
   }
+
+  try {
+   await sms(found.get('phone'), format(ov_config.ambassador_signup_message,
+                                    {
+                                      ambassador_first_name: found.get('first_name'),
+                                      ambassador_last_name: found.get('last_name') || '',
+                                      ambassador_city: JSON.parse(found.get('address')).city,
+                                      organization_name: ov_config.organization_name,
+                                      ambassador_landing_page: ov_config.ambassador_landing_page
+                                    }));
+  } catch (err) {
+    req.logger.error("Unhandled error in %s: %s", req.url, err);
+    req.logger.error("Error sending signup sms to the ambassador");
+  }
+
   return res.json(serializeAmbassador(new_ambassador));
 }
 
