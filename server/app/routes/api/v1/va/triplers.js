@@ -99,6 +99,7 @@ async function findTriplers(req, res) {
   let collection = await req.neode.query()
     .match('t', 'Tripler')
     .whereRaw(query)
+    .whereRaw('NOT ()-[:CLAIMS]->(t)')
     .return('t')
     .limit(ov_config.suggest_tripler_limit)
     .execute()
