@@ -78,6 +78,7 @@ async function parseCsv(argv) {
     try {
       let existing_record = await neode.first('Tripler', 'voter_id', parsedRecord.voter_id);
       if (!existing_record.update) {
+        bar1.increment();
         continue;
       }
       await existing_record.update({ location: new neo4j.types.Point(
@@ -85,6 +86,7 @@ async function parseCsv(argv) {
         parseFloat(parsedRecord.location.longitude, 10),
         parseFloat(parsedRecord.location.latitude, 10))});
     } catch (err) {
+      bar1.increment();
       console.log('error parsing: ', err);
     }
 
