@@ -332,6 +332,10 @@ async function deleteTripler(req, res) {
   return _204(res);
 }
 
+async function getTriplerLimit(req, res) {
+  return res.json({limit: ov_config.claim_tripler_limit});
+}
+
 module.exports = Router({mergeParams: true})
 .post('/triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
@@ -373,4 +377,8 @@ module.exports = Router({mergeParams: true})
 .get('/triplers/:triplerId', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
   return fetchTripler(req, res);
+})
+.get('/triplers-limit', (req, res) => {
+  if (!req.authenticated) return _401(res, 'Permission denied.');
+  return getTriplerLimit(req, res);
 })
