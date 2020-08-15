@@ -123,10 +123,26 @@ async function signup(json) {
   return new_ambassador;
 }
 
+async function unclaimTriplers(req) {
+  let ambassador = req.user;
+
+  for (var x = 0; x < req.body.triplers.length; x++) {
+    let result = await req.neode.query()
+      .match('a', 'Ambassador')
+      .where('a.id', ambassador.get('id'))
+      .relationship('CLAIMS', 'out', 'r')
+      .to('t', 'Tripler')
+      .where('t.id', req.body.triplers[x])
+      .detachDelete('r')
+      .execute()
+  }
+}
+
 module.exports = {
   findByExternalId: findByExternalId,
   findById: findById,
   findAmbassadorsWithPendingDisbursements: findAmbassadorsWithPendingDisbursements,
   findAmbassadorsWithPendingSettlements: findAmbassadorsWithPendingSettlements,
-  signup: signup
+  signup: signup,
+  unclaimTriplers: unclaimTriplers
 };

@@ -375,6 +375,17 @@ async function claimTriplers(req, res) {
   return _204(res);
 }
 
+async function unclaimTriplers(req, res) {
+
+  if (!req.body.triplers || req.body.triplers.length === 0) {
+    return _400(res, 'Invalid request, empty list of triplers');
+  }
+
+  await ambassadorsSvc.unclaimTriplers(req);
+
+  return _204(res);
+}
+
 async function completeOnboarding(req, res) {
   let found = req.user;
   if (!found.get('signup_completed')) {
@@ -450,6 +461,10 @@ module.exports = Router({mergeParams: true})
 .put('/ambassadors/current/triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   return claimTriplers(req, res);
+})
+.put('/ambassadors/current/triplers/remove', (req, res) => {
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  return unclaimTriplers(req, res);
 })
 .get('/ambassadors/current/triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
