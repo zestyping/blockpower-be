@@ -462,7 +462,7 @@ module.exports = Router({mergeParams: true})
   if (!req.authenticated) return _401(res, 'Permission denied.')
   return claimTriplers(req, res);
 })
-.put('/ambassadors/current/triplers/remove', (req, res) => {
+.delete('/ambassadors/current/triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   return unclaimTriplers(req, res);
 })
