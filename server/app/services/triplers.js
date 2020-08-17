@@ -16,6 +16,10 @@ async function findByPhone(phone) {
   return await neode.first('Tripler', 'phone', normalize(phone));
 }
 
+async function findRecentlyConfirmedTriplers() {
+  return await neode.model('Tripler').all({status: 'confirmed', upgrade_sms_sent: false});
+}
+
 async function confirmTripler(triplerId) {
   let tripler = await neode.first('Tripler', 'id', triplerId);
   let ambassador = tripler.get('claimed');
@@ -88,10 +92,31 @@ async function reconfirmTripler(triplerId) {
   }
 }
 
+async function upgradeNotification(triplerId) {
+  let tripler = await neode.first('Tripler', 'id', triplerId);
+  if (tripler) {
+    await sms(tripler.get('phone'), stringFormat(
+      ov_config.tripler_upgrade_message,
+      {
+        ambassador_first_name: ambassador.get('first_name'),
+        ambassador_last_name: ambassador.get('last_name') || '',
+        organization_name: process.env.ORGANIZATION_NAME,
+        tripler_first_name: tripler.get('first_name'),
+        triplee_1: triplees[0],
+        triplee_2: triplees[1],
+        triplee_3: triplees[2]
+      }
+    ));
+  } else {
+    throw "Invalid tripler";
+  }
+}
+
 module.exports = {
   findById: findById,
   findByPhone: findByPhone,
   confirmTripler: confirmTripler,
   detachTripler: detachTripler,
-  reconfirmTripler: reconfirmTripler
+  reconfirmTripler: reconfirmTripler,
+  findRecentlyConfirmedTriplers: findRecentlyConfirmedTriplers
 };
