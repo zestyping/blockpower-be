@@ -21,6 +21,10 @@ module.exports = {
   },
   email: 'string',  
   status: 'string',
+  upgrade_sms_sent: {
+    type: 'boolean',
+    default: false
+  },
   address: {
     type: 'string',
     required: true
