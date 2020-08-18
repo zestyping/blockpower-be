@@ -30,6 +30,8 @@ async function confirmTripler(triplerId) {
 
   // send email in the background
   let tripler_name = serializeName(tripler.get('first_name'), tripler.get('last_name'));
+  let tripler_phone = tripler.get('phone');
+  let triplees = JSON.parse(tripler.get('triplees'));
   let ambassador_name = serializeName(ambassador.get('first_name'), ambassador.get('last_name'));
 
   setTimeout(async ()=> {
@@ -40,6 +42,10 @@ async function confirmTripler(triplerId) {
     let body = stringFormat(ov_config.tripler_confirm_admin_email_body,
                             {
                               tripler_name: tripler_name,
+                              tripler_phone: tripler_phone,
+                              triplee_1: triplees[0],
+                              triplee_2: triplees[1],
+                              triplee_3: triplees[2],
                               ambassador_name: ambassador_name,
                               organization_name: ov_config.organization_name
                             });
