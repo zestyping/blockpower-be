@@ -73,8 +73,10 @@ For this server, configure an `.env` file. The following is a complete list of v
     TRIPLER_CONFIRM_ADMIN_EMAIL_SUBJECT=
     TRIPLER_CONFIRM_ADMIN_EMAIL_BODY=
     DISABLE_UPGRADE_SMS=
+    UPGRADE_SMS_WAITING_PERIOD=
     UPGRADE_SMS_SCHEDULE=
     TRIPLER_UPGRADE_MESSAGE=
+    WORDPRESS_LANDING=
 
 The meaning of each config item is as follows:
 
@@ -148,5 +150,7 @@ The meaning of each config item is as follows:
 * `TRIPLER_CONFIRM_ADMIN_EMAIL_SUBJECT`: Subject of the email sent to admins when a tripler confirms
 * `TRIPLER_CONFIRM_ADMIN_EMAIL_BODY`: Body of the email sent to admins when a tripler confirms
 * `DISABLE_UPGRADE_SMS`: Flag to disable the tripler upgrade sms background job
+* `UPGRADE_SMS_WAITING_PERIOD`: The time interval (in minutes)
 * `UPGRADE_SMS_SCHEDULE`: The time interval (in minutes) where the tripler upgrade sms background job fires
 * `TRIPLER_UPGRADE_MESSAGE`: The SMS message when a tripler responds YES, informing them that they are eligible to become Voter Ambassadors
+* `WORDPRESS_LANDING`: The URL for the landing page for when a Tripler wants to upgrade to Ambassador

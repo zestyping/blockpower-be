@@ -79,6 +79,8 @@ export const ov_config = {
   tripler_confirm_admin_email_subject: getConfig('tripler_confirm_admin_email_subject', false, null),
   tripler_confirm_admin_email_body: getConfig('tripler_confirm_admin_email_body', false, null),
   disable_upgrade_sms: getConfig('disable_upgrade_sms', false, false),
+  upgrade_sms_waiting_period: getConfig('upgrade_sms_waiting_period', true, null),
   upgrade_sms_schedule: getConfig('upgrade_sms_schedule', false, null),
   tripler_upgrade_message: getConfig('tripler_upgrade_message', true, null),
+  wordpress_landing: getConfig('wordpress_landing', true, null),
 };

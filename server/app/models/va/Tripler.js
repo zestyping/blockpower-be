@@ -21,6 +21,7 @@ module.exports = {
   },
   email: 'string',  
   status: 'string',
+  confirmed_at: 'localdatetime',
   upgrade_sms_sent: {
     type: 'boolean',
     default: false

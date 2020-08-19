@@ -1,5 +1,6 @@
 import stringFormat from 'string-format';
 
+import neo4j from 'neo4j-driver';
 import neode from '../lib/neode';
 import { serializeName } from '../lib/utils';
 import { normalize } from '../lib/phone';
@@ -24,7 +25,8 @@ async function confirmTripler(triplerId) {
   let tripler = await neode.first('Tripler', 'id', triplerId);
   let ambassador = tripler.get('claimed');
   if (tripler && tripler.get('status') === 'pending') {
-    await tripler.update({ status: 'confirmed' });
+    let confirmed_at =  neo4j.default.types.LocalDateTime.fromStandardDate(new Date());
+    await tripler.update({ status: 'confirmed', confirmed_at: confirmed_at });
     let payout = await neode.create('Payout', {amount: ov_config.payout_per_tripler, status: 'pending'});
     await ambassador.relateTo(payout, 'gets_paid', {tripler_id: tripler.get('id')});
   }
