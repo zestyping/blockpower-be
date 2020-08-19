@@ -18,7 +18,15 @@ async function findByPhone(phone) {
 }
 
 async function findRecentlyConfirmedTriplers() {
-  return await neode.model('Tripler').all({status: 'confirmed', upgrade_sms_sent: false});
+  let confirmed_triplers = await neode.model('Tripler').all({status: 'confirmed'});
+  let recently_confirmed = [];
+  for (var x = 0; x < confirmed_triplers.length; x++) {
+    let tripler = confirmed_triplers.get(x);
+    if (!tripler.get('upgrade_sms_sent') || tripler.get('upgrade_sms_sent') === false) {
+      recently_confirmed.push(tripler);
+    }
+  }
+  return recently_confirmed;
 }
 
 async function confirmTripler(triplerId) {
