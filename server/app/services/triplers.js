@@ -8,6 +8,7 @@ import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
 import sms from '../lib/sms';
 import stripe from './stripe';
+import { serializeTripler, serializeNeo4JTripler } from '../routes/api/v1/va/serializers';
 
 async function findById(triplerId) {
   return await neode.first('Tripler', 'id', triplerId);
@@ -22,7 +23,7 @@ async function findRecentlyConfirmedTriplers() {
   let recently_confirmed = [];
   for (var x = 0; x < confirmed_triplers.length; x++) {
     let tripler = confirmed_triplers.get(x);
-    if (!tripler.get('upgrade_sms_sent') || tripler.get('upgrade_sms_sent') === false) {
+    if (tripler.get('confirmed_at') && !tripler.get('upgrade_sms_sent') || tripler.get('upgrade_sms_sent') === false) {
       recently_confirmed.push(tripler);
     }
   }
@@ -128,11 +129,66 @@ async function upgradeNotification(triplerId) {
   }
 }
 
+async function searchTriplers(query) {
+  let neo4jquery = '';
+  if (query.firstName) {
+    neo4jquery += ` apoc.text.levenshteinDistance("${query.firstName.trim().toLowerCase()}", t.first_name) < 2.0`
+  }
+
+  if (query.lastName) {
+    if (query.firstName) {
+      neo4jquery += ' AND'
+    }
+    neo4jquery += ` apoc.text.levenshteinDistance("${query.lastName.trim().toLowerCase()}", t.last_name) < 2.0`
+  }
+
+  let collection = await neode.query()
+    .match('t', 'Tripler')
+    .whereRaw(neo4jquery)
+    .whereRaw('NOT ()-[:CLAIMS]->(t)')
+    .return('t')
+    .limit(ov_config.suggest_tripler_limit)
+    .execute()
+
+  let models = [];
+
+  for (var index = 0; index < collection.records.length; index++) {
+    let entry = collection.records[index]._fields[0].properties;
+    models.push(serializeNeo4JTripler(entry));
+  }
+
+  return models;
+}
+
+async function startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees) {
+  try {
+    await sms(triplerPhone, stringFormat(ov_config.tripler_confirmation_message,
+                                    {
+                                      ambassador_first_name: ambassador.get('first_name'),
+                                      ambassador_last_name: ambassador.get('last_name') || '',
+                                      organization_name: ov_config.organization_name,
+                                      tripler_first_name: tripler.get('first_name'),
+                                      tripler_city: JSON.parse(tripler.get('address')).city,
+                                      triplee_1: triplees[0],
+                                      triplee_2: triplees[1],
+                                      triplee_3: triplees[2]
+                                    }));
+  } catch (err) {
+    throw "Error sending confirmation sms to the tripler";
+  }
+
+  await tripler.update({ triplees: JSON.stringify(triplees), status: 'pending', phone: triplerPhone });
+
+}
+
+
 module.exports = {
   findById: findById,
   findByPhone: findByPhone,
   confirmTripler: confirmTripler,
   detachTripler: detachTripler,
   reconfirmTripler: reconfirmTripler,
-  findRecentlyConfirmedTriplers: findRecentlyConfirmedTriplers
+  findRecentlyConfirmedTriplers: findRecentlyConfirmedTriplers,
+  searchTriplers: searchTriplers,
+  startTriplerConfirmation: startTriplerConfirmation,
 };

@@ -53,20 +53,20 @@ async function signup(json) {
   }
 
   if (!validatePhone(json.phone)) {
-    throw new ValidationError("Invalid phone");
+    throw new ValidationError("Our system doesn’t recognize that phone number. Please try again.");
   }
 
   if (models.Ambassador.phone.unique) {
     let existing_ambassador = await neode.first('Ambassador', 'phone', normalize(json.phone));
     if(existing_ambassador) {
-      throw new ValidationError("Ambassador with this phone already exists");
+      throw new ValidationError("That phone number is already in use.");
     }
   }
 
   if (models.Ambassador.external_id.unique) {
     let existing_ambassador = await neode.first('Ambassador', 'external_id', json.externalId);
     if(existing_ambassador) {
-      throw new ValidationError("Ambassador with this external id already exists");
+      throw new ValidationError("If you have already signed up as an Ambassador using Facebook or Google, you cannot sign up again.");
     }
   }
 
@@ -75,13 +75,13 @@ async function signup(json) {
 
     if (models.Ambassador.email.unique && 
       await neode.first('Ambassador', 'email', json.email)) {
-      throw new ValidationError("Ambassador with this email already exists");
+      throw new ValidationError("That email address is already in use.");
     }
   }
 
   let coordinates = await geoCode(json.address);
   if (coordinates === null) {
-    throw new ValidationError("Invalid address, ambassador cannot sign up with this address");
+    throw new ValidationError("Our system doesn’t recognize that address. Please try again.");
   }
 
   let new_ambassador = await neode.create('Ambassador', {

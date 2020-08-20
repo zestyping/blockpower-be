@@ -29,12 +29,12 @@ async function createTripler(req, res) {
     }
 
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Invalid phone");
+      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     if (req.models.Tripler.phone.unique) {
       if (await req.neode.first('Tripler', 'phone', normalize(req.body.phone))) {
-        return _400(res, "Tripler with this phone already exists");
+        return _400(res, "That phone number is already in use.");
       }
     }
 
@@ -77,40 +77,12 @@ async function createTripler(req, res) {
   return res.json(serializeTripler(new_tripler));
 }
 
-async function findTriplers(req, res) {
+async function searchTriplers(req, res) {
   let found = null;
-  let query = '';
-
   if (!req.query.firstName && !req.query.lastName) {
     return res.json([]);
   }
-
-  if (req.query.firstName) {
-    query += ` apoc.text.levenshteinDistance("${req.query.firstName}", t.first_name) < 2.0`
-  }
-
-  if (req.query.lastName) {
-    if (req.query.firstName) {
-      query += ' AND'
-    }
-    query += ` apoc.text.levenshteinDistance("${req.query.lastName}", t.last_name) < 2.0`
-  }
-
-  let collection = await req.neode.query()
-    .match('t', 'Tripler')
-    .whereRaw(query)
-    .whereRaw('NOT ()-[:CLAIMS]->(t)')
-    .return('t')
-    .limit(ov_config.suggest_tripler_limit)
-    .execute()
-
-  let models = [];
-
-  for (var index = 0; index < collection.records.length; index++) {
-    let entry = collection.records[index]._fields[0].properties;
-    models.push(serializeNeo4JTripler(entry));
-  }
-
+  let models = await triplersSvc.searchTriplers(req.query)
   return res.json(models);
 }
 
@@ -154,12 +126,12 @@ async function updateTripler(req, res) {
 
   if (req.body.phone) {
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Invalid phone");
+      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(req.body.phone));
     if(existing_tripler && existing_tripler.get('id') !== found.get('id')) {
-      return _400(res, "Tripler with this phone number already exists");
+      return _400(res, "That phone number is already in use.");
     }
   }
 
@@ -225,34 +197,28 @@ async function startTriplerConfirmation(req, res) {
 
   if (req.body.phone) {
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Invalid phone");
+      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(req.body.phone));
     if(existing_tripler && existing_tripler.get('id') !== tripler.get('id')) {
-      return _400(res, "Tripler with this phone number already exists");
+      return _400(res, "That phone number is already in use.");
     }
   }
 
   let triplerPhone = req.body.phone ? normalize(req.body.phone): tripler.get('phone');
 
+  if (triplerPhone === ambassador.get('phone')) {
+    return _400(res, "You entered your phone number as the number of this Vote Tripler. Please try again.");
+  }
+
   try {
-    await sms(triplerPhone, stringFormat(ov_config.tripler_confirmation_message,
-                                    {
-                                      ambassador_first_name: ambassador.get('first_name'),
-                                      ambassador_last_name: ambassador.get('last_name') || '',
-                                      organization_name: ov_config.organization_name,
-                                      tripler_first_name: tripler.get('first_name'),
-                                      tripler_city: JSON.parse(tripler.get('address')).city,
-                                      triplee_1: triplees[0],
-                                      triplee_2: triplees[1],
-                                      triplee_3: triplees[2]
-                                    }));
+    triplersSvc.startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees);
   } catch (err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
     return _500(res, 'Error sending confirmation sms to the tripler');
   }
-  await tripler.update({ triplees: JSON.stringify(triplees), status: 'pending', phone: triplerPhone });
+
   return _204(res);
 }
 
@@ -273,7 +239,7 @@ async function remindTripler(req, res) {
   let new_phone = req.body.phone;
   if (new_phone) {
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Invalid phone");
+      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     await tripler.update({ phone: new_phone });
@@ -360,7 +326,7 @@ module.exports = Router({mergeParams: true})
 
 .get('/triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
-  return findTriplers(req, res);
+  return searchTriplers(req, res);
 })
 .get('/suggest-triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
