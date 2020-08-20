@@ -8,6 +8,7 @@ import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
 import sms from '../lib/sms';
 import stripe from './stripe';
+import { serializeTripler, serializeNeo4JTripler } from '../routes/api/v1/va/serializers';
 
 async function findById(triplerId) {
   return await neode.first('Tripler', 'id', triplerId);
@@ -128,11 +129,43 @@ async function upgradeNotification(triplerId) {
   }
 }
 
+async function searchTriplers(query) {
+  let neo4jquery = '';
+  if (query.firstName) {
+    neo4jquery += ` apoc.text.levenshteinDistance("${query.firstName.trim().toLowerCase()}", t.first_name) < 2.0`
+  }
+
+  if (query.lastName) {
+    if (query.firstName) {
+      neo4jquery += ' AND'
+    }
+    neo4jquery += ` apoc.text.levenshteinDistance("${query.lastName.trim().toLowerCase()}", t.last_name) < 2.0`
+  }
+
+  let collection = await neode.query()
+    .match('t', 'Tripler')
+    .whereRaw(neo4jquery)
+    .whereRaw('NOT ()-[:CLAIMS]->(t)')
+    .return('t')
+    .limit(ov_config.suggest_tripler_limit)
+    .execute()
+
+  let models = [];
+
+  for (var index = 0; index < collection.records.length; index++) {
+    let entry = collection.records[index]._fields[0].properties;
+    models.push(serializeNeo4JTripler(entry));
+  }
+
+  return models;
+}
+
 module.exports = {
   findById: findById,
   findByPhone: findByPhone,
   confirmTripler: confirmTripler,
   detachTripler: detachTripler,
   reconfirmTripler: reconfirmTripler,
-  findRecentlyConfirmedTriplers: findRecentlyConfirmedTriplers
+  findRecentlyConfirmedTriplers: findRecentlyConfirmedTriplers,
+  searchTriplers: searchTriplers,
 };

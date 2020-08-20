@@ -77,40 +77,12 @@ async function createTripler(req, res) {
   return res.json(serializeTripler(new_tripler));
 }
 
-async function findTriplers(req, res) {
+async function searchTriplers(req, res) {
   let found = null;
-  let query = '';
-
   if (!req.query.firstName && !req.query.lastName) {
     return res.json([]);
   }
-
-  if (req.query.firstName) {
-    query += ` apoc.text.levenshteinDistance("${req.query.firstName}", t.first_name) < 2.0`
-  }
-
-  if (req.query.lastName) {
-    if (req.query.firstName) {
-      query += ' AND'
-    }
-    query += ` apoc.text.levenshteinDistance("${req.query.lastName}", t.last_name) < 2.0`
-  }
-
-  let collection = await req.neode.query()
-    .match('t', 'Tripler')
-    .whereRaw(query)
-    .whereRaw('NOT ()-[:CLAIMS]->(t)')
-    .return('t')
-    .limit(ov_config.suggest_tripler_limit)
-    .execute()
-
-  let models = [];
-
-  for (var index = 0; index < collection.records.length; index++) {
-    let entry = collection.records[index]._fields[0].properties;
-    models.push(serializeNeo4JTripler(entry));
-  }
-
+  let models = await triplersSvc.searchTriplers(req.query)
   return res.json(models);
 }
 
@@ -360,7 +332,7 @@ module.exports = Router({mergeParams: true})
 
 .get('/triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
-  return findTriplers(req, res);
+  return searchTriplers(req, res);
 })
 .get('/suggest-triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
