@@ -411,7 +411,11 @@ async function ambassadorPayouts(ambassador, neode) {
     let payout = entry.otherNode();
     let obj = serializePayout(payout);
     let tripler = await neode.first('Tripler', 'id', entry.get('tripler_id'));
-    obj.tripler_name = serializeName(tripler.get('first_name'), tripler.get('last_name'));
+    if (tripler.get) {
+      obj.tripler_name = serializeName(tripler.get('first_name'), tripler.get('last_name'));
+    } else {
+      obj.tripler_name = 'Tripler not found';
+    }
     payouts.push(obj);
   }));
 
