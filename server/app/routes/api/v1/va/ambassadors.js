@@ -28,13 +28,13 @@ async function createAmbassador(req, res) {
     }
 
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Invalid phone");
+      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     if (req.models.Ambassador.phone.unique) {
       let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
       if(existing_ambassador) {
-        return _400(res, "Ambassador with this phone already exists");
+        return _400(res, "That phone number is already in use.");
       }
     }
 
@@ -43,13 +43,13 @@ async function createAmbassador(req, res) {
 
       if (req.models.Ambassador.email.unique && 
           await req.neode.first('Ambassador', 'email', req.body.email)) {
-        return _400(res, "Ambassador with this email already exists");
+        return _400(res, "That email address is already in use.");
       }
     }
 
     let coordinates = await geoCode(req.body.address);
     if (coordinates === null) {
-      return _400(res, "Invalid address, ambassador cannot be created");
+      return _400(res, "Our system doesn’t recognize that address. Please try again.");
     }
 
     new_ambassador = await req.neode.create('Ambassador', {
@@ -218,13 +218,13 @@ async function updateAmbassador(req, res) {
 
   if (req.body.phone) {
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Invalid phone");
+      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     if (req.models.Ambassador.phone.unique) {
       let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
       if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-        return _400(res, "Ambassador with this phone already exists");
+        return _400(res, "That phone number is already in use.");
       }
     }
   }
@@ -235,7 +235,7 @@ async function updateAmbassador(req, res) {
     if (req.models.Ambassador.email.unique) {
       let existing_ambassador = await req.neode.first('Ambassador', 'email', req.body.email);
       if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-        return _400(res, "Ambassador with this email already exists");
+        return _400(res, "That email address is already in use.");
       }
     }
   }
@@ -276,13 +276,13 @@ async function updateCurrentAmbassador(req, res) {
 
   if (req.body.phone) {
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Invalid phone");
+      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     if (req.models.Ambassador.phone.unique) {
       let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
       if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-        return _400(res, "Ambassador with this phone already exists");
+        return _400(res, "That phone number is already in use.");
       }
     }
   }
@@ -293,7 +293,7 @@ async function updateCurrentAmbassador(req, res) {
     if (req.models.Ambassador.email.unique) {
       let existing_ambassador = await req.neode.first('Ambassador', 'email', req.body.email);
       if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-        return _400(res, "Ambassador with this email already exists");
+        return _400(res, "That email address is already in use.");
       }
     }
   }
@@ -367,7 +367,7 @@ async function claimTriplers(req, res) {
   });
   triplers = [... new Set(triplers)]; // eliminate duplicates
   if (triplers.length > parseInt(ov_config.claim_tripler_limit)) {
-    return _400(res, `You can select a total of ${ov_config.claim_tripler_limit} Vote Triplers. Please select up to ${ov_config.claim_tripler_limit - current_claims_num} more Vote Triplers.`);
+    return _400(res, `You may select up to ${ov_config.claim_tripler_limit} possible Vote Triplers. Please select no more than ${ov_config.claim_tripler_limit - current_claims_num} Vote Triplers to continue.`);
   }
 
   for(let entry of triplers) {

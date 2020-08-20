@@ -29,12 +29,12 @@ async function createTripler(req, res) {
     }
 
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Invalid phone");
+      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     if (req.models.Tripler.phone.unique) {
       if (await req.neode.first('Tripler', 'phone', normalize(req.body.phone))) {
-        return _400(res, "Tripler with this phone already exists");
+        return _400(res, "That phone number is already in use.");
       }
     }
 
@@ -126,12 +126,12 @@ async function updateTripler(req, res) {
 
   if (req.body.phone) {
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Invalid phone");
+      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(req.body.phone));
     if(existing_tripler && existing_tripler.get('id') !== found.get('id')) {
-      return _400(res, "Tripler with this phone number already exists");
+      return _400(res, "That phone number is already in use.");
     }
   }
 
@@ -197,12 +197,12 @@ async function startTriplerConfirmation(req, res) {
 
   if (req.body.phone) {
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Invalid phone");
+      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(req.body.phone));
     if(existing_tripler && existing_tripler.get('id') !== tripler.get('id')) {
-      return _400(res, "Tripler with this phone number already exists");
+      return _400(res, "That phone number is already in use.");
     }
   }
 
@@ -245,7 +245,7 @@ async function remindTripler(req, res) {
   let new_phone = req.body.phone;
   if (new_phone) {
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Invalid phone");
+      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     await tripler.update({ phone: new_phone });
