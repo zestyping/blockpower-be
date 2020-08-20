@@ -208,23 +208,17 @@ async function startTriplerConfirmation(req, res) {
 
   let triplerPhone = req.body.phone ? normalize(req.body.phone): tripler.get('phone');
 
+  if (triplerPhone === ambassador.get('phone')) {
+    return _400(res, "You entered your phone number as the number of this Vote Tripler. Please try again.");
+  }
+
   try {
-    await sms(triplerPhone, stringFormat(ov_config.tripler_confirmation_message,
-                                    {
-                                      ambassador_first_name: ambassador.get('first_name'),
-                                      ambassador_last_name: ambassador.get('last_name') || '',
-                                      organization_name: ov_config.organization_name,
-                                      tripler_first_name: tripler.get('first_name'),
-                                      tripler_city: JSON.parse(tripler.get('address')).city,
-                                      triplee_1: triplees[0],
-                                      triplee_2: triplees[1],
-                                      triplee_3: triplees[2]
-                                    }));
+    triplersSvc.startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees);
   } catch (err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
     return _500(res, 'Error sending confirmation sms to the tripler');
   }
-  await tripler.update({ triplees: JSON.stringify(triplees), status: 'pending', phone: triplerPhone });
+
   return _204(res);
 }
 

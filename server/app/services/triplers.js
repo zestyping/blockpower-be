@@ -160,6 +160,28 @@ async function searchTriplers(query) {
   return models;
 }
 
+async function startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees) {
+  try {
+    await sms(triplerPhone, stringFormat(ov_config.tripler_confirmation_message,
+                                    {
+                                      ambassador_first_name: ambassador.get('first_name'),
+                                      ambassador_last_name: ambassador.get('last_name') || '',
+                                      organization_name: ov_config.organization_name,
+                                      tripler_first_name: tripler.get('first_name'),
+                                      tripler_city: JSON.parse(tripler.get('address')).city,
+                                      triplee_1: triplees[0],
+                                      triplee_2: triplees[1],
+                                      triplee_3: triplees[2]
+                                    }));
+  } catch (err) {
+    throw "Error sending confirmation sms to the tripler";
+  }
+
+  await tripler.update({ triplees: JSON.stringify(triplees), status: 'pending', phone: triplerPhone });
+
+}
+
+
 module.exports = {
   findById: findById,
   findByPhone: findByPhone,
@@ -168,4 +190,5 @@ module.exports = {
   reconfirmTripler: reconfirmTripler,
   findRecentlyConfirmedTriplers: findRecentlyConfirmedTriplers,
   searchTriplers: searchTriplers,
+  startTriplerConfirmation: startTriplerConfirmation,
 };
