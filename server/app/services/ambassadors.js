@@ -81,7 +81,7 @@ async function signup(json) {
 
   let coordinates = await geoCode(json.address);
   if (coordinates === null) {
-    throw new ValidationError("Invalid address, ambassador cannot sign up with this address");
+    throw new ValidationError("Our system doesn’t recognize that address. Please try again.");
   }
 
   let new_ambassador = await neode.create('Ambassador', {
