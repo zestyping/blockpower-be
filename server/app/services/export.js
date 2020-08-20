@@ -93,9 +93,9 @@ async function exportTriplers(neode) {
         new Date(entry.get('confirmed_at')),
         serializeName(ambassador.first_name, ambassador.last_name),
         tripler.phone,
-        tripler.triplees[0],
-        tripler.triplees[1],
-        tripler.triplees[2]
+        tripler.triplees ? tripler.triplees[0] : '',
+        tripler.triplees ? tripler.triplees[1] : '',
+        tripler.triplees ? tripler.triplees[2] : '',
       ];
 
       let header_line = [
