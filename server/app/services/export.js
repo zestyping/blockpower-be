@@ -9,6 +9,7 @@ async function exportAmbassadors(neode) {
     let ambassador = serializeAmbassador(entry);
     let triplers = entry.get('claims');
     let unconfirmed = 0;
+    let pending = 0;
     let confirmed = 0;
     for (let x = 0; x < triplers.length; x++) {
       let tripler = triplers.get(x).otherNode();
@@ -16,9 +17,12 @@ async function exportAmbassadors(neode) {
         unconfirmed++;
       } else if (tripler.get('status') === 'confirmed') {
         confirmed++;
+      } else if (tripler.get('status') === 'pending') {
+        pending++;
       }
     }
     let payouts = entry.get('gets_paid');
+    let total_sent_to_bank = 0;
     let total_earned = 0;
     let disbursed = 0;
     let settled = 0;
@@ -28,8 +32,9 @@ async function exportAmbassadors(neode) {
         disbursed++;
       } else if (payout.get('status') === 'settled') {
         settled++;
-        total_earned += ov_config.payout_per_tripler / 100;
+        total_sent_to_bank += ov_config.payout_per_tripler / 100;
       }
+      total_earned += ov_config.payout_per_tripler / 100;
     }
 
     let ambassador_line = [
@@ -41,9 +46,10 @@ async function exportAmbassadors(neode) {
       ambassador.address.zip,
       ambassador.email,
       ambassador.phone,
-      ov_config.claim_tripler_limit,
       unconfirmed,
+      pending,
       confirmed,
+      total_sent_to_bank,
       total_earned
     ].join(',');
 
@@ -56,9 +62,10 @@ async function exportAmbassadors(neode) {
       'Zip Code',
       'Email',
       'Phone',
-      'Tripler Limit',
       'Unconfirmed',
+      'Pending',
       'Confirmed',
+      'Total Sent to Bank',
       'Total Earned'
     ];
 
