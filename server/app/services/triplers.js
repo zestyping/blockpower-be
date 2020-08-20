@@ -22,7 +22,7 @@ async function findRecentlyConfirmedTriplers() {
   let recently_confirmed = [];
   for (var x = 0; x < confirmed_triplers.length; x++) {
     let tripler = confirmed_triplers.get(x);
-    if (!tripler.get('upgrade_sms_sent') || tripler.get('upgrade_sms_sent') === false) {
+    if (tripler.get('confirmed_at') && !tripler.get('upgrade_sms_sent') || tripler.get('upgrade_sms_sent') === false) {
       recently_confirmed.push(tripler);
     }
   }
