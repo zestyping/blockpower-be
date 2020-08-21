@@ -4,6 +4,7 @@ import { ov_config } from '../lib/ov_config';
 async function exportAmbassadors(neode) {
   let collection = await neode.model('Ambassador').all();
   let text = '';
+
   for (let x = 0; x < collection.length; x++) {
     let entry = collection.get(x);
     let ambassador = serializeAmbassador(entry);
@@ -11,8 +12,9 @@ async function exportAmbassadors(neode) {
     let unconfirmed = 0;
     let pending = 0;
     let confirmed = 0;
-    for (let x = 0; x < triplers.length; x++) {
-      let tripler = triplers.get(x).otherNode();
+
+    for (let y = 0; y < triplers.length; y++) {
+      let tripler = triplers.get(y).otherNode();
       if (tripler.get('status') === 'unconfirmed') {
         unconfirmed++;
       } else if (tripler.get('status') === 'confirmed') {
@@ -21,13 +23,16 @@ async function exportAmbassadors(neode) {
         pending++;
       }
     }
+
     let payouts = entry.get('gets_paid');
     let total_sent_to_bank = 0;
     let total_earned = 0;
     let disbursed = 0;
     let settled = 0;
-    for (let x = 0; x < payouts.length; x++) {
-      let payout = payouts.get(x).otherNode();
+
+    for (let z = 0; z < payouts.length; z++) {
+      let payout = payouts.get(z).otherNode();
+
       if (payout.get('status') === 'disbursed') {
         disbursed++;
       } else if (payout.get('status') === 'settled') {
@@ -86,8 +91,8 @@ async function exportTriplers(neode) {
     let entry = collection.get(x);
     let ambassador = serializeAmbassador(entry);
     let relationships = entry.get('claims');
-    for (let x = 0; x < relationships.length; x++) {
-      let relationship = relationships.get(x);
+    for (let y = 0; y < relationships.length; y++) {
+      let relationship = relationships.get(y);
       let entry = relationship.otherNode();
       let tripler = serializeTripler(entry);
       let tripler_line = [
