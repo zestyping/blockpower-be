@@ -91,26 +91,8 @@ async function exportTriplers(neode) {
     let entry = collection.get(x);
     let ambassador = serializeAmbassador(entry);
     let relationships = entry.get('claims');
-    for (let y = 0; y < relationships.length; y++) {
-      let relationship = relationships.get(y);
-      let entry = relationship.otherNode();
-      let tripler = serializeTripler(entry);
-      let tripler_line = [
-        tripler.first_name,
-        tripler.last_name,
-        tripler.address.address1,
-        tripler.address.zip,
-        tripler.status,
-        new Date(relationship.get('since')),
-        new Date(entry.get('confirmed_at')),
-        serializeName(ambassador.first_name, ambassador.last_name),
-        tripler.phone,
-        tripler.triplees ? tripler.triplees[0] : '',
-        tripler.triplees ? tripler.triplees[1] : '',
-        tripler.triplees ? tripler.triplees[2] : '',
-      ];
 
-      let header_line = [
+    let header_line = [
         'First Name',
         'Last Name',
         'Street',
@@ -123,11 +105,30 @@ async function exportTriplers(neode) {
         'Triplee1',
         'Triplee2',
         'Triplee3'
-      ];
+    ];
 
-      if (x === 0) {
-        text = text + header_line;
-      }
+    if (x === 0) {
+      text = text + header_line;
+    }
+
+    for (let y = 0; y < relationships.length; y++) {
+      let relationship = relationships.get(y);
+      let entry = relationship.otherNode();
+      let tripler = serializeTripler(entry);
+      let tripler_line = [
+        tripler.first_name,
+        tripler.last_name,
+        tripler.address.address1,
+        tripler.address.zip,
+        tripler.status,
+        new Date(relationship.get('since')),
+        entry.get('confirmed_at')? new Date(entry.get('confirmed_at')) : '',
+        serializeName(ambassador.first_name, ambassador.last_name),
+        tripler.phone,
+        tripler.triplees ? tripler.triplees[0] : '',
+        tripler.triplees ? tripler.triplees[1] : '',
+        tripler.triplees ? tripler.triplees[2] : '',
+      ];
 
       text = text + '\n' + tripler_line;
     }
