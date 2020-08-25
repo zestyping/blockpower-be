@@ -1,4 +1,4 @@
-import { serializeAmbassador, serializeTripler, serializePayout, serializeName, serializeTriplee } from '../routes/api/v1/va/serializers';
+import { serializeAmbassador, serializeTripler, serializePayout, serializeName, serializeTripleeForCSV } from '../routes/api/v1/va/serializers';
 import { ov_config } from '../lib/ov_config';
 
 async function exportAmbassadors(neode) {
@@ -127,9 +127,9 @@ async function exportTriplers(neode) {
         entry.get('confirmed_at')? new Date(entry.get('confirmed_at')) : '',
         serializeName(ambassador.first_name, ambassador.last_name),
         tripler.phone,
-        tripler.triplees ? serializeTriplee(tripler.triplees[0]) : '',
-        tripler.triplees ? serializeTriplee(tripler.triplees[1]) : '',
-        tripler.triplees ? serializeTriplee(tripler.triplees[2]) : '',
+        tripler.triplees ? serializeTripleeForCSV(tripler.triplees[0]) : '',
+        tripler.triplees ? serializeTripleeForCSV(tripler.triplees[1]) : '',
+        tripler.triplees ? serializeTripleeForCSV(tripler.triplees[2]) : '',
       ];
 
       text = text + '\n' + tripler_line;

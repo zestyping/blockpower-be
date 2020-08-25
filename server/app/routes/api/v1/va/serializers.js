@@ -71,6 +71,10 @@ function serializeNeo4JTripler(tripler) {
 }
 
 function serializeTriplee(triplee) {
+  return `${triplee.first_name} ${triplee.last_name}`;
+}
+
+function serializeTripleeForCSV(triplee) {
   return `${triplee.first_name} ${triplee.last_name} - ${triplee.housemate}`;
 }
 
@@ -82,5 +86,6 @@ module.exports = {
   serializeAccount: serializeAccount,
   serializeName: serializeName,
   serializeAddress: serializeAddress,
-  serializeTriplee: serializeTriplee
+  serializeTriplee: serializeTriplee,
+  serializeTripleeForCSV: serializeTripleeForCSV
 };
