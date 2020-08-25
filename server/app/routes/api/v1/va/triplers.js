@@ -15,7 +15,7 @@ import {
   validateEmpty, validatePhone, validateEmail
 } from '../../../../lib/validations';
 
-import { serializeTripler, serializeNeo4JTripler } from './serializers';
+import { serializeTripler, serializeNeo4JTripler, serializeTriplee } from './serializers';
 
 import sms from '../../../../lib/sms';
 
@@ -255,9 +255,9 @@ async function remindTripler(req, res) {
                                       organization_name: ov_config.organization_name,
                                       tripler_first_name: tripler.get('first_name'),
                                       tripler_city: JSON.parse(tripler.get('address')).city,
-                                      triplee_1: triplees[0],
-                                      triplee_2: triplees[1],
-                                      triplee_3: triplees[2]
+                                      triplee_1: serializeTriplee(triplees[0]),
+                                      triplee_2: serializeTriplee(triplees[1]),
+                                      triplee_3: serializeTriplee(triplees[2])
                                     }));
   } catch (err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);

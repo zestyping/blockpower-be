@@ -90,6 +90,7 @@ async function signup(json) {
     last_name: json.last_name || null,
     phone: normalize(json.phone),
     email: json.email || null,
+    date_of_birth: json.date_of_birth || null,
     address: JSON.stringify(json.address),
     quiz_results: JSON.stringify(json.quiz_results) || null,
     approved: true,
