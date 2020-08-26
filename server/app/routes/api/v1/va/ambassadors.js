@@ -367,7 +367,7 @@ async function claimTriplers(req, res) {
   });
   triplers = [... new Set(triplers)]; // eliminate duplicates
   if (triplers.length > parseInt(ov_config.claim_tripler_limit)) {
-    return _400(res, `You may select up to ${ov_config.claim_tripler_limit} possible Vote Triplers. Please select no more than ${ov_config.claim_tripler_limit - current_claims_num} Vote Triplers to continue.`);
+    return _400(res, `You may select up to ${ov_config.claim_tripler_limit} possible Vote Triplers. Please select up to ${ov_config.claim_tripler_limit - current_claims_num} more to continue.`);
   }
 
   for(let entry of triplers) {

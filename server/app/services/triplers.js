@@ -8,7 +8,7 @@ import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
 import sms from '../lib/sms';
 import stripe from './stripe';
-import { serializeTripler, serializeNeo4JTripler } from '../routes/api/v1/va/serializers';
+import { serializeTripler, serializeNeo4JTripler, serializeTriplee } from '../routes/api/v1/va/serializers';
 
 async function findById(triplerId) {
   return await neode.first('Tripler', 'id', triplerId);
@@ -58,9 +58,9 @@ async function confirmTripler(triplerId) {
                             {
                               tripler_name: tripler_name,
                               tripler_phone: tripler_phone,
-                              triplee_1: triplees[0],
-                              triplee_2: triplees[1],
-                              triplee_3: triplees[2],
+                              triplee_1: serializeTriplee(triplees[0]),
+                              triplee_2: serializeTriplee(triplees[1]),
+                              triplee_3: serializeTriplee(triplees[2]),
                               ambassador_name: ambassador_name,
                               organization_name: ov_config.organization_name
                             });
@@ -99,9 +99,9 @@ async function reconfirmTripler(triplerId) {
                                       ambassador_last_name: ambassador.get('last_name') || '',
                                       organization_name: process.env.ORGANIZATION_NAME,
                                       tripler_first_name: tripler.get('first_name'),
-                                      triplee_1: triplees[0],
-                                      triplee_2: triplees[1],
-                                      triplee_3: triplees[2]
+                                      triplee_1: serializeTriplee(triplees[0]),
+                                      triplee_2: serializeTriplee(triplees[1]),
+                                      triplee_3: serializeTriplee(triplees[2])
                                     }));
   }
   else {
@@ -119,9 +119,9 @@ async function upgradeNotification(triplerId) {
         ambassador_last_name: ambassador.get('last_name') || '',
         organization_name: process.env.ORGANIZATION_NAME,
         tripler_first_name: tripler.get('first_name'),
-        triplee_1: triplees[0],
-        triplee_2: triplees[1],
-        triplee_3: triplees[2]
+        triplee_1: serializeTriplee(triplees[0]),
+        triplee_2: serializeTriplee(triplees[1]),
+        triplee_3: serializeTriplee(triplees[2])
       }
     ));
   } else {
@@ -169,9 +169,9 @@ async function startTriplerConfirmation(ambassador, tripler, triplerPhone, tripl
                                       organization_name: ov_config.organization_name,
                                       tripler_first_name: tripler.get('first_name'),
                                       tripler_city: JSON.parse(tripler.get('address')).city,
-                                      triplee_1: triplees[0],
-                                      triplee_2: triplees[1],
-                                      triplee_3: triplees[2]
+                                      triplee_1: serializeTriplee(triplees[0]),
+                                      triplee_2: serializeTriplee(triplees[1]),
+                                      triplee_3: serializeTriplee(triplees[2])
                                     }));
   } catch (err) {
     throw "Error sending confirmation sms to the tripler";
