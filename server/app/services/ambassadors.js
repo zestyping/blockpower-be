@@ -56,6 +56,11 @@ async function signup(json) {
     throw new ValidationError("Our system doesn’t recognize that phone number. Please try again.");
   }
 
+  let allowed_states = ov_config.allowed_states.split(',');
+  if (allowed_states.indexOf(json.address.state) === -1) {
+    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.")
+  }
+
   if (models.Ambassador.phone.unique) {
     let existing_ambassador = await neode.first('Ambassador', 'phone', normalize(json.phone));
     if(existing_ambassador) {
