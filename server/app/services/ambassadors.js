@@ -58,7 +58,7 @@ async function signup(json) {
 
   let allowed_states = ov_config.allowed_states.split(',');
   if (allowed_states.indexOf(json.address.state) === -1) {
-    throw new ValidationError("This address is not located in a state that this organization handles. Cannot sign up.")
+    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.")
   }
 
   if (models.Ambassador.phone.unique) {
