@@ -1,4 +1,4 @@
-import { serializeAmbassador, serializeTripler, serializePayout, serializeName, serializeTripleeForCSV } from '../routes/api/v1/va/serializers';
+import { serializeAmbassador, serializeTriplerForCSV, serializeTripler, serializePayout, serializeName, serializeTripleeForCSV } from '../routes/api/v1/va/serializers';
 import { ov_config } from '../lib/ov_config';
 
 async function exportAmbassadors(neode) {
@@ -48,7 +48,7 @@ async function exportAmbassadors(neode) {
       ambassador.date_of_birth,
       ambassador.first_name,
       ambassador.last_name,
-      ambassador.address.address1,
+      ambassador.address.address1.replace(',', ' ').replace('#', 'no.'),
       ambassador.address.zip,
       ambassador.email,
       ambassador.phone,
@@ -95,6 +95,7 @@ async function exportTriplers(neode) {
     let relationships = entry.get('claims');
 
     let header_line = [
+        'Voter ID',
         'First Name',
         'Last Name',
         'Street',
@@ -116,20 +117,21 @@ async function exportTriplers(neode) {
     for (let y = 0; y < relationships.length; y++) {
       let relationship = relationships.get(y);
       let entry = relationship.otherNode();
-      let tripler = serializeTripler(entry);
+      let tripler = serializeTriplerForCSV(entry);
       let tripler_line = [
+        tripler.voter_id,
         tripler.first_name,
         tripler.last_name,
-        tripler.address.address1,
+        tripler.address.address1.replace(',', ' ').replace('#', 'no.'),
         tripler.address.zip,
         tripler.status,
         new Date(relationship.get('since')),
         entry.get('confirmed_at')? new Date(entry.get('confirmed_at')) : '',
         serializeName(ambassador.first_name, ambassador.last_name),
         tripler.phone,
-        tripler.triplees ? serializeTripleeForCSV(tripler.triplees[0]) : '',
-        tripler.triplees ? serializeTripleeForCSV(tripler.triplees[1]) : '',
-        tripler.triplees ? serializeTripleeForCSV(tripler.triplees[2]) : '',
+        tripler.triplees ? tripler.triplees[0].first_name ? serializeTripleeForCSV(tripler.triplees[0]) : tripler.triplees[0] : '',
+        tripler.triplees ? tripler.triplees[0].first_name ? serializeTripleeForCSV(tripler.triplees[1]) : tripler.triplees[1] : '',
+        tripler.triplees ? tripler.triplees[0].first_name ? serializeTripleeForCSV(tripler.triplees[2]) : tripler.triplees[2] : '',
       ];
 
       text = text + '\n' + tripler_line;

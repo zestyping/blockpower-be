@@ -50,6 +50,16 @@ function serializePayout(payout) {
   };
 }
 
+function serializeTriplerForCSV(tripler) {
+  let obj = {};
+  ['voter_id', 'id', 'first_name', 'last_name', 'status', 'phone', 'location', 'email'].forEach(x => obj[x] = tripler.get(x));
+  obj['address'] = !!tripler.get('address') ? JSON.parse(tripler.get('address')) : null;
+  obj['display_address'] = !!obj['address'] ? serializeAddress(obj['address']) : null;
+  obj['display_name'] = serializeName(tripler.get('first_name'), tripler.get('last_name'));
+  obj['triplees'] = !!tripler.get('triplees') ? JSON.parse(tripler.get('triplees')) : null;
+  return obj;
+}
+
 function serializeTripler(tripler) {
   let obj = {};
   ['id', 'first_name', 'last_name', 'status', 'phone', 'location', 'email'].forEach(x => obj[x] = tripler.get(x));
@@ -81,6 +91,7 @@ function serializeTripleeForCSV(triplee) {
 module.exports = {
   serializeAmbassador: serializeAmbassador,
   serializeTripler: serializeTripler,
+  serializeTriplerForCSV: serializeTriplerForCSV,
   serializeNeo4JTripler: serializeNeo4JTripler,
   serializePayout: serializePayout,
   serializeAccount: serializeAccount,
