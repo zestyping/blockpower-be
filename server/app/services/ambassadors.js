@@ -113,7 +113,10 @@ async function signup(json) {
   let ambassador_name = serializeName(new_ambassador.get('first_name'), new_ambassador.get('last_name'))
   setTimeout(async ()=> {
     let address = JSON.parse(new_ambassador.get('address'));
-    let extra_data = `
+    let body = `
+    Organization Name:
+    <br>
+    ${ov_config.organization_name}
     <br>
     <br>
     Google/FB ID:
@@ -158,11 +161,6 @@ async function signup(json) {
 
     let subject = stringFormat(ov_config.new_ambassador_signup_admin_email_subject,
                             {
-                              organization_name: ov_config.organization_name
-                            });
-    let body = stringFormat(ov_config.new_ambassador_signup_admin_email_body + extra_data,
-                            {
-                              ambassador_name: ambassador_name,
                               organization_name: ov_config.organization_name
                             });
     await mail(ov_config.admin_emails, null, null, 

@@ -75,7 +75,10 @@ async function confirmTripler(triplerId) {
       }
     }
     let address = JSON.parse(tripler.get('address'));
-    let extra_data = `
+    let body = `
+    Organization Name:
+    <br>
+    ${ov_config.organization_name}
     <br>
     <br>
     LALVOTERID:
@@ -141,16 +144,6 @@ async function confirmTripler(triplerId) {
     `;
     let subject = stringFormat(ov_config.tripler_confirm_admin_email_subject,
                             {
-                              organization_name: ov_config.organization_name
-                            });
-    let body = stringFormat(ov_config.tripler_confirm_admin_email_body + extra_data,
-                            {
-                              tripler_name: tripler_name,
-                              tripler_phone: tripler_phone,
-                              triplee_1: serializeTriplee(triplees[0]),
-                              triplee_2: serializeTriplee(triplees[1]),
-                              triplee_3: serializeTriplee(triplees[2]),
-                              ambassador_name: ambassador_name,
                               organization_name: ov_config.organization_name
                             });
     await mail(ov_config.admin_emails, null, null,
