@@ -84,4 +84,5 @@ export const ov_config = {
   tripler_upgrade_message: getConfig('tripler_upgrade_message', true, null),
   wordpress_landing: getConfig('wordpress_landing', true, null),
   allowed_states: getConfig('allowed_states', true, []),
+  tripler_confirmed_ambassador_notification: getConfig('tripler_confirmed_ambassador_notification', true, null),
 };
