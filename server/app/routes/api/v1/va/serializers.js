@@ -23,7 +23,7 @@ function serializeAccount(account) {
 
 function serializeAmbassador(ambassador) {
   let obj = {};
-  ['id', 'external_id', 'date_of_birth', 'first_name', 'last_name', 'phone', 'email', 'location', 'signup_completed', 'onboarding_completed', 'approved', 'locked', 'payout_provider', 'payout_additional_data'].forEach(x => obj[x] = ambassador.get(x));
+  ['id', 'external_id', 'date_of_birth', 'first_name', 'last_name', 'phone', 'email', 'location', 'signup_completed', 'onboarding_completed', 'approved', 'locked', 'payout_provider', 'payout_additional_data', 'admin'].forEach(x => obj[x] = ambassador.get(x));
   obj['address'] = !!ambassador.get('address') ? JSON.parse(ambassador.get('address')) : null;
   obj['display_address'] = !!obj['address'] ? serializeAddress(obj['address']) : null;
   obj['display_name'] = serializeName(ambassador.get('first_name'), ambassador.get('last_name'));
