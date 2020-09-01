@@ -112,11 +112,55 @@ async function signup(json) {
   // send email in the background
   let ambassador_name = serializeName(new_ambassador.get('first_name'), new_ambassador.get('last_name'))
   setTimeout(async ()=> {
+    let address = JSON.parse(new_ambassador.get('address'));
+    let extra_data = `
+    <br>
+    <br>
+    Google/FB ID:
+    <br>
+    ${new_ambassador.get('external_id')}
+    <br>
+    <br>
+    First Name:
+    <br>
+    ${new_ambassador.get('first_name')}
+    <br>
+    <br>
+    Last Name:
+    <br>
+    ${new_ambassador.get('last_name')}
+    <br>
+    <br>
+    Date of Birth:
+    <br>
+    ${new_ambassador.get('date_of_birth')}
+    <br>
+    <br>
+    Street Address:
+    <br>
+    ${address.address1}
+    <br>
+    <br>
+    Zip:
+    <br>
+    ${address.zip}
+    <br>
+    <br>
+    Email:
+    <br>
+    ${new_ambassador.get('email')}
+    <br>
+    <br>
+    Phone Number:
+    <br>
+    ${new_ambassador.get('phone')}
+    `;
+
     let subject = stringFormat(ov_config.new_ambassador_signup_admin_email_subject,
                             {
                               organization_name: ov_config.organization_name
                             });
-    let body = stringFormat(ov_config.new_ambassador_signup_admin_email_body,
+    let body = stringFormat(ov_config.new_ambassador_signup_admin_email_body + extra_data,
                             {
                               ambassador_name: ambassador_name,
                               organization_name: ov_config.organization_name
