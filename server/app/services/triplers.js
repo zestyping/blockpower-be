@@ -45,7 +45,7 @@ async function confirmTripler(triplerId) {
 
   // send ambassador an sms
   let triplees = JSON.parse(tripler.get('triplees'));
-  await sms(tripler.get('phone'), stringFormat(ov_config.tripler_confirmed_ambassador_notification,
+  await sms(ambassador.get('phone'), stringFormat(ov_config.tripler_confirmed_ambassador_notification,
                                   {
                                     ambassador_first_name: ambassador.get('first_name'),
                                     ambassador_landing_page: ov_config.ambassador_landing_page,
