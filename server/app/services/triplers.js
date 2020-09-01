@@ -43,10 +43,22 @@ async function confirmTripler(triplerId) {
     throw "Invalid status, cannot confirm";
   }
 
+  // send ambassador an sms
+  let triplees = JSON.parse(tripler.get('triplees'));
+  await sms(tripler.get('phone'), stringFormat(ov_config.tripler_confirmed_ambassador_notification,
+                                  {
+                                    ambassador_first_name: ambassador.get('first_name'),
+                                    ambassador_landing_page: ov_config.ambassador_landing_page,
+                                    payment_amount: '$' + (ov_config.payout_per_tripler / 100),
+                                    tripler_first_name: tripler.get('first_name'),
+                                    triplee_1: serializeTriplee(triplees[0]),
+                                    triplee_2: serializeTriplee(triplees[1]),
+                                    triplee_3: serializeTriplee(triplees[2])
+                                  }));
+
   // send email in the background
   let tripler_name = serializeName(tripler.get('first_name'), tripler.get('last_name'));
   let tripler_phone = tripler.get('phone');
-  let triplees = JSON.parse(tripler.get('triplees'));
   let ambassador_name = serializeName(ambassador.get('first_name'), ambassador.get('last_name'));
 
   setTimeout(async ()=> {
