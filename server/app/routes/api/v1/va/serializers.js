@@ -1,4 +1,5 @@
 import { formatDate, formatNumber } from '../../../../lib/format';
+import PhoneNumber from 'awesome-phonenumber';
 
 function serializeAddress(address) {
   if (!address) return '';
@@ -22,7 +23,7 @@ function serializeAccount(account) {
 
 function serializeAmbassador(ambassador) {
   let obj = {};
-  ['id', 'external_id', 'date_of_birth', 'first_name', 'last_name', 'phone', 'email', 'location', 'signup_completed', 'onboarding_completed', 'approved', 'locked', 'payout_provider', 'payout_additional_data'].forEach(x => obj[x] = ambassador.get(x));
+  ['id', 'external_id', 'date_of_birth', 'first_name', 'last_name', 'phone', 'email', 'location', 'signup_completed', 'onboarding_completed', 'approved', 'locked', 'payout_provider', 'payout_additional_data', 'admin'].forEach(x => obj[x] = ambassador.get(x));
   obj['address'] = !!ambassador.get('address') ? JSON.parse(ambassador.get('address')) : null;
   obj['display_address'] = !!obj['address'] ? serializeAddress(obj['address']) : null;
   obj['display_name'] = serializeName(ambassador.get('first_name'), ambassador.get('last_name'));
@@ -66,6 +67,7 @@ function serializeTripler(tripler) {
   obj['address'] = !!tripler.get('address') ? JSON.parse(tripler.get('address')) : null;
   obj['display_address'] = !!obj['address'] ? serializeAddress(obj['address']) : null;
   obj['display_name'] = serializeName(tripler.get('first_name'), tripler.get('last_name'));
+  obj['display_phone'] = new PhoneNumber(`${tripler.get('phone')}`, 'US').a.number.national;
   obj['triplees'] = !!tripler.get('triplees') ? JSON.parse(tripler.get('triplees')) : null;
   return obj;
 }
@@ -76,6 +78,7 @@ function serializeNeo4JTripler(tripler) {
   obj['address'] = !!tripler.address ? JSON.parse(tripler.address) : null;
   obj['display_address'] = !!obj['address'] ? serializeAddress(obj['address']) : null;
   obj['display_name'] = serializeName(tripler.first_name, tripler.last_name);
+  obj['display_phone'] = new PhoneNumber(`${tripler.phone}`, 'US').a.number.national;
   obj['triplees'] = !!tripler.triplees ? JSON.parse(tripler.triplees) : null;
   return obj;
 }
