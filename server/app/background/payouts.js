@@ -39,7 +39,7 @@ async function disburse() {
   logger.debug('Disbursing amount to ambassadors...');
 
   let ambassadors = await ambassadorSvc.findAmbassadorsWithPendingDisbursements();
-  logger.debug('%d ambassadors to be processed', ambassadors.length);
+  logger.debug('%d ambassadors to be processed for disbursement', ambassadors.length);
 
   await Promise.all(ambassadors.map(async(ambassador) => {
     await Promise.all(ambassador.get('gets_paid').map(async(relationship) => {
@@ -55,7 +55,7 @@ async function settle() {
   logger.debug('Settling for ambassadors...');
 
   let ambassadors = await ambassadorSvc.findAmbassadorsWithPendingSettlements();
-  logger.debug('%d ambassadors to be processed', ambassadors.length);
+  logger.debug('%d ambassadors to be processed for settlement', ambassadors.length);
 
   await Promise.all(ambassadors.map(async(ambassador) => {
     await Promise.all(ambassador.get('gets_paid').map(async(relationship) => {

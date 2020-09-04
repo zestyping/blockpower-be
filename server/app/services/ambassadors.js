@@ -109,6 +109,14 @@ async function signup(json) {
     external_id: json.externalId
   });
 
+  let existing_tripler = await neode.first('Tripler', {
+    phone: normalize(json.phone)
+  });
+
+  if (existing_tripler) {
+    new_ambassador.relateTo(existing_tripler, 'was_once');
+  }
+
   // send email in the background
   let ambassador_name = serializeName(new_ambassador.get('first_name'), new_ambassador.get('last_name'))
   setTimeout(async ()=> {

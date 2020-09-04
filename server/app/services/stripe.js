@@ -125,7 +125,7 @@ async function disburse(ambassador, tripler) {
   let payout_id = res.records[0]._fields[0];
   let payout = await neode.first('Payout', 'id', payout_id);
 
-  let amount = parseInt(ov_config.payout_per_tripler);
+  let amount = parseInt(payout.get('amount'));
 
   let payout_account = getStripeAccount(ambassador);  
   if (!payout_account) {
@@ -167,7 +167,7 @@ async function settle(ambassador, tripler) {
   let payout_id = res.records[0]._fields[0];
   let payout = await neode.first('Payout', 'id', payout_id);
 
-  let amount = parseInt(ov_config.payout_per_tripler);
+  let amount = parseInt(payout.get('amount'));
 
   let stripe_payout = null;
   try {

@@ -38,6 +38,21 @@ async function confirmTripler(triplerId) {
     await tripler.update({ status: 'confirmed', confirmed_at: confirmed_at });
     let payout = await neode.create('Payout', {amount: ov_config.payout_per_tripler, status: 'pending'});
     await ambassador.relateTo(payout, 'gets_paid', {tripler_id: tripler.get('id')});
+
+    // If this ambassador was once a tripler, then reward the ambassador that
+    // initially claimed the then-tripler, only once per upgraded ambassador
+
+    let was_once = ambassador.get('was_once');
+
+    if (was_once && !was_once.get('rewarded_previous_claimer')) {
+      await was_once.update({ rewarded_previous_claimer: true });
+      let was_tripler = was_once.otherNode();
+      was_tripler = await neode.first('Tripler', 'id', was_tripler.get('id'));
+      // This must be done because 'eager' only goes so deep
+      let claimer = was_tripler.get('claimed');
+      let first_reward = await neode.create('Payout', {amount: ov_config.first_reward_payout, status: 'pending'});
+      await claimer.relateTo(first_reward, 'gets_paid', {tripler_id: was_tripler.get('id')});
+    }
   }
   else {
     throw "Invalid status, cannot confirm";
@@ -228,6 +243,7 @@ async function searchTriplers(query) {
     .match('t', 'Tripler')
     .whereRaw(neo4jquery)
     .whereRaw('NOT ()-[:CLAIMS]->(t)')
+    .whereRaw('NOT ()-[:WAS_ONCE]->(t)')
     .return('t')
     .limit(ov_config.suggest_tripler_limit)
     .execute()

@@ -22,7 +22,7 @@ async function sms_task(tripler, ambassador) {
 async function sendSMS() {
   let triplers = await triplerSvc.findRecentlyConfirmedTriplers();
   logger.debug('Preparing to SMS recently confirmed triplers...');
-  logger.debug('%d triplers to be processed', triplers.length);
+  logger.debug('%d triplers to be processed for sending SMS', triplers.length);
 
   await Promise.all(triplers.map(async(tripler) => {
     let waiting_period = 60 * ov_config.upgrade_sms_waiting_period; // in minutes
