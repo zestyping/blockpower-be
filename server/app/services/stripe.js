@@ -172,10 +172,24 @@ async function settle(ambassador, tripler) {
   let stripe_payout = null;
   try {
     logger.debug('settling ambassador %s due to tripler %s', ambassador.get('id'), tripler.get('id'));
+    let account = null;
+    let relationships = ambassador.get('owns_account');
+    for (var x = 0; x < relationships.length; x++) {
+      let entry = relationships.get(x);
+      if (entry.get('primary') || relationships.length === 1) {
+        account = entry.otherNode();
+      }
+    }
+
+    if (!account) {
+      throw 'Stripe account for ambassador not found, cannot settle!';
+    }
     stripe_payout = await stripe(ov_config.stripe_secret_key).payouts.create({
       amount: amount, 
       currency: 'usd', 
       description: getPayoutDescription(ambassador, tripler)
+    }, {
+      stripeAccount: account.get('account_id')
     });
   } catch(err) {
     await payout.update({ error: JSON.stringify(err) });
