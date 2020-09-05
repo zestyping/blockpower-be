@@ -73,7 +73,7 @@ module.exports = () => {
   setTimeout(async() => {
     try {
       await disburse();
-      await settle();
+      // await settle();
     } catch(err) {
       logger.error('Error in payouts background job: %s', err);  
     }
