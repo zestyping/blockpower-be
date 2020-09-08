@@ -227,6 +227,28 @@ async function upgradeNotification(triplerId) {
   }
 }
 
+async function adminSearchTriplers(req) {
+  let query = {};
+  
+  if (req.query.phone) query.phone = normalize(req.query.phone);
+  if (req.query.email) query.email = req.query.email;
+  if (req.query.firstName) query.first_name = req.query.firstName;
+  if (req.query.lastName) query.last_name = req.query.lastName;
+  if (req.query.voterId) query.voter_id = req.query.voterId;
+  if (req.query.status) query.status = req.query.status;
+  if (req.query.isAmbassadorAndHasConfirmed) query.is_ambassador_and_has_confirmed = req.query.isAmbassadorAndHasConfirmed;
+
+
+
+  const collection = await req.neode.model('Tripler').all(query);
+  let models = [];
+  for (var index = 0; index < collection.length; index++) {
+    let entry = collection.get(index);
+    models.push(serializeTripler(entry))
+  }
+  return models;
+}
+
 async function searchTriplers(query) {
   let neo4jquery = '';
   if (query.firstName) {
@@ -289,5 +311,6 @@ module.exports = {
   reconfirmTripler: reconfirmTripler,
   findRecentlyConfirmedTriplers: findRecentlyConfirmedTriplers,
   searchTriplers: searchTriplers,
+  adminSearchTriplers: adminSearchTriplers,
   startTriplerConfirmation: startTriplerConfirmation,
 };
