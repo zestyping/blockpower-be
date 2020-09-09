@@ -45,14 +45,16 @@ async function confirmTripler(triplerId) {
     let was_once = ambassador.get('was_once');
 
     if (was_once && !was_once.get('rewarded_previous_claimer')) {
-      await was_once.update({ rewarded_previous_claimer: true });
       let was_tripler = was_once.otherNode();
-      await was_tripler.update({ is_ambassador_and_has_confirmed: true });
-      was_tripler = await neode.first('Tripler', 'id', was_tripler.get('id'));
-      // This must be done because 'eager' only goes so deep
-      let claimer = was_tripler.get('claimed');
-      let first_reward = await neode.create('Payout', {amount: ov_config.first_reward_payout, status: 'pending'});
-      await claimer.relateTo(first_reward, 'gets_paid', {tripler_id: was_tripler.get('id')});
+      if (was_tripler.get('status') === 'confirmed') {
+        await was_once.update({ rewarded_previous_claimer: true });
+        await was_tripler.update({ is_ambassador_and_has_confirmed: true });
+        was_tripler = await neode.first('Tripler', 'id', was_tripler.get('id'));
+        // This must be done because 'eager' only goes so deep
+        let claimer = was_tripler.get('claimed');
+        let first_reward = await neode.create('Payout', {amount: ov_config.first_reward_payout, status: 'pending'});
+        await claimer.relateTo(first_reward, 'gets_paid', {tripler_id: was_tripler.get('id')});
+      }
     }
   }
   else {
