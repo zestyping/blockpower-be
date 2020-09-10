@@ -72,7 +72,7 @@ function serializeTripler(tripler) {
   obj['display_phone'] = new PhoneNumber(`${tripler.get('phone')}`, 'US').a.number.national;
   obj['triplees'] = !!tripler.get('triplees') ? JSON.parse(tripler.get('triplees')) : null;
   obj['is_ambassador'] = ambassador ? true : false;
-  obj['is_ambassador_and_has_confirmed'] = tripler.get('is_ambassador_and_has_confirmed');
+  obj['is_ambassador_and_has_confirmed'] = tripler.get('is_ambassador_and_has_confirmed') ? true : false;
   return obj;
 }
 
