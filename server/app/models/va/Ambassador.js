@@ -74,29 +74,23 @@ module.exports = {
     type: 'boolean',
     default: false
   },
-  earns_off: {
+  gets_paid: {
     type: 'relationships',
-    relationship: 'EARNS_OFF',
+    relationship: 'GETS_PAID',
     direction: 'out',
-    target: 'Tripler',
+    target: 'Payout',
     properties: {
       since: {
         type: 'localdatetime',
         default: () => new Date,
       },
-      disbursed_at: 'localdatetime',
-      settled_at: 'localdatetime',
-      amount: 'integer',
-      status: 'string',
-      payout_id: 'string',
-      settlement_id: 'string',
-      error: 'string'
+      tripler_id: 'uuid'
     },
     eager: true
   },
-  gets_paid: {
+  first_reward: {
     type: 'relationships',
-    relationship: 'GETS_PAID',
+    relationship: 'FIRST_REWARD',
     direction: 'out',
     target: 'Payout',
     properties: {
@@ -121,6 +115,20 @@ module.exports = {
       since: {
         type: 'localdatetime',
         default: () => new Date,
+      }
+    },
+    eager: true
+  },
+  was_once: {
+    type: 'relationship',
+    relationship: 'WAS_ONCE',
+    direction: 'out',
+    target: 'Tripler',
+    properties: {
+      rewarded_previous_claimer: 'boolean',
+      since: {
+        type: 'localdatetime',
+        default: () => new Date
       }
     },
     eager: true
