@@ -78,5 +78,9 @@
   },
   "optionalDependencies": {
     "jmx": "github:OurVoiceUSA/node-jmx"
+  },
+  "engines": {
+    "node": "^8.9.4",
+    "npm": "^6.14.8"
   }
 }
