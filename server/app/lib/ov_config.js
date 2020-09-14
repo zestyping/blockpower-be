@@ -86,4 +86,5 @@ export const ov_config = {
   allowed_states: getConfig('allowed_states', true, []),
   tripler_confirmed_ambassador_notification: getConfig('tripler_confirmed_ambassador_notification', true, null),
   first_reward_payout: getConfig('first_reward_payout', true, 0),
+  blocked_carriers: ["TEXTNOW"]
 };
