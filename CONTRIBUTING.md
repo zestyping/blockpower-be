@@ -28,9 +28,25 @@ Another major change is that we have deleted the `/client` folder, previously us
 
 We use a cron job to schedule the payouts and payout retries upon failure. In the case of Stripe, the first scheduled action is a disbursement. The second scheduled action is a settlement. The cron job is also used to schedule a "24-hours later" SMS to be sent to a Vote Tripler who has responded "YES" to a Vote Ambassador. It is intended to persuade the Vote Tripler to sign up to become a Vote Ambassador themselves. Related to the Cron job is a FIFO queue implemented to ease pressure on the external calls (Stripe, Twilio, etc).
 
-### Setting up
+### Development Setup
 
-You will probably want to generate fake data with the seed_data.js script, found in the /scripts directory.
+**Docker** - Docker is required to get the database running, so make sure you have that installed on your system.
+
+**JDK 1.8** - JDK (not JRE) 1.8 is required for the server. You need to have this installed and your JAVA_HOME environment variable set in order to successfully build and start the server.
+
+To get set up locally, simply run the following commands:
+
+    git clone git@github.com:colab-coop/HelloVoter.git
+    cd HelloVoter
+    npm install
+    npm run database
+    npm start
+
+This should initialize the database + Docker instance and start the server.
+
+The list of Vote Triplers must of course be imported using the import script found in `/server/scripts/importer` (NOTE! CSV format, very specific column order). 
+
+If you don't have a CSV of Vote Triplers, then you will probably want to generate fake data with the seed_db.js script, found in the /scripts directory.
 
 `npm run database` will start the dockerized Neo4J database docker container.
 

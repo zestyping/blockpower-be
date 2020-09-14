@@ -4,10 +4,6 @@ This software enables a "Voting Ambassador" workflow for get-out-the-vote campai
 
 Once the Ambassador has "claimed" a list of Vote Triplers, the Vote Triplers can be contacted through the system, requesting confirmation that they will assist 3 people to vote. If that Vote Tripler responds in the affirmative to the SMS, the system will record a payment for the Vote Ambassador. This can take the form of Stripe or other payment method.
 
-# Setting up
-
-The list of Vote Triplers must of course be imported using the import script found in `/server/scripts/importer` (NOTE! CSV format, very specific column order). 
-
 ### Frontend
 
 A Vote Ambassador signs up with and interacts mainly with the React front-end. The front-end code can be found here: [hello-voter](https://github.com/colab-coop/hello-voter). 
