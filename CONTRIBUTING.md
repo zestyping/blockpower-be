@@ -56,7 +56,19 @@ If you don't have a CSV of Vote Triplers, then you will probably want to generat
 
 One thing to note is that due to the history of the project being built on top of HelloVoter, what we call "ambassador-stage" is the staging / development branch. What we call "ambassador" is the master branch that we deploy to production, with taggeed releases.
 
+## "Tests"
+
+We unfortunately did not have the spaciousness to write effective tests. If, however, you run the api calls found in `/server/postman/VoterAmbassador.postman_collection.json` in-sequence (you don't have to use postman, of course), you can be relatively sure you've hit most of the relevant code.
+
 ## TODO
 
 We are in the process of removing the business logic from `/routes` and placing them where they belong in `/services`. This is not yet complete, but you will see evidence of our initial progress in doing so. For any additional routes created, please put business logic in `/services`, and move over any relevant functionality to `/services` when and where you are able.
+
+## Standards
+
+Please attempt to adhere to the existing coding style, formatting, etc.
+
+When you submit a PR, please ensure that it passes all the "tests" in `/server/postman/VoterAmbassador.postman_collection.json`.
+
+When you make a git commit, please leave a very descriptive commit message. It should explain in a sentence what the commit changes. If you need more than one sentence, you've probably made too many changes for one commit.
 
