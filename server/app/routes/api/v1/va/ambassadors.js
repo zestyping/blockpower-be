@@ -367,7 +367,7 @@ async function claimTriplers(req, res) {
   });
   triplers = [... new Set(triplers)]; // eliminate duplicates
   if (triplers.length > parseInt(ov_config.claim_tripler_limit)) {
-    return error(400, res, `You may select up to ${ov_config.claim_tripler_limit} possible Vote Triplers. Please select no more than ${ov_config.claim_tripler_limit - current_claims_num} Vote Triplers to continue.`);
+    return _400(res, `You may select up to ${ov_config.claim_tripler_limit} possible Vote Triplers. Please select up to ${ov_config.claim_tripler_limit - current_claims_num} more to continue.`);
   }
 
   for(let entry of triplers) {
@@ -520,7 +520,7 @@ module.exports = Router({mergeParams: true})
 })
 .put('/ambassadors/:ambassadorId/admin', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
-  if (!req.isLocal) return _403(res, "Permission denied.");
+  if (!req.admin) return _403(res, "Permission denied.");
   if (!ov_config.make_admin_api) return _403(res, 'Permission denied.');
   return makeAdmin(req, res);
 })

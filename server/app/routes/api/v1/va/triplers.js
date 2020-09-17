@@ -16,7 +16,7 @@ import {
   validateEmpty, validatePhone, validateEmail
 } from '../../../../lib/validations';
 
-import { serializeTripler, serializeNeo4JTripler } from './serializers';
+import { serializeTripler, serializeNeo4JTripler, serializeTriplee } from './serializers';
 
 import sms from '../../../../lib/sms';
 
@@ -78,8 +78,12 @@ async function createTripler(req, res) {
   return res.json(serializeTripler(new_tripler));
 }
 
+async function adminSearchTriplers(req, res) {
+  let models = await triplersSvc.adminSearchTriplers(req)
+  return res.json(models);
+}
+
 async function searchTriplers(req, res) {
-  let found = null;
   if (!req.query.firstName && !req.query.lastName) {
     return res.json([]);
   }
@@ -93,6 +97,7 @@ async function suggestTriplers(req, res) {
     .where('a.id', req.user.get('id'))
     .match('t', 'Tripler')
     .whereRaw('NOT ()-[:CLAIMS]->(t)')
+    .whereRaw('NOT ()-[:WAS_ONCE]->(t)')
     .whereRaw(`distance(t.location, a.location) <= ${ov_config.ambassador_tripler_relation_max_distance}`) // distance in meters (10km)
     .with('a, t, distance(t.location, a.location) AS distance')
     .orderBy('distance')
@@ -256,9 +261,9 @@ async function remindTripler(req, res) {
                                       organization_name: ov_config.organization_name,
                                       tripler_first_name: tripler.get('first_name'),
                                       tripler_city: JSON.parse(tripler.get('address')).city,
-                                      triplee_1: triplees[0],
-                                      triplee_2: triplees[1],
-                                      triplee_3: triplees[2]
+                                      triplee_1: serializeTriplee(triplees[0]),
+                                      triplee_2: serializeTriplee(triplees[1]),
+                                      triplee_3: serializeTriplee(triplees[2])
                                     }));
   } catch (err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
@@ -324,6 +329,12 @@ module.exports = Router({mergeParams: true})
   if (!req.admin) return _403(res, "Permission denied.");;
   return deleteTripler(req, res);
 })
+.get('/admin/triplers', (req, res) => {
+  if (!req.authenticated) return _401(res, 'Permission denied.');
+  if (!req.admin) return _403(res, "Permission denied.");;
+  return adminSearchTriplers(req, res);
+})
+
 
 .get('/triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');

@@ -58,5 +58,16 @@ module.exports = {
     direction: 'in',
     eager: true,
     cascade: 'detach'
+  },
+  is_ambassador: {
+    type: 'node',
+    target: 'Ambassador',
+    relationship: 'WAS_ONCE',
+    eager: true,
+    cascade: 'detach'
+  },
+  is_ambassador_and_has_confirmed: {
+    type: 'boolean',
+    default: false
   }
 };

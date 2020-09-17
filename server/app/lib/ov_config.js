@@ -41,7 +41,7 @@ export const ov_config = {
   DEBUG: getConfig("debug", false, false),
   payout_stripe: getConfig('payout_stripe', false, false),
   payout_paypal: getConfig('payout_paypal', false, false),
-  payout_per_tripler: getConfig('payout_per_tripler', true, 2500),
+  payout_per_tripler: getConfig('payout_per_tripler', true, 0),
   plaid_client_id: getConfig('plaid_client_id', true, null),
   plaid_secret: getConfig('plaid_secret', true, null),
   plaid_public_key: getConfig('plaid_public_key', true, null),
@@ -83,4 +83,7 @@ export const ov_config = {
   upgrade_sms_schedule: getConfig('upgrade_sms_schedule', false, null),
   tripler_upgrade_message: getConfig('tripler_upgrade_message', true, null),
   wordpress_landing: getConfig('wordpress_landing', true, null),
+  allowed_states: getConfig('allowed_states', true, []),
+  tripler_confirmed_ambassador_notification: getConfig('tripler_confirmed_ambassador_notification', true, null),
+  first_reward_payout: getConfig('first_reward_payout', true, 0),
 };

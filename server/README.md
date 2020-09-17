@@ -77,6 +77,9 @@ For this server, configure an `.env` file. The following is a complete list of v
     UPGRADE_SMS_SCHEDULE=
     TRIPLER_UPGRADE_MESSAGE=
     WORDPRESS_LANDING=
+    ALLOWED_STATES=
+    TRIPLER_CONFIRMED_AMBASSADOR_NOTIFICATION=
+    FIRST_REWARD_PAYOUT=
 
 The meaning of each config item is as follows:
 
@@ -154,3 +157,7 @@ The meaning of each config item is as follows:
 * `UPGRADE_SMS_SCHEDULE`: The time interval (in minutes) where the tripler upgrade sms background job fires
 * `TRIPLER_UPGRADE_MESSAGE`: The SMS message when a tripler responds YES, informing them that they are eligible to become Voter Ambassadors
 * `WORDPRESS_LANDING`: The URL for the landing page for when a Tripler wants to upgrade to Ambassador
+* `ALLOWED_STATES`: A comma-separated list of 2-letter US state codes that determine which addresses are valid for ambassador signups
+* `TRIPLER_CONFIRMED_AMBASSADOR_NOTIFICATION`: The SMS message that gets sent to the ambassador when one of their triplers is confirmed.
+* `FIRST_REWARD_PAYOUT`: The amount an ambassador receives as a reward for one of their claimed triplers upgrading to an ambassador and confirming a tripler.
+

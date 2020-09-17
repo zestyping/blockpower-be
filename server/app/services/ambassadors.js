@@ -56,6 +56,11 @@ async function signup(json) {
     throw new ValidationError("Our system doesn’t recognize that phone number. Please try again.");
   }
 
+  let allowed_states = ov_config.allowed_states.split(',');
+  if (allowed_states.indexOf(json.address.state) === -1) {
+    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.")
+  }
+
   if (models.Ambassador.phone.unique) {
     let existing_ambassador = await neode.first('Ambassador', 'phone', normalize(json.phone));
     if(existing_ambassador) {
@@ -90,6 +95,7 @@ async function signup(json) {
     last_name: json.last_name || null,
     phone: normalize(json.phone),
     email: json.email || null,
+    date_of_birth: json.date_of_birth || null,
     address: JSON.stringify(json.address),
     quiz_results: JSON.stringify(json.quiz_results) || null,
     approved: true,
@@ -103,16 +109,66 @@ async function signup(json) {
     external_id: json.externalId
   });
 
+  let existing_tripler = await neode.first('Tripler', {
+    phone: normalize(json.phone)
+  });
+
+  if (existing_tripler) {
+    new_ambassador.relateTo(existing_tripler, 'was_once');
+  }
+
   // send email in the background
   let ambassador_name = serializeName(new_ambassador.get('first_name'), new_ambassador.get('last_name'))
   setTimeout(async ()=> {
+    let address = JSON.parse(new_ambassador.get('address'));
+    let body = `
+    Organization Name:
+    <br>
+    ${ov_config.organization_name}
+    <br>
+    <br>
+    Google/FB ID:
+    <br>
+    ${new_ambassador.get('external_id')}
+    <br>
+    <br>
+    First Name:
+    <br>
+    ${new_ambassador.get('first_name')}
+    <br>
+    <br>
+    Last Name:
+    <br>
+    ${new_ambassador.get('last_name')}
+    <br>
+    <br>
+    Date of Birth:
+    <br>
+    ${new_ambassador.get('date_of_birth')}
+    <br>
+    <br>
+    Street Address:
+    <br>
+    ${address.address1}
+    <br>
+    <br>
+    Zip:
+    <br>
+    ${address.zip}
+    <br>
+    <br>
+    Email:
+    <br>
+    ${new_ambassador.get('email')}
+    <br>
+    <br>
+    Phone Number:
+    <br>
+    ${new_ambassador.get('phone')}
+    `;
+
     let subject = stringFormat(ov_config.new_ambassador_signup_admin_email_subject,
                             {
-                              organization_name: ov_config.organization_name
-                            });
-    let body = stringFormat(ov_config.new_ambassador_signup_admin_email_body,
-                            {
-                              ambassador_name: ambassador_name,
                               organization_name: ov_config.organization_name
                             });
     await mail(ov_config.admin_emails, null, null, 

@@ -1,56 +1,26 @@
 ## Introduction
 
-Our Voice USA is a 501(c)(3) non-profit, non-partisan organization for civic education. We are writing tools to engage everyday citizens with the political process by providing easy access to civic information that's relevant to the individual.
+This software enables a "Voting Ambassador" workflow for get-out-the-vote campaigns. The Vote Ambassador, once signed up, is provided a list of voters in their area (within some configurable number of meters from the Ambassador). This distance is calculated via the Neo4J apoc.distance function, using the Point data type either imported from CSV in the case of a Tripler, or pulled from an external API (census.gov) in the case of Ambassadors.
 
-## Development Setup
+Once the Ambassador has "claimed" a list of Vote Triplers, the Vote Triplers can be contacted through the system, requesting confirmation that they will assist 3 people to vote. If that Vote Tripler responds in the affirmative to the SMS, the system will record a payment for the Vote Ambassador. This can take the form of Stripe or other payment method.
 
-Docker is required to get the database running, so make sure you have that installed on your system.
+### Frontend
 
-To get set up locally, simply run the following commands:
+A Vote Ambassador signs up with and interacts mainly with the React front-end. The front-end code can be found here: [hello-voter](https://github.com/colab-coop/hello-voter). 
 
-    git clone https://github.com/OurVoiceUSA/HelloVoter.git
-    cd HelloVoter
-    npm install
-    npm run database
-    npm start
+### Admin-ui
 
-This sets up everything except the mobile app. To get setup with local development of the mobile app as well, see [mobile/README.md](mobile/README.md).
+This software also has the concept of "admin", an Ambassador account which is empowered to block Ambassadors, make another Ambassador an admin, and download CSV data reports of Ambassadors and their claimed Triplers.
 
-If you want to interact with the API from a script outside of the web app, make sure you include your JWT with the "Authorization: Bearer" header. You can either get the JWT from your browser's dev tools after you sign into the web app, or, you can use the no-auth dev JWT. This requires you stop the "npm start" process, set an environment variable, and make that user an admin, before you re-start it:
+The admin panel can be found here: [https://github.com/colab-coop/HelloVoter-admin-ui](https://github.com/colab-coop/HelloVoter-admin-ui).
 
-    export REACT_APP_NO_AUTH=1
-    npm run makeadmin -- "noauth:localuser"
-    npm start
+## Production Deployment
 
-The JWT token you can use is as follows:
+Note the deployment branch for the api is "ambassador", with tagged releases.
 
-    eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im5vYXV0aDpsb2NhbHVzZXIiLCJuYW1lIjoiTG9jYWwgVXNlciIsImVtYWlsIjoibG9jYWxAbG9jYWxob3N0IiwiaXNzIjoib3Vydm9pY2V1c2Eub3JnIiwiaWF0IjoxLCJleHAiOjIsImRpc2NsYWltZXIiOiJCbGFoIGJsYWggZGlzY2xhaW1lciJ9.qa5K2pgi1uLYkV7jP3aNvazcchvgBD8RwhdG6Q86GxlvusQx7nNCTr3LrAnn6pxDJxNidJoqjD3Ie77jj5hWK_-lbgtHMLhNXGExDxI8pQ0I5ZnAV_5pDu7vARinoy3mctQWFO2pIQSu8KzQc7eQ90IQZBseE7nQV-ugZRfK8Teo_48COcJxGxqwCNCO80G_JzBoif2xaWRb2i2n0qeSUKfXN4Fwy46JOiHFnL9yOS5s54tB6doe1wFJNYps8eVQbVkTBL1I9PQP4Gs-BmzND0vcQaczTdu_J50uvLL5do1FHb48lRhrA44ZrYv3EVwNsJXZtH3MbasxgPrZhl69VQ
+We (CoLab) are currently using an AWS cluster to deploy all of this code (api, frontend, and admin-ui). We use an Ansible playbook to provision the servers. We point the servers to a Neo4J database hosted at Graphene. The frontend is also hosted on an AWS server in the cluster, also using an Ansible playbook. We have CircleCI workflows implemented for deployment.
 
-You should be all set!
-
-## Test Automation
-
-Our goal is 100% code coverage and full regression of automated tests. As the tests are very heavily data dependent, a sandbox database is spun up before execution.
-
-    npm test
-
-The very first time you run this will take longer than normal to build and spin up the sandbox database. It remains running after the tests finish, so subsequent test executions will go much faster.
-
-The sandbox database runs on a different port than the default Neo4j port. If you need to connect to it, use `57474` for the Neo4j Web UI port and `57687` for the bolt port after you load the UI.
-
-Please be sure to write any tests that correspond to your code changes before you submit a pull request.
-
-## Production Setup
-
-This app is designed such that you do not need to deploy the mobile app or the web client, as Our Voice USA publishes the mobile app to the app stores and hosts a production copy of the react app here: https://apps.ourvoiceusa.org/HelloVoterHQ/ (details in [client/README.md](client/README.md))
-
-See [database/README.md](database/README.md) for details on how to setup a database and [server/README.md](server/README.md) for details on how to configure and deploy the server.
-
-## Contributing
-
-Thank you for your interest in contributing to us! To avoid potential legal headaches please sign our CLA (Contributors License Agreement). We handle this via pull request hooks on GitHub provided by https://cla-assistant.io/
-
-Please also read our [code of conduct](CODE_OF_CONDUCT.md).
+You are, of course, free to deploy in any way you wish, but we have not attempted any other deployment configuration so YMMV.
 
 ## License
 
