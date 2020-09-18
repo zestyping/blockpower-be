@@ -21,16 +21,12 @@ const client = require('twilio')(ov_config.twilio_account_sid, ov_config.twilio_
 
 module.exports = async (phone) => {
 
-  logger.debug(`Checking carrier for ${phoneFormat(phone)}`);
+  logger.debug(`[TWILIO] Checking carrier for ${phoneFormat(phone)}`);
 
-  if (ov_config.twilio_disable) {
-    logger.debug('[TWILIO] Twilio disabled in config, bypassing carrier lookup');
-    return;
-  }
-
-  // Exit early and don't perform a lookup if nothing is blocked in config.
+  // Exit early and don't perform a lookup if nothing is blocked in config
+  // or if Twilio is disabled in config.
   let blockedCarrierString = ov_config.blocked_carriers
-  if(!blockedCarrierString) {
+  if(!blockedCarrierString || ov_config.twilio_disable) {
     let result = new Promise((resolve, reject) => {
       let carrier = {
         "caller_name": null,
@@ -48,7 +44,7 @@ module.exports = async (phone) => {
         "add_ons": null,
         "url": null
       }
-      logger.debug(`[TWILIO] Carrier lookup skipped, BLOCKED_CARRIERS env not set or empty.`);
+      logger.debug(`[TWILIO] Carrier lookup skipped, either TWILIO_DISABLE is set in env or BLOCKED_CARRIERS env not set or empty.`);
       resolve(carrier)
     });
     return result;
