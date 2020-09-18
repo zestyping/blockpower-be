@@ -520,7 +520,7 @@ module.exports = Router({mergeParams: true})
 })
 .put('/ambassadors/:ambassadorId/admin', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
-  if (!req.isLocal) return _403(res, "Permission denied.");
+  if (!req.admin) return _403(res, "Permission denied.");
   if (!ov_config.make_admin_api) return _403(res, 'Permission denied.');
   return makeAdmin(req, res);
 })

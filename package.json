@@ -21,5 +21,9 @@
   "license": "AGPL-3.0",
   "devDependencies": {
     "concurrently": "^5.1.0"
+  },
+  "engines": {
+    "node": "^8.9.4",
+    "npm": "^6.14.8"
   }
 }
