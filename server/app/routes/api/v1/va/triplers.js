@@ -217,6 +217,11 @@ async function startTriplerConfirmation(req, res) {
     return _400(res, "You entered your phone number as the number of this Vote Tripler. Please try again.");
   }
 
+  let carrierLookup = await carrier(triplerPhone);
+  if(carrierLookup.carrier.isBlocked) {
+    return _400(res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
+  }
+
   try {
     triplersSvc.startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees);
   } catch (err) {
