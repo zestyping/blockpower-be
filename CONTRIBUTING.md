@@ -60,6 +60,8 @@ One thing to note is that due to the history of the project being built on top o
 
 We unfortunately did not have the spaciousness to write effective tests. If, however, you run the api calls found in `/server/postman/VoterAmbassador.postman_collection.json` in-sequence (you don't have to use postman, of course), you can be relatively sure you've hit most of the relevant code.
 
+To run these tests, you will need 3 separate oauth tokens from Google or Facebook. In the Postman api calls, these are referred to in the global environment as `token`, `other_token`, and `upgrader_token`. They must be 3 unique tokens. One quick & easy way to get these tokens (assuming you have 3 google/facebook accounts handy) is to spin up the frontend React app [https://github.com/colab-coop/hello-voter](https://github.com/colab-coop/hello-voter) and log in, collect the `token` item from browser localStorage, log out, and repeat. Note that these tokens expire after some time, so you will have to repeat the process after a period of time.
+
 ## TODO
 
 We are in the process of removing the business logic from `/routes` and placing them where they belong in `/services`. This is not yet complete, but you will see evidence of our initial progress in doing so. For any additional routes created, please put business logic in `/services`, and move over any relevant functionality to `/services` when and where you are able.
