@@ -162,4 +162,4 @@ The meaning of each config item is as follows:
 * `TRIPLER_CONFIRMED_AMBASSADOR_NOTIFICATION`: The SMS message that gets sent to the ambassador when one of their triplers is confirmed.
 * `FIRST_REWARD_PAYOUT`: The amount an ambassador receives as a reward for one of their claimed triplers upgrading to an ambassador and confirming a tripler.
 * `BLOCKED_CARRIERS`: A pipe-delimited list of carrier strings in order to block fraudulent phone numbers.
-
+* `EKATA_API_KEY`: API key used for reverse phone lookup API from [Ekata.com](https://ekata.com/developer/documentation/api-overview/#tag/Reverse-Phone-API). Leave empty to disable Ekata lookups.

@@ -1,9 +1,7 @@
 /**
- * Wrapper plus some logic around the Twilio Caller ID API.
+ * Wrapper plus some logic around the Ekata reverse phone API.
  * 
- * The function will return the caller-name lookup info.
- * 
- * ref: https://www.twilio.com/docs/lookup/api
+ * ref: https://ekata.com/developer/documentation/api-overview/#tag/Reverse-Phone-API
  */
 
 import logger from 'logops';
