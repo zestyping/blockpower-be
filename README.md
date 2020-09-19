@@ -14,6 +14,19 @@ This software also has the concept of "admin", an Ambassador account which is em
 
 The admin panel can be found here: [https://github.com/colab-coop/HelloVoter-admin-ui](https://github.com/colab-coop/HelloVoter-admin-ui).
 
+## Development
+
+### Prerequisites
+
+- Node. We recommend installing via [Node Version Manager](https://github.com/nvm-sh/nvm#installing-and-updating).
+- [Docker](https://docs.docker.com/desktop/) is required to get the database running.
+
+### Installation
+
+1. Install dependencies: `npm install`
+1. Setup the database: `npm run database`
+1. Start the server: `npm start`
+
 ## Production Deployment
 
 Note the deployment branch for the api is "ambassador", with tagged releases.
