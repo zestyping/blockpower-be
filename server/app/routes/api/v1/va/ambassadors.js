@@ -19,6 +19,8 @@ import {
 import { serializeAmbassador, serializeTripler, serializePayout, serializeName } from './serializers';
 import sms from '../../../../lib/sms';
 import { ov_config } from '../../../../lib/ov_config';
+import caller_id from '../../../../lib/caller_id';
+import reverse_phone from '../../../../lib/reverse_phone';
 
 async function createAmbassador(req, res) {
   let new_ambassador = null;
@@ -449,6 +451,13 @@ function checkAmbassador(req, res) {
   return res.json( { exists: !!req.user.get } );
 }
 
+async function callerInfo(req, res) {
+  let ambassador = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
+  let callerId = await caller_id(ambassador.get('phone'));
+  let reversePhone = await reverse_phone(ambassador.get('phone'));
+  return res.json({ twilio: callerId, ekata: reversePhone });
+}
+
 module.exports = Router({mergeParams: true})
 .post('/ambassadors/signup', (req, res) => {
   return signup(req, res);
@@ -538,4 +547,9 @@ module.exports = Router({mergeParams: true})
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.admin) return _403(res, "Permission denied.");
   return fetchAmbassadorPayouts(req, res);
+})
+.get('/ambassadors/:ambassadorId/caller-info', (req, res) => {
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!req.admin) return _403(res, "Permission denied.");
+  return callerInfo(req, res);
 })
