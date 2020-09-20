@@ -92,6 +92,11 @@ export const ov_config = {
     true,
     null
   ),
+  ambassador_deletion_message: getConfig(
+    "ambassador_deletion_message",
+    true,
+    null
+  ),
   ambassador_tripler_relation_max_distance: getConfig(
     "ambassador_tripler_relation_max_distance",
     false,
