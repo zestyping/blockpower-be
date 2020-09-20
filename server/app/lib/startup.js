@@ -2,8 +2,11 @@
 import { asyncForEach, sleep } from './common';
 
 import { ov_config } from './ov_config';
+import fifo from './fifo';
 import { min_neo4j_version } from './utils';
 import queue from './queue';
+import cron from './cron';
+import ip from './ip';
 
 var _require = require; // so we can lazy load a module later on
 
@@ -17,10 +20,13 @@ export var concurrency = ov_config.job_concurrency;
 export async function doStartupTasks(db, qq, neode) {
   // required to do in sequence
   if (!ov_config.disable_jmx) await doJmxInit(db, qq);
+  await ip.init();
   await doDbInit(db);
   await doNeodeInit(neode);
   // can happen in parallel
   postDbInit(qq);
+  fifo.init();
+  cron.schedule();
 }
 
 async function doJmxInit(db, qq) {

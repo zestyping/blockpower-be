@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a95d4540-a519-4990-83f2-affdc7faa15d",
+		"_postman_id": "ba172ce0-d50c-455b-a561-aac8d0372698",
 		"name": "VoterAmbassador",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -15,8 +15,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Check address (invalid)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -86,8 +84,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Signup\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -160,8 +156,6 @@
 							"",
 							"    let jsonData = pm.response.json()",
 							"    pm.globals.set('ambassador_id', jsonData.id);",
-							"",
-							"    postman.setNextRequest(\"Signup failure due to duplicate external id\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -198,7 +192,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Tomaz\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 8537\",\n\t\"quiz_results\": [\n\t\t{\n\t\t\t\"question\": \"hello there\",\n\t\t\t\"answer\": \"general kenobi!\"\n\t\t},\n\t\t{\n\t\t\t\"question\": \"do you like sand?\",\n\t\t\t\"answer\": \"I hate it\"\n\t\t}\n\t]\n}",
+					"raw": "{\n\t\"first_name\": \"Tomaz\",\n\t\"last_name\": \"Korenika\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 8537\",\n\t\"date_of_birth\": \"this is a date of birth... jan 1 1966\",\n\t\"quiz_results\": [\n\t\t{\n\t\t\t\"question\": \"hello there\",\n\t\t\t\"answer\": \"general kenobi!\"\n\t\t},\n\t\t{\n\t\t\t\"question\": \"do you like sand?\",\n\t\t\t\"answer\": \"I hate it\"\n\t\t}\n\t]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -231,8 +225,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
-							"",
-							"    postman.setNextRequest(\"Signup failure due to invalid email\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -302,8 +294,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
-							"",
-							"    postman.setNextRequest(\"Make admin (localhost api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -373,8 +363,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Create tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -427,20 +415,84 @@
 			"response": []
 		},
 		{
+			"name": "Create Stripe test account (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a5a7fda3-a329-478f-a07d-9e89f4e3cffd",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/payouts/test-account?stripe=true",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"payouts",
+						"test-account"
+					],
+					"query": [
+						{
+							"key": "stripe",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Create tripler",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "da1a0aad-baad-464f-b51e-d47accf5c627",
+						"id": "e9070774-142b-4262-ac12-68f73e34e9f9",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
 							"",
 							"    let jsonData = pm.response.json()",
 							"    pm.globals.set('tripler_id', jsonData.id);",
-							"",
-							"    postman.setNextRequest(\"Claim triplers\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -477,7 +529,78 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 8537\"\n}",
+					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 5234\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create other tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "60e96ca7-83e1-426a-9f7b-ddf89c35176f",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    let jsonData = pm.response.json()",
+							"    pm.globals.set('other_tripler_id', jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Satan\",\n\t\"address\": {\"address1\": \"508 Post Rd\", \"city\": \"Woodward\", \"state\": \"OK\", \"zip\": 73801},\n\t\"phone\": \"+1 620 275 4609\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -509,8 +632,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Fetch claimed triplers\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -528,7 +649,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"triplers\": [\"{{tripler_id}}\"]\n}",
+					"raw": "{\n\t\"triplers\": [\"{{tripler_id}}\", \"{{other_tripler_id}}\"]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -562,8 +683,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Fetch current ambassador\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -606,8 +725,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Check ambassador exists (true)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -640,6 +757,48 @@
 			"response": []
 		},
 		{
+			"name": "Fetch current ambassador payouts",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2a3f14f6-d91b-4e6f-aa6b-29d28101553d",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/current/payouts",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"current",
+						"payouts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Check ambassador exists (true)",
 			"event": [
 				{
@@ -649,8 +808,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Check ambassador exists (false)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -692,8 +849,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Update current ambassador\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -735,8 +890,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Complete onboarding\");    ",
 							"});"
 						],
 						"type": "text/javascript"
@@ -754,7 +907,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"the admin\",\n\t\"phone\": \"+1 205 852 8537\",\n\t\"address\": {\n        \"address1\": \"1653 Logan St\",\n        \"city\": \"Denver\",\n        \"state\": \"CO\",\n        \"zip\": 80203\n    }\n}",
+					"raw": "{\n\t\"first_name\": \"the admin\",\n    \"last_name\": \"King\",\n\t\"phone\": \"+1 205 852 8537\",\n\t\"address\": {\n        \"address1\": \"1653 Logan St\",\n        \"city\": \"Denver\",\n        \"state\": \"CO\",\n        \"zip\": 80203\n    },\n    \"email\": \"aman@colab.coop\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -783,12 +936,10 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "22254200-cd81-4dcd-ba3f-e3c23bd627ae",
+						"id": "d8112b95-5e68-4901-bf29-9018ae4e59b3",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Suggest triplers\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -822,6 +973,76 @@
 			"response": []
 		},
 		{
+			"name": "Approve current ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "da1a0aad-baad-464f-b51e-d47accf5c627",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 8537\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{ambassador_id}}/approve",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"{{ambassador_id}}",
+						"approve"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Suggest triplers",
 			"event": [
 				{
@@ -831,8 +1052,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Start confirmation process for claimed tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -873,8 +1092,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Remind tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -911,7 +1128,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"triplees\": [\"Aman\", \"David\", \"Ethan\"],\n\t\"phone\": \"+1 500 555 0006\"\n}",
+					"raw": "{\n\t\"triplees\": [\n\t\t{\n          \"first_name\": \"John\",\n          \"last_name\": \"Smith\",\n          \"housemate\": true\n        },\n        {\n          \"first_name\": \"Kris\",\n          \"last_name\": \"Trevan\",\n          \"housemate\": false\n        },\n        {\n          \"first_name\": \"Larry\",\n          \"last_name\": \"Ulrich\",\n          \"housemate\": true\n        }\n\t]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -936,6 +1153,76 @@
 			"response": []
 		},
 		{
+			"name": "Start confirmation process for other claimed tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "14d4ab21-bfbe-4b6f-b15c-055e0cbbb5ee",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"triplees\": [\n\t\t{\n          \"first_name\": \"Adam\",\n          \"last_name\": \"Bautista\",\n          \"housemate\": false\n        },\n        {\n          \"first_name\": \"Broderick\",\n          \"last_name\": \"Callahan\",\n          \"housemate\": true\n        },\n        {\n          \"first_name\": \"Daniel\",\n          \"last_name\": \"Durmont\",\n          \"housemate\": false\n        }\n\t],\n\t\"phone\": \"+1 500 555 0006\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers/{{other_tripler_id}}/start-confirm",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers",
+						"{{other_tripler_id}}",
+						"start-confirm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Remind tripler",
 			"event": [
 				{
@@ -945,8 +1232,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Fetch a tripler\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -991,7 +1276,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/triplers/{{tripler_id}}/remind",
+					"raw": "{{base_url}}/api/v1/va/triplers/{{other_tripler_id}}/remind",
 					"host": [
 						"{{base_url}}"
 					],
@@ -1000,7 +1285,7 @@
 						"v1",
 						"va",
 						"triplers",
-						"{{tripler_id}}",
+						"{{other_tripler_id}}",
 						"remind"
 					]
 				}
@@ -1017,8 +1302,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Confirm tripler via SMS\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1079,8 +1362,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Confirm tripler via SMS (proxy)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1117,7 +1398,72 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"From\": \"+1 205 852 8537\",\n\t\"Body\": \"yes\"\n}"
+					"raw": "{\n\t\"From\": \"+12058525234\",\n\t\"Body\": \"yes\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/public/va/sms/receive",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"public",
+						"va",
+						"sms",
+						"receive"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Confirm other tripler via SMS",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "17f26354-ff8a-4002-83fb-164f4c4c7aa2",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"From\": \"+1 500 555 0006\",\n\t\"Body\": \"yes\"\n}"
 				},
 				"url": {
 					"raw": "{{base_url}}/api/v1/public/va/sms/receive",
@@ -1146,8 +1492,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Update tripler (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1213,8 +1557,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Confirm tripler (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1251,7 +1593,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"phone\": \"+1 205 852 8537\",\n\t\"status\": \"pending\"\n}",
+					"raw": "{\n\t\"first_name\": \"Not Satan\",\n\t\"last_name\": \"Tripler\",\n\t\"phone\": \"12025551234\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1259,7 +1601,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/triplers/{{tripler_id}}",
+					"raw": "{{base_url}}/api/v1/va/triplers/{{other_tripler_id}}",
 					"host": [
 						"{{base_url}}"
 					],
@@ -1268,7 +1610,7 @@
 						"v1",
 						"va",
 						"triplers",
-						"{{tripler_id}}"
+						"{{other_tripler_id}}"
 					]
 				}
 			},
@@ -1284,8 +1626,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Fetch all triplers (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1322,7 +1662,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"phone\": \"+1 205 852 8537\"\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1330,7 +1670,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/triplers/{{tripler_id}}/confirm",
+					"raw": "{{base_url}}/api/v1/va/triplers/{{other_tripler_id}}/confirm",
 					"host": [
 						"{{base_url}}"
 					],
@@ -1339,7 +1679,7 @@
 						"v1",
 						"va",
 						"triplers",
-						"{{tripler_id}}",
+						"{{other_tripler_id}}",
 						"confirm"
 					]
 				}
@@ -1356,8 +1696,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Create ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1401,8 +1739,6 @@
 							"",
 							"    let jsonData = pm.response.json()",
 							"    pm.globals.set('other_ambassador_id', jsonData.id);",
-							"",
-							"    postman.setNextRequest(\"Create ambassador failure due to duplicate email (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1439,7 +1775,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+15005550006\",\n    \"email\": \"aman@colab.coop\"\n}",
+					"raw": "{\n\t\"first_name\": \"Ethan\",\n\t\"last_name\": \"Winn\",\n\t\"date_of_birth\": \"another DOB\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+15005550006\",\n    \"email\": \"aman1@colab.coop\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1471,8 +1807,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
-							"",
-							"    postman.setNextRequest(\"Fetch all ambassadors (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1532,6 +1866,128 @@
 			"response": []
 		},
 		{
+			"name": "Delete an ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "69679376-f3a8-44ac-97a7-193fa9c7199e",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"{{other_ambassador_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Signup (other ambassador)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "305a847a-9c2c-48ef-a095-da5ce6b94735",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    let jsonData = pm.response.json()",
+							"    pm.globals.set('other_ambassador_id', jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{other_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"David\",\n\t\"last_name\": \"Brooks\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+15005550006\",\n\t\"quiz_results\": [\n\t\t{\n\t\t\t\"question\": \"hello there\",\n\t\t\t\"answer\": \"general kenobi!\"\n\t\t},\n\t\t{\n\t\t\t\"question\": \"do you like sand?\",\n\t\t\t\"answer\": \"I hate it\"\n\t\t}\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/signup",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Fetch all ambassadors (admin api)",
 			"event": [
 				{
@@ -1541,8 +1997,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by phone (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1583,8 +2037,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by email (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1631,8 +2083,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by approved (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1679,8 +2129,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by disapproved (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1727,8 +2175,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by external id (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1779,8 +2225,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Find ambassador by pending (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1827,8 +2271,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Count all ambassadors (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1883,8 +2325,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Fetch an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1926,8 +2366,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Update an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1969,8 +2407,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
-							"",
-							"    postman.setNextRequest(\"Approve an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -1988,7 +2424,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+15005550006\",\n\t\"email\": \"aman@colab.coop\"\n}",
+					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+15005550006\",\n\t\"email\": \"aman2@colab.coop\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -2012,6 +2448,48 @@
 			"response": []
 		},
 		{
+			"name": "Complete onboarding (other ambassador)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "22254200-cd81-4dcd-ba3f-e3c23bd627ae",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{other_token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/current/complete-onboarding",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"current",
+						"complete-onboarding"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Approve an ambassador (admin api)",
 			"event": [
 				{
@@ -2021,8 +2499,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Update ambassador failure due to duplicate phone\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2074,8 +2550,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
-							"",
-							"    postman.setNextRequest(\"Disapprove an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2126,8 +2600,6 @@
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Delete an ambassador (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2170,17 +2642,15 @@
 			"response": []
 		},
 		{
-			"name": "Delete an ambassador (admin api)",
+			"name": "Disburse to ambassador (admin api)",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "7c2ec3d0-2c1f-4fbf-b32e-a42719f38564",
+						"id": "23f9dd73-8aa9-49b8-82bd-7f5500db2638",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
-							"",
-							"    postman.setNextRequest(\"Delete a tripler (admin api)\");",
 							"});"
 						],
 						"type": "text/javascript"
@@ -2188,7 +2658,288 @@
 				}
 			],
 			"request": {
-				"method": "DELETE",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/payouts/disburse?ambassador-id={{ambassador_id}}&tripler-id={{tripler_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"payouts",
+						"disburse"
+					],
+					"query": [
+						{
+							"key": "ambassador-id",
+							"value": "{{ambassador_id}}"
+						},
+						{
+							"key": "tripler-id",
+							"value": "{{tripler_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Settle for ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2999472c-9b20-4f4a-8c69-d8c1f8d32443",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/payouts/settle?ambassador-id={{ambassador_id}}&tripler-id={{tripler_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"payouts",
+						"settle"
+					],
+					"query": [
+						{
+							"key": "ambassador-id",
+							"value": "{{ambassador_id}}"
+						},
+						{
+							"key": "tripler-id",
+							"value": "{{tripler_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get current ambassador payouts (should have two payouts)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9025b3e2-892e-404c-8ca1-dd3be901f4b8",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/current/payouts",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"current",
+						"payouts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create paypal account (not implemented)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a5a7fda3-a329-478f-a07d-9e89f4e3cffd",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/payouts/account?paypal=true",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"payouts",
+						"account"
+					],
+					"query": [
+						{
+							"key": "paypal",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create tripler for Paypal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e9070774-142b-4262-ac12-68f73e34e9f9",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    let jsonData = pm.response.json()",
+							"    pm.globals.set('paypal_tripler_id', jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"PayPal\",\n\t\"last_name\": \"Tripler\",\n\t\"address\": {\"address1\": \"1365 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 202 555 8383\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Claim paypal tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3e679e8f-fa41-4b98-88e3-cd401a1a6510",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
 				"header": [
 					{
 						"key": "Authorization",
@@ -2198,7 +2949,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "",
+					"raw": "{\n\t\"triplers\": [\"{{paypal_tripler_id}}\"]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -2206,7 +2957,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}",
+					"raw": "{{base_url}}/api/v1/va/ambassadors/current/triplers",
 					"host": [
 						"{{base_url}}"
 					],
@@ -2215,14 +2966,1077 @@
 						"v1",
 						"va",
 						"ambassadors",
-						"{{other_ambassador_id}}"
+						"current",
+						"triplers"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Delete a tripler (admin api)",
+			"name": "Start confirmation process for paypal claimed tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "14d4ab21-bfbe-4b6f-b15c-055e0cbbb5ee",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"triplees\": [\n\t\t{\n          \"first_name\": \"Zephrim\",\n          \"last_name\": \"Malik\",\n          \"housemate\": false\n        },\n        {\n          \"first_name\": \"Yvonne\",\n          \"last_name\": \"Lincoln\",\n          \"housemate\": false\n        },\n        {\n          \"first_name\": \"Xavier\",\n          \"last_name\": \"Killian\",\n          \"housemate\": false\n        }\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers/{{paypal_tripler_id}}/start-confirm",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers",
+						"{{paypal_tripler_id}}",
+						"start-confirm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Confirm paypal tripler via SMS",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "951806eb-82f0-47d0-ba70-890f1a834b9d",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"From\": \"+1 202 555 8383\",\n\t\"Body\": \"yes\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/public/va/sms/receive",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"public",
+						"va",
+						"sms",
+						"receive"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search for a tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7e70aece-17ee-4607-afe1-84468048e7b4",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers?firstName=Peyton&lastName=Morissette",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers"
+					],
+					"query": [
+						{
+							"key": "firstName",
+							"value": "Peyton"
+						},
+						{
+							"key": "lastName",
+							"value": "Morissette"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Tripler limit",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7e70aece-17ee-4607-afe1-84468048e7b4",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers-limit",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers-limit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Unclaim Triplers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3e679e8f-fa41-4b98-88e3-cd401a1a6510",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"triplers\": [\"{{paypal_tripler_id}}\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/current/triplers",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"current",
+						"triplers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Export Ambassador CSV",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7e70aece-17ee-4607-afe1-84468048e7b4",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/csv-export/ambassadors",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"csv-export",
+						"ambassadors"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Export Tripler CSV",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7e70aece-17ee-4607-afe1-84468048e7b4",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/csv-export/triplers",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"csv-export",
+						"triplers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Signup ambassador using existing tripler phone",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "34d8e05d-1d2f-4edf-86eb-e28ca63e4ea3",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    let jsonData = pm.response.json()",
+							"    pm.globals.set('ambassador_id', jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{upgrader_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Frank\",\n\t\"last_name\": \"Tripler\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+12058525234\",\n\t\"date_of_birth\": \"feb 1 1966\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/signup",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Make upgraded ambassador admin (localhost api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9d307ae6-9afb-4bec-80d8-84eab59a946d",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{ambassador_id}}/admin",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"{{ambassador_id}}",
+						"admin"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Stripe test account for upgraded ambassador (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a5a7fda3-a329-478f-a07d-9e89f4e3cffd",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{upgrader_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/payouts/test-account?stripe=true",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"payouts",
+						"test-account"
+					],
+					"query": [
+						{
+							"key": "stripe",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create tripler for upgraded ambassador",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e9070774-142b-4262-ac12-68f73e34e9f9",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    let jsonData = pm.response.json()",
+							"    pm.globals.set('upgrader_tripler_id', jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Tester\",\n\t\"last_name\": \"Triplerrr\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 7192\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create second tripler for upgraded ambassador",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e9070774-142b-4262-ac12-68f73e34e9f9",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"",
+							"    let jsonData = pm.response.json()",
+							"    pm.globals.set('upgrader2_tripler_id', jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"first_name\": \"Tester2\",\n\t\"last_name\": \"Triplerrr\",\n\t\"address\": {\"address1\": \"1665 Logan St\", \"city\": \"Denver\", \"state\": \"CO\", \"zip\": 80203},\n\t\"phone\": \"+1 205 852 1523\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upgraded ambassador claims new triplers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3e679e8f-fa41-4b98-88e3-cd401a1a6510",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{upgrader_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"triplers\": [\"{{upgrader_tripler_id}}\", \"{{upgrader2_tripler_id}}\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/current/triplers",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"current",
+						"triplers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start confirmation process for upgraded ambassador's first claimed tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b88ce3d6-2010-4e49-9578-b51c9af02aa9",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{upgrader_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"triplees\": [\n\t\t{\n          \"first_name\": \"a\",\n          \"last_name\": \"b\",\n          \"housemate\": true\n        },\n        {\n          \"first_name\": \"c\",\n          \"last_name\": \"d\",\n          \"housemate\": false\n        },\n        {\n          \"first_name\": \"e\",\n          \"last_name\": \"f\",\n          \"housemate\": true\n        }\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers/{{upgrader_tripler_id}}/start-confirm",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers",
+						"{{upgrader_tripler_id}}",
+						"start-confirm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Start confirmation process for upgraded ambassador's second claimed tripler",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b88ce3d6-2010-4e49-9578-b51c9af02aa9",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{upgrader_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"triplees\": [\n\t\t{\n          \"first_name\": \"a2\",\n          \"last_name\": \"b2\",\n          \"housemate\": true\n        },\n        {\n          \"first_name\": \"c2\",\n          \"last_name\": \"d2\",\n          \"housemate\": false\n        },\n        {\n          \"first_name\": \"e2\",\n          \"last_name\": \"f2\",\n          \"housemate\": true\n        }\n\t]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/triplers/{{upgrader2_tripler_id}}/start-confirm",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"triplers",
+						"{{upgrader2_tripler_id}}",
+						"start-confirm"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Confirm upgraded ambassador's first tripler via SMS",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "951806eb-82f0-47d0-ba70-890f1a834b9d",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"From\": \"+1 205 852 7192\",\n\t\"Body\": \"yes\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/public/va/sms/receive",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"public",
+						"va",
+						"sms",
+						"receive"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Confirm upgraded ambassador's second tripler via SMS",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "951806eb-82f0-47d0-ba70-890f1a834b9d",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true,
+					"accept-encoding": true,
+					"connection": true,
+					"host": true,
+					"user-agent": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "x-client-ip",
+						"type": "text",
+						"value": "127.0.0.1"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"From\": \"+1 205 852 1523\",\n\t\"Body\": \"yes\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/v1/public/va/sms/receive",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"public",
+						"va",
+						"sms",
+						"receive"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get current ambassador payouts (should have only four payouts after you wait for a couple minutes)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9025b3e2-892e-404c-8ca1-dd3be901f4b8",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/current/payouts",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"current",
+						"payouts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete a tripler (admin api) NOTE: this will result in a payout pending forever.",
 			"event": [
 				{
 					"listen": "test",
@@ -2256,7 +4070,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/triplers/{{tripler_id}}",
+					"raw": "{{base_url}}/api/v1/va/triplers/{{other_tripler_id}}",
 					"host": [
 						"{{base_url}}"
 					],
@@ -2265,7 +4079,54 @@
 						"v1",
 						"va",
 						"triplers",
-						"{{tripler_id}}"
+						"{{other_tripler_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search for a tripler (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9025b3e2-892e-404c-8ca1-dd3be901f4b8",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/admin/triplers?phone=12025558383",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"admin",
+						"triplers"
+					],
+					"query": [
+						{
+							"key": "phone",
+							"value": "12025558383"
+						}
 					]
 				}
 			},
@@ -2296,15 +4157,9 @@
 	],
 	"variable": [
 		{
-			"id": "e8320ef2-d393-4994-83bb-553e91740e58",
+			"id": "797afe1e-e0ed-49d7-bef1-e164c88809d1",
 			"key": "base_url",
 			"value": "http://localhost:8080",
-			"type": "string"
-		},
-		{
-			"id": "c54ebd4e-3c14-4544-96f7-2929d5c3937d",
-			"key": "token",
-			"value": "eyJhbGciOiJSUzI1NiJ9.eyJpZCI6ImZhY2Vib29rOjEwMjIxNjI1MTc2MTE0MDc0IiwibmFtZSI6IlRvbWHFviBLb3JlbmlrYSIsImVtYWlsIjoibGl0ZW51bGxAZ21haWwuY29tIiwiYXZhdGFyIjoiaHR0cHM6Ly9wbGF0Zm9ybS1sb29rYXNpZGUuZmJzYnguY29tL3BsYXRmb3JtL3Byb2ZpbGVwaWMvP2FzaWQ9MTAyMjE2MjUxNzYxMTQwNzQmaGVpZ2h0PTUwJndpZHRoPTUwJmV4dD0xNTk2MDEyNzE2Jmhhc2g9QWVRYXJXN1RrNDR3SUNpQyIsImlzcyI6Im91cnZvaWNldXNhLm9yZyIsImlhdCI6MTU5MzQyMDcxNiwiZXhwIjoxNTk0MzI3OTE2LCJkaXNjbGFpbWVyIjoiQnkgdXNpbmcgdGhpcyB0b2tlbiBhbmQgYWNjZXNzaW5nIHRoZXNlIHNlcnZpY2VzLCB5b3UgYWdyZWUgdG8gdGhlIHRlcm1zIGFuZCBjb25kaXRpb25zIGhlcmU6IGh0dHBzOi8vcmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbS9PdXJWb2ljZVVTQS9IZWxsb1ZvdGVyL21hc3Rlci9kb2NzL1Rlcm1zLW9mLVNlcnZpY2UubWQiLCJzdWIiOiJmYWNlYm9vazoxMDIyMTYyNTE3NjExNDA3NCIsImF1ZCI6ImJsb2NrcG93ZXIudXMifQ.OGHmFS63fX8IuiJj6u0mNNtFxZc3U_rYcmcN0AAhAKYZZjrQ0fjCSkk1_CQiIRqpj3gDNShmPUWheUOnXkt6EOa_1qAfv7FG_fQNqXZ6hiAdqzsiQWHSXZI2i-6lI11XrDnuR7U2xvRD3VR-1WGXFfTBLfdAMn387zybcabt2O5FzVzfocYpWnCPT7iNfBteKqQhu5KUM_7vHL583IlSumKiwBrrHl_IWY8D0l3NdovDFskpRc9e7guW3XSJdfW0dC_JvMKL1JxRzRvX3a_HHM8njsiHFETGY7MeNsg_22HMhHPVk3IkcnGn-xg_cSlUax8zfqYhK8Pj0djiyXauofYAV9QAnEDRj4MKI1IFOHtfnRKnvjBfrtdkX0HrwG08S60QMp0egp-S7tq8BiV-7oaDoW21smwGWFeqrddDVNuygDtqsmiKHuVMJvfEsvgxQlXD949iuXmBWeNTohywQrMz_MnmWZhTwkv9uVq4q5vo9L54-UYMiwSq4uf1fUIPNUk6C6Mp49qnb1NGNZ4Z_GR00-kRDk1YtHuomlBVnIRhkTi4eppR9lar8NaLV-A5IJl3tlCU67fzz9Y7CS1Sdhzc2nvYEwzj6_hf9l_6o3TlI5y0saGzJPnUqzDKEkx6O1p3OOMMxTLH_7dIq7crQ1WhGHEoaI1Mh711gkigspQ",
 			"type": "string"
 		}
 	],

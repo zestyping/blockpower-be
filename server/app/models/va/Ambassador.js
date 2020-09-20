@@ -13,7 +13,10 @@ module.exports = {
     type: 'string',
     required: true
   },
-  last_name: 'string',
+  last_name: {
+    type: 'string',
+    required: true
+  },
   date_of_birth: 'string',
   phone: {
     type: 'string',
@@ -80,21 +83,69 @@ module.exports = {
     type: 'boolean',
     default: false
   },
+  payout_provider: 'string',
   admin: {
     type: 'boolean',
     default: false
   },
-  payout_provider: 'string',
-  payout_account_id: 'string',
-  payout_additional_data: 'string',
-  earns_off: {
+  gets_paid: {
     type: 'relationships',
-    relationship: 'EARNS_OFF',
+    relationship: 'GETS_PAID',
+    direction: 'out',
+    target: 'Payout',
+    properties: {
+      since: {
+        type: 'localdatetime',
+        default: () => new Date,
+      },
+      tripler_id: 'uuid'
+    },
+    eager: true
+  },
+  first_reward: {
+    type: 'relationships',
+    relationship: 'FIRST_REWARD',
+    direction: 'out',
+    target: 'Payout',
+    properties: {
+      since: {
+        type: 'localdatetime',
+        default: () => new Date,
+      },
+      tripler_id: 'uuid'
+    },
+    eager: true
+  },
+  owns_account: {
+    type: 'relationships',
+    relationship: 'OWNS_ACCOUNT',
+    direction: 'out',
+    target: 'Account',
+    primary: {
+      type: 'Boolean',
+      default: true
+    },
+    properties: {
+      since: {
+        type: 'localdatetime',
+        default: () => new Date,
+      }
+    },
+    eager: true
+  },
+  was_once: {
+    type: 'relationship',
+    relationship: 'WAS_ONCE',
     direction: 'out',
     target: 'Tripler',
     properties: {
-      paid_at: 'localdatetime',
-      amount: 'float'
-    }
+      rewarded_previous_claimer: 'boolean',
+      since: {
+        type: 'localdatetime',
+        default: () => new Date
+      }
+    },
+    eager: true
   }
 };
+

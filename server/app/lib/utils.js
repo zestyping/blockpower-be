@@ -7,6 +7,11 @@ import { ov_config } from './ov_config';
 
 export var min_neo4j_version = 3.5;
 
+export function serializeName(first_name, last_name) {
+  if (!last_name) return first_name;
+  return [first_name, last_name].join(" ");
+}
+
 export function getClientIP(req) {
   if (ov_config.ip_header) return req.header(ov_config.ip_header);
   else return req.connection.remoteAddress;
@@ -28,12 +33,12 @@ export async function cqdo(req, res, q, p, a) {
 
   // TODO don't go to database to get timestamp
   try {
-    ref = await req.db.query(q, p);
+    ref = + new Date();
   } catch (e) {
     return _500(res, e);
   }
 
-  return res.status(200).json({msg: "OK", data: ref.data});
+  return res.status(200).json({msg: "OK", data: [ref]});
 }
 
 export async function onMyTurf(req, ida, idb) {

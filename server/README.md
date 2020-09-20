@@ -27,6 +27,9 @@ For this server, configure an `.env` file. The following is a complete list of v
     VOLUNTEER_ADD_NEW=
     PURGE_IMPORT_RECORDS=
     DEBUG=
+    PAYOUT_STRIPE=
+    PAYOUT_PAYPAL=
+    PAYOUT_PER_TRIPLER=
     PLAID_CLIENT_ID=
     PLAID_SECRET=
     PLAID_PUBLIC_KEY=
@@ -39,7 +42,9 @@ For this server, configure an `.env` file. The following is a complete list of v
     TWILIO_SUPPORT_PROXY_RESPONSE=
     ORGANIZATION_NAME=
     AMBASSADOR_LANDING_PAGE=
+    BUSINESS_URL=
     AMBASSADOR_APPROVED_MESSAGE=
+    AMBASSADOR_SIGNUP_MESSAGE=
     TRIPLER_REMINDER_MESSAGE=
     TRIPLER_CONFIRMATION_MESSAGE=
     TRIPLER_RECONFIRMATION_MESSAGE=
@@ -50,6 +55,32 @@ For this server, configure an `.env` file. The following is a complete list of v
     AMBASSADOR_TRIPLER_RELATION_MAX_DISTANCE=
     SUGGEST_TRIPLER_LIMIT=
     CLAIM_TRIPLER_LIMIT=
+    PAYOUT_SCHEDULE=
+    FIFO_WAKEUP=
+    DISABLE_AUTO_PAYOUTS=
+    DISABLE_JMX=
+    DISABLE_EMAILS=
+    SMTP_SERVICE=
+    SMTP_FROM=
+    SMTP_USER=
+    SMTP_PASSWORD=
+    SMTP_SERVER=
+    SMTP_USE_TLS=
+    SMTP_PORT=
+    ADMIN_EMAILS=
+    NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_SUBJECT=
+    NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_BODY=
+    TRIPLER_CONFIRM_ADMIN_EMAIL_SUBJECT=
+    TRIPLER_CONFIRM_ADMIN_EMAIL_BODY=
+    DISABLE_UPGRADE_SMS=
+    UPGRADE_SMS_WAITING_PERIOD=
+    UPGRADE_SMS_SCHEDULE=
+    TRIPLER_UPGRADE_MESSAGE=
+    WORDPRESS_LANDING=
+    ALLOWED_STATES=
+    TRIPLER_CONFIRMED_AMBASSADOR_NOTIFICATION=
+    FIRST_REWARD_PAYOUT=
+    BLOCKED_CARRIERS=
 
 The meaning of each config item is as follows:
 
@@ -77,6 +108,9 @@ The meaning of each config item is as follows:
 * `VOLUNTEER_ADD_NEW`: Whether or not volunteers can add new addresses & people that don't exist in the database.
 * `PURGE_IMPORT_RECORDS`: By default, import records are kept in the database, so you can trace where things came from. For larger operations (>20 million), we recommend setting this to `1` as otherwise the speed of data imports will be significantly impacted.
 * `DEBUG`: Whether or not cypher and other debugging info is sent to the console log.
+* `PAYPAL_STRIPE`: Whether or not stripe is supported as a payout method.
+* `PAYPAL_PAYPAL`: Whether or not paypal is supported as a payout method.
+* `PAYOUT_PER_TRIPLER`: Amount in cents to be disbursed to the ambassador for every confirmed tripler.
 * `PLAID_CLIENT_ID`: The client ID from your Plaid developer account. Needed for ambassador payouts.
 * `PLAID_SECRET`: The secret from your Plaid developer account. Needed for ambassador payouts.
 * `PLAID_PUBLIC_KEY`: The public key from your Plaid developer account. Needed for ambassador payouts.
@@ -89,7 +123,9 @@ The meaning of each config item is as follows:
 * `TWILIO_SUPPORT_PROXY_RESPONSE`: Support proxy messages for development; message and proxy number separated by =>. For example: yes=>+1 111-111-1111
 * `ORGANIZATION_NAME`: The name of the org
 * `AMBASSADOR_LANDING_PAGE`: Link to the webpage where ambassador lands after approval, this is sent in SMS
+* `BUSINESS_URL`: URL of the business running the platform or url of the organization; used in stripe while creating connect accounts
 * `AMBASSADOR_APPROVED_MESSAGE`: The SMS message when an ambassador is approved
+* `AMBASSADOR_SIGNUP_MESSAGE`: The SMS message when an ambassador signs up
 * `TRIPLER_REMINDER_MESSAGE`: The SMS message when a tripler is reminded
 * `TRIPLER_CONFIRMATION_MESSAGE`: The SMS message when a tripler begins confirmation process
 * `TRIPLER_RECONFIRMATION_MESSAGE`: The SMS message when a tripler responds to other than YES or NO in response to confirmation message
@@ -100,3 +136,30 @@ The meaning of each config item is as follows:
 * `AMBASSADOR_TRIPLER_RELATION_MAX_DISTANCE`: Distance in meters to decide if a tripler can be suggested to ambassador, default set to 10000
 * `SUGGEST_TRIPLER_LIMIT`: Maximum number of triplers returned by suggest-triplers api, default set to 1000
 * `CLAIM_TRIPLER_LIMIT`: Maximum number of triplers an ambassador can claim, default set to 12
+* `PAYOUT_SCHEDULE`: Payout schedule in minutes, default set to 60 minutes
+* `FIFO_WAKEUP`: FIFO queue wakeup/sleep interval in milliseconds, default set to 300 msec
+* `DISABLE_AUTO_PAYOUTS`: Disable automatic payouts
+* `DISABLE_JMX`: Disable JMX check from startup
+* `DISABLE_EMAILS`: Disable email notifications
+* `SMTP_SERVICE`: Name of the SMTP service being used
+* `SMTP_FROM`: Email from which emails are to be sent
+* `SMTP_USER`: User name for authorizing with SMTP server
+* `SMTP_PASSWORD`: Password for authorizing with SMTP server
+* `SMTP_SERVER`: Address of SMTP server
+* `SMTP_USE_TLS`: Set to true if SMTP server supports secure connections
+* `SMTP_PORT`: Port at which SMTP server is listening for connections
+* `ADMIN_EMAILS`: Comma separated list of admin emails
+* `NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_SUBJECT`: Subject of the email sent to admins when new ambassador signs up
+* `NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_BODY`: Body of the email sent to admins when new ambassador signs up
+* `TRIPLER_CONFIRM_ADMIN_EMAIL_SUBJECT`: Subject of the email sent to admins when a tripler confirms
+* `TRIPLER_CONFIRM_ADMIN_EMAIL_BODY`: Body of the email sent to admins when a tripler confirms
+* `DISABLE_UPGRADE_SMS`: Flag to disable the tripler upgrade sms background job
+* `UPGRADE_SMS_WAITING_PERIOD`: The time interval (in minutes)
+* `UPGRADE_SMS_SCHEDULE`: The time interval (in minutes) where the tripler upgrade sms background job fires
+* `TRIPLER_UPGRADE_MESSAGE`: The SMS message when a tripler responds YES, informing them that they are eligible to become Voter Ambassadors
+* `WORDPRESS_LANDING`: The URL for the landing page for when a Tripler wants to upgrade to Ambassador
+* `ALLOWED_STATES`: A comma-separated list of 2-letter US state codes that determine which addresses are valid for ambassador signups
+* `TRIPLER_CONFIRMED_AMBASSADOR_NOTIFICATION`: The SMS message that gets sent to the ambassador when one of their triplers is confirmed.
+* `FIRST_REWARD_PAYOUT`: The amount an ambassador receives as a reward for one of their claimed triplers upgrading to an ambassador and confirming a tripler.
+* `BLOCKED_CARRIERS`: A pipe-delimited list of carrier strings in order to block fraudulent phone numbers.
+
