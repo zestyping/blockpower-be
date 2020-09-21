@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import stringFormat from 'string-format';
 
+import logger from 'logops';
 import neode  from '../lib/neode';
 
 import {
@@ -12,6 +13,8 @@ import { geoCode, serializeName } from '../lib/utils';
 import { normalize } from '../lib/phone';
 import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
+import caller_id from '../lib/caller_id';
+import reverse_phone from '../lib/reverse_phone';
 
 import models from '../models/va';
 
@@ -89,6 +92,34 @@ async function signup(json) {
     throw new ValidationError("Our system doesn’t recognize that address. Please try again.");
   }
 
+  // check against Twilio caller ID and Ekata data
+  let twilioCallerId = await caller_id(json.phone);
+  let ekataReversePhone = await reverse_phone(json.phone);
+
+  let verification = [];
+
+  if (twilioCallerId) {
+    try {
+      verification.push({
+        source: 'Twilio',
+        name: twilioCallerId.callerName && twilioCallerId.callerName.caller_name
+      })
+    } catch (err) {
+      logger.error("Could not get verification info for tripler: %s", err);
+    }
+  }
+
+  if (ekataReversePhone) {
+    try {
+      verification.push({
+        source: 'Ekata',
+        name: ekataReversePhone.addOns.results && ekataReversePhone.addOns.results.ekata_reverse_phone.result && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to.name
+      })
+    } catch (err) {
+      logger.error("Could not get verification info for tripler: %s", err);
+    }
+  }
+
   let new_ambassador = await neode.create('Ambassador', {
     id: uuidv4(),
     first_name: json.first_name,
@@ -106,7 +137,8 @@ async function signup(json) {
       latitude: parseFloat(coordinates.latitude, 10),
       longitude: parseFloat(coordinates.longitude, 10)
     },
-    external_id: json.externalId
+    external_id: json.externalId,
+    verification: JSON.stringify(verification)
   });
 
   let existing_tripler = await neode.first('Tripler', {
@@ -165,6 +197,13 @@ async function signup(json) {
     Phone Number:
     <br>
     ${new_ambassador.get('phone')}
+    <br>
+    <br>
+    Verification:
+    <br>
+    ${JSON.parse(new_ambassador.get('verification')).map(v=>v.source + ': ' +  v.name).join(', ')}
+    <br>
+    <br>
     `;
 
     let subject = stringFormat(ov_config.new_ambassador_signup_admin_email_subject,

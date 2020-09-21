@@ -132,6 +132,7 @@ module.exports = {
       }
     },
     eager: true
-  }
+  },
+  verification: 'string'
 };
 

@@ -34,6 +34,12 @@ function serializeAmbassador(ambassador) {
   return obj;
 }
 
+function serializeAmbassadorForAdmin(ambassador) {
+  let obj = serializeAmbassador(ambassador);
+  obj.verification = JSON.parse(ambassador.get('verification'));
+  return obj;
+}
+
 function serializePayout(payout) {
   return {
     id: payout.get('id'),
@@ -97,6 +103,7 @@ function serializeTripleeForCSV(triplee) {
 
 module.exports = {
   serializeAmbassador: serializeAmbassador,
+  serializeAmbassadorForAdmin: serializeAmbassadorForAdmin,
   serializeTripler: serializeTripler,
   serializeTriplerForCSV: serializeTriplerForCSV,
   serializeNeo4JTripler: serializeNeo4JTripler,

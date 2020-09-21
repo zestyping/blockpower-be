@@ -16,7 +16,7 @@ import {
 } from '../../../../lib/validations';
 
 
-import { serializeAmbassador, serializeTripler, serializePayout, serializeName } from './serializers';
+import { serializeAmbassador, serializeAmbassadorForAdmin, serializeTripler, serializePayout, serializeName } from './serializers';
 import sms from '../../../../lib/sms';
 import { ov_config } from '../../../../lib/ov_config';
 import caller_id from '../../../../lib/caller_id';
@@ -110,7 +110,7 @@ async function fetchAmbassadors(req, res) {
 async function fetchAmbassador(req, res) {
   let ambassador = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
   if (ambassador) {
-    return res.json(serializeAmbassador(ambassador));
+    return res.json(serializeAmbassadorForAdmin(ambassador));
   }
   else {
     return _404(res, "Ambassador not found");
@@ -528,6 +528,7 @@ module.exports = Router({mergeParams: true})
   return disapproveAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId/admin', (req, res) => {
+  if (ov_config.DEBUG) return makeAdmin(req, res);
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.admin) return _403(res, "Permission denied.");
   if (!ov_config.make_admin_api) return _403(res, 'Permission denied.');
