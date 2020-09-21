@@ -70,5 +70,6 @@ module.exports = {
     type: 'boolean',
     default: false
   },
-  verification: 'string'
+  verification: 'string',
+  carrier_info: 'string'
 };

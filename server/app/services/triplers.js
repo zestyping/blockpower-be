@@ -296,6 +296,12 @@ async function searchTriplers(query) {
   return models;
 }
 
+async function updateTriplerCarrier(tripler, carrier) {
+  await tripler.update({
+    carrier_info: carrier
+  });
+}
+
 async function startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees) {
 
   // check against Twilio caller ID and Ekata data
@@ -319,7 +325,7 @@ async function startTriplerConfirmation(ambassador, tripler, triplerPhone, tripl
     try {
       verification.push({
         source: 'Ekata',
-        name: ekataReversePhone.addOns.results && ekataReversePhone.addOns.results.ekata_reverse_phone.result && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to.name
+        name: ekataReversePhone.addOns.results && ekataReversePhone.addOns.results.ekata_reverse_phone.result && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to.name
       })
     } catch (err) {
       logger.error("Could not get verification info for tripler: %s", err);
@@ -361,4 +367,5 @@ module.exports = {
   searchTriplers: searchTriplers,
   adminSearchTriplers: adminSearchTriplers,
   startTriplerConfirmation: startTriplerConfirmation,
+  updateTriplerCarrier: updateTriplerCarrier
 };

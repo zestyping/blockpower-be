@@ -105,7 +105,7 @@ async function signup(json) {
         name: twilioCallerId.callerName && twilioCallerId.callerName.caller_name
       })
     } catch (err) {
-      logger.error("Could not get verification info for tripler: %s", err);
+      logger.error("Could not get verification info for ambassador: %s", err);
     }
   }
 
@@ -113,10 +113,10 @@ async function signup(json) {
     try {
       verification.push({
         source: 'Ekata',
-        name: ekataReversePhone.addOns.results && ekataReversePhone.addOns.results.ekata_reverse_phone.result && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to.name
+        name: ekataReversePhone.addOns.results && ekataReversePhone.addOns.results.ekata_reverse_phone.result && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to.name
       })
     } catch (err) {
-      logger.error("Could not get verification info for tripler: %s", err);
+      logger.error("Could not get verification info for ambassador: %s", err);
     }
   }
 

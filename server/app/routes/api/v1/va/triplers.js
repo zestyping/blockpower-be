@@ -219,6 +219,7 @@ async function startTriplerConfirmation(req, res) {
 
   let carrierLookup = await carrier(triplerPhone);
   if(carrierLookup.carrier.isBlocked) {
+    await triplersSvc.updateTriplerCarrier(tripler, carrierLookup.carrier.name);
     return _400(res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
   }
 

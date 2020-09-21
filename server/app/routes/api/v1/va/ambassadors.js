@@ -21,6 +21,7 @@ import sms from '../../../../lib/sms';
 import { ov_config } from '../../../../lib/ov_config';
 import caller_id from '../../../../lib/caller_id';
 import reverse_phone from '../../../../lib/reverse_phone';
+import carrier from '../../../../lib/carrier';
 
 async function createAmbassador(req, res) {
   let new_ambassador = null;
@@ -183,6 +184,13 @@ async function makeAdmin(req, res) {
 async function signup(req, res) {
   req.body.externalId = req.externalId;
   let new_ambassador = null;
+
+  //check carrier lookup for blocked carriers
+  let carrierLookup = await carrier(normalize(req.body.phone));
+  if(carrierLookup.carrier.isBlocked) {
+    return _400(res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
+  }
+
   try {
     new_ambassador = await ambassadorsSvc.signup(req.body);
   }
