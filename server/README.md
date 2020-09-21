@@ -80,6 +80,8 @@ For this server, configure an `.env` file. The following is a complete list of v
     ALLOWED_STATES=
     TRIPLER_CONFIRMED_AMBASSADOR_NOTIFICATION=
     FIRST_REWARD_PAYOUT=
+    REJECTION_SMS_FOR_TRIPLER=
+    REJECTION_SMS_FOR_AMBASSADOR=
 
 The meaning of each config item is as follows:
 
@@ -160,4 +162,6 @@ The meaning of each config item is as follows:
 * `ALLOWED_STATES`: A comma-separated list of 2-letter US state codes that determine which addresses are valid for ambassador signups
 * `TRIPLER_CONFIRMED_AMBASSADOR_NOTIFICATION`: The SMS message that gets sent to the ambassador when one of their triplers is confirmed.
 * `FIRST_REWARD_PAYOUT`: The amount an ambassador receives as a reward for one of their claimed triplers upgrading to an ambassador and confirming a tripler.
+* `REJECTION_SMS_FOR_TRIPLER`: The SMS message that the tripler receives when they reply 'no' to the system.
+* `REJECTION_SMS_FOR_AMBASSADOR`: The SMS message that the ambassador receives when one of their triplers replies 'no' to the system.
 

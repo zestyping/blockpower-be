@@ -87,13 +87,13 @@ export const ov_config = {
     true,
     null
   ),
-  tripler_deletion_message: getConfig(
-    "tripler_deletion_message",
+  rejection_sms_for_tripler: getConfig(
+    "rejection_sms_for_tripler",
     true,
     null
   ),
-  ambassador_deletion_message: getConfig(
-    "ambassador_deletion_message",
+  rejection_sms_for_ambassador: getConfig(
+    "rejection_sms_for_ambassador",
     true,
     null
   ),

@@ -203,8 +203,8 @@ async function detachTripler(triplerId) {
   if (tripler) {
     let ambassador = tripler.get("claimed");
     if (ambassador) {
-      await sms(tripler.get("phone"), ov_config.tripler_deletion_message);
-      await sms(ambassador.get("phone"), stringFormat(ov_config.ambassador_deletion_message, {
+      await sms(tripler.get("phone"), ov_config.rejection_sms_for_tripler);
+      await sms(ambassador.get("phone"), stringFormat(ov_config.rejection_sms_for_ambassador, {
         ambassador_first_name: ambassador.get("first_name"),
         tripler_first_name: tripler.get("first_name"),
         ambassador_landing_page: ov_config.ambassador_landing_page
