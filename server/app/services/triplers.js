@@ -172,6 +172,12 @@ async function confirmTripler(triplerId) {
     ${JSON.parse(tripler.get('verification')).map(v=>v.source + ': ' +  v.name).join(', ')}
     <br>
     <br>
+    Carrier:
+    <br>
+    ${tripler.get('carrier_info')}
+    <br>
+    <br>
+
     `;
     let subject = stringFormat(ov_config.tripler_confirm_admin_email_subject,
                             {
