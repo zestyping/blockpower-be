@@ -1,5 +1,6 @@
 import stringFormat from 'string-format';
 
+import logger from 'logops';
 import neo4j from 'neo4j-driver';
 import neode from '../lib/neode';
 import { serializeName } from '../lib/utils';
@@ -8,6 +9,8 @@ import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
 import sms from '../lib/sms';
 import stripe from './stripe';
+import caller_id from '../lib/caller_id';
+import reverse_phone from '../lib/reverse_phone';
 import { serializeTripler, serializeNeo4JTripler, serializeTriplee, serializeTripleeForCSV } from '../routes/api/v1/va/serializers';
 
 async function findById(triplerId) {
@@ -63,7 +66,8 @@ async function confirmTripler(triplerId) {
 
   // send ambassador an sms
   let triplees = JSON.parse(tripler.get('triplees'));
-  await sms(ambassador.get('phone'), stringFormat(ov_config.tripler_confirmed_ambassador_notification,
+  try {
+    await sms(ambassador.get('phone'), stringFormat(ov_config.tripler_confirmed_ambassador_notification,
                                   {
                                     ambassador_first_name: ambassador.get('first_name'),
                                     ambassador_landing_page: ov_config.ambassador_landing_page,
@@ -73,6 +77,9 @@ async function confirmTripler(triplerId) {
                                     triplee_2: serializeTriplee(triplees[1]),
                                     triplee_3: serializeTriplee(triplees[2])
                                   }));
+  } catch (err) {
+    req.logger.error("Could not send ambassador SMS on tripler confirmation: %s", err);
+  }
 
   // send email in the background
   let tripler_name = serializeName(tripler.get('first_name'), tripler.get('last_name'));
@@ -93,6 +100,7 @@ async function confirmTripler(triplerId) {
       }
     }
     let address = JSON.parse(tripler.get('address'));
+    let verification = JSON.parse(tripler.get('verification'));
     let body = `
     Organization Name:
     <br>
@@ -159,6 +167,17 @@ async function confirmTripler(triplerId) {
     ${serializeTripleeForCSV(triplees[2])}
     <br>
     <br>
+    Verification:
+    <br>
+    ${JSON.parse(tripler.get('verification')).map(v=>v.source + ': ' +  v.name).join(', ')}
+    <br>
+    <br>
+    Carrier:
+    <br>
+    ${tripler.get('carrier_info')}
+    <br>
+    <br>
+
     `;
     let subject = stringFormat(ov_config.tripler_confirm_admin_email_subject,
                             {
@@ -283,7 +302,42 @@ async function searchTriplers(query) {
   return models;
 }
 
+async function updateTriplerCarrier(tripler, carrier) {
+  await tripler.update({
+    carrier_info: carrier
+  });
+}
+
 async function startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees) {
+
+  // check against Twilio caller ID and Ekata data
+  let twilioCallerId = await caller_id(triplerPhone);
+  let ekataReversePhone = await reverse_phone(triplerPhone);
+
+  let verification = [];
+
+  if (twilioCallerId) {
+    try {
+      verification.push({
+        source: 'Twilio',
+        name: twilioCallerId.callerName && twilioCallerId.callerName.caller_name
+      })
+    } catch (err) {
+      logger.error("Could not get verification info for tripler: %s", err);
+    }
+  }
+
+  if (ekataReversePhone) {
+    try {
+      verification.push({
+        source: 'Ekata',
+        name: ekataReversePhone.addOns.results && ekataReversePhone.addOns.results.ekata_reverse_phone.result && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to.name
+      })
+    } catch (err) {
+      logger.error("Could not get verification info for tripler: %s", err);
+    }
+  }
+
   try {
     await sms(triplerPhone, stringFormat(ov_config.tripler_confirmation_message,
                                     {
@@ -300,8 +354,12 @@ async function startTriplerConfirmation(ambassador, tripler, triplerPhone, tripl
     throw "Error sending confirmation sms to the tripler";
   }
 
-  await tripler.update({ triplees: JSON.stringify(triplees), status: 'pending', phone: triplerPhone });
-
+  await tripler.update({
+    triplees: JSON.stringify(triplees),
+    status: 'pending',
+    phone: triplerPhone,
+    verification: JSON.stringify(verification)
+  });
 }
 
 
@@ -315,4 +373,5 @@ module.exports = {
   searchTriplers: searchTriplers,
   adminSearchTriplers: adminSearchTriplers,
   startTriplerConfirmation: startTriplerConfirmation,
+  updateTriplerCarrier: updateTriplerCarrier
 };

@@ -16,9 +16,12 @@ import {
 } from '../../../../lib/validations';
 
 
-import { serializeAmbassador, serializeTripler, serializePayout, serializeName } from './serializers';
+import { serializeAmbassador, serializeAmbassadorForAdmin, serializeTripler, serializePayout, serializeName } from './serializers';
 import sms from '../../../../lib/sms';
 import { ov_config } from '../../../../lib/ov_config';
+import caller_id from '../../../../lib/caller_id';
+import reverse_phone from '../../../../lib/reverse_phone';
+import carrier from '../../../../lib/carrier';
 
 async function createAmbassador(req, res) {
   let new_ambassador = null;
@@ -108,7 +111,7 @@ async function fetchAmbassadors(req, res) {
 async function fetchAmbassador(req, res) {
   let ambassador = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
   if (ambassador) {
-    return res.json(serializeAmbassador(ambassador));
+    return res.json(serializeAmbassadorForAdmin(ambassador));
   }
   else {
     return _404(res, "Ambassador not found");
@@ -181,6 +184,13 @@ async function makeAdmin(req, res) {
 async function signup(req, res) {
   req.body.externalId = req.externalId;
   let new_ambassador = null;
+
+  //check carrier lookup for blocked carriers
+  let carrierLookup = await carrier(normalize(req.body.phone));
+  if(carrierLookup.carrier.isBlocked) {
+    return _400(res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
+  }
+
   try {
     new_ambassador = await ambassadorsSvc.signup(req.body);
   }
@@ -449,6 +459,13 @@ function checkAmbassador(req, res) {
   return res.json( { exists: !!req.user.get } );
 }
 
+async function callerInfo(req, res) {
+  let ambassador = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
+  let callerId = await caller_id(ambassador.get('phone'));
+  let reversePhone = await reverse_phone(ambassador.get('phone'));
+  return res.json({ twilio: callerId, ekata: reversePhone });
+}
+
 module.exports = Router({mergeParams: true})
 .post('/ambassadors/signup', (req, res) => {
   return signup(req, res);
@@ -519,6 +536,7 @@ module.exports = Router({mergeParams: true})
   return disapproveAmbassador(req, res);
 })
 .put('/ambassadors/:ambassadorId/admin', (req, res) => {
+  if (ov_config.DEBUG) return makeAdmin(req, res);
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.admin) return _403(res, "Permission denied.");
   if (!ov_config.make_admin_api) return _403(res, 'Permission denied.');
@@ -538,4 +556,9 @@ module.exports = Router({mergeParams: true})
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.admin) return _403(res, "Permission denied.");
   return fetchAmbassadorPayouts(req, res);
+})
+.get('/ambassadors/:ambassadorId/caller-info', (req, res) => {
+  if (!req.authenticated) return _401(res, 'Permission denied.')
+  if (!req.admin) return _403(res, "Permission denied.");
+  return callerInfo(req, res);
 })

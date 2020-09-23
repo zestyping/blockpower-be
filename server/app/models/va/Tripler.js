@@ -69,5 +69,7 @@ module.exports = {
   is_ambassador_and_has_confirmed: {
     type: 'boolean',
     default: false
-  }
+  },
+  verification: 'string',
+  carrier_info: 'string'
 };
