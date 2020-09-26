@@ -26,8 +26,10 @@ The admin panel can be found here: [https://github.com/colab-coop/HelloVoter-adm
 1. Copy `.env.example` to `.env` and modify as needed: `cp server/.env.example server/.env`
 1. Install dependencies: `npm install`
 1. Setup the database: `npm run database`
-1. Create a local admin: `npm run makeadmin -- "noauth:localuser"`
+1. (optional) Seed the database with fake data: `(cd server && npm run seed:fresh)`
 1. Start the server: `npm start`
+
+The API will now be available at <http://localhost:8080/api/v1/>.
 
 ### Debugging
 
