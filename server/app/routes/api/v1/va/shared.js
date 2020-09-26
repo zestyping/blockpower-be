@@ -15,12 +15,12 @@ async function checkAddress(req, res) {
   return res.json({ valid: coordinates !== null });
 }
 
-module.exports = Router({mergeParams: true})
-.post('/shared/check-address', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
-  return checkAddress(req, res);
-})
-.get('/shared/orgname', (req, res) => {
-  if (!req.user) return _401(res, 'Permission denied.')
-  return res.json({ orgname:ov_config.organization_name });
-});
+module.exports = Router({ mergeParams: true })
+  .post('/shared/check-address', (req, res) => {
+    if (!req.user) return _401(res, 'Permission denied.')
+    return checkAddress(req, res);
+  })
+  .get('/shared/orgname', (req, res) => {
+    if (!req.user) return _401(res, 'Permission denied.')
+    return res.json({ orgname: ov_config.organization_name });
+  });
