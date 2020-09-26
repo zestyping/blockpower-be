@@ -42,9 +42,13 @@ To get set up locally, simply run the following commands:
     cd HelloVoter
     npm install
     npm run database
-    npm start
+    npm run server
 
 This should initialize the database + Docker instance and start the server.
+
+NOTE: the console output of the server is piped to the log file. You can `tail -f server/hellovoter.log` to view the live logs.
+
+You can access the neo4j database browser by going to localhost:7474. Check that the database is running by checking `docker ps`.
 
 The list of Vote Triplers must of course be imported using the import script found in `/server/scripts/importer` (NOTE! CSV format, very specific column order). 
 
