@@ -32,7 +32,9 @@ The admin panel can be found here: [https://github.com/colab-coop/HelloVoter-adm
 ### Debugging
 
 1. See hellovoter.log for output: `less +F server/hellovoter.log`
-1. View the Neo4j Browser at <http://localhost:7474/browser/>. Username `neo4j`, default password `hellovoter`
+1. View the Neo4j Browser at <http://localhost:7474/browser/>
+    - Username `neo4j`, default password `hellovoter`
+    - Example query to see all data: `MATCH (n) RETURN n`
 
 ## Production Deployment
 
