@@ -1,23 +1,22 @@
 /**
  * Wrapper plus some logic around the Twilio Carrier API.
- * 
+ *
  * This function reads a pipe delimited list of strings from the
  * "BLOCKED_CARRIERS" env param and calls Twilio to get the
  * carrier name of the supplied phone number.
- * 
+ *
  * The function will return the carrier lookup info, additionally
  * decorated with lookup.carrier.isBlocked = (null) <true/false>
- * 
+ *
  * ref: https://www.twilio.com/docs/lookup/api
  */
 
 import logger from 'logops';
 import { international as phoneFormat } from './phone';
 import { ov_config } from './ov_config';
+import { getTwilioClient } from './twilio';
 
-const client = require('twilio')(ov_config.twilio_account_sid, ov_config.twilio_auth_token, { 
-    lazyLoading: true 
-});
+const client = getTwilioClient();
 
 module.exports = async (phone) => {
 

@@ -23,9 +23,18 @@ The admin panel can be found here: [https://github.com/colab-coop/HelloVoter-adm
 
 ### Installation
 
+1. Copy `.env.example` to `.env` and modify as needed: `cp server/.env.example server/.env`
 1. Install dependencies: `npm install`
 1. Setup the database: `npm run database`
+1. Create a local admin: `npm run makeadmin -- "noauth:localuser"`
 1. Start the server: `npm start`
+
+### Debugging
+
+1. See hellovoter.log for output: `less +F server/hellovoter.log`
+1. View the Neo4j Browser at <http://localhost:7474/browser/>
+    - Username `neo4j`, default password `hellovoter`
+    - Example query to see all data: `MATCH (n) RETURN n`
 
 ## Production Deployment
 

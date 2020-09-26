@@ -14,7 +14,7 @@
     "ncu": "ncu && cd client && ncu && cd ../server && ncu",
     "client": "cd client && npm install && npm start",
     "server": "cd server && npm install && npm start",
-    "start": "concurrently -k \"npm run client\" \"npm run server\""
+    "start": "npm run server"
   },
   "keywords": [],
   "author": "Our Voice USA",
