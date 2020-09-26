@@ -225,12 +225,10 @@ export async function zipToLatLon(zip) {
     await fetch(`https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-zip-code-latitude-and-longitude&q=${zip}`, { method: 'GET' })
       .then(response => response.json())
       .then(data => {
-        console.log('DATA: ', data)
         res = data["records"];
       }
       );
   } catch (err) {
-    console.log("ERR: ", err)
     throw (err)
   }
 
