@@ -94,7 +94,7 @@ async function signup(json) {
     coordinates = await zipToLatLon(json.address.zip);
   }
   if (coordinates === null) {
-    throw new ValidationError("Our system doesn’t recognize that address. Please try again.");
+    throw new ValidationError("Our system doesn’t recognize that zip code. Please try again.");
   }
 
   // check against Twilio caller ID and Ekata data

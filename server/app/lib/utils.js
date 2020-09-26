@@ -215,22 +215,31 @@ export async function geoCode(address) {
 }
 
 export async function zipToLatLon(zip) {
-
   let res = null;
+
+  if (!zip || zip.toString().length !== 5) {
+    return res;
+  }
 
   try {
     await fetch(`https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-zip-code-latitude-and-longitude&q=${zip}`, { method: 'GET' })
       .then(response => response.json())
       .then(data => {
-        res = data["records"][0]["fields"];
+        console.log('DATA: ', data)
+        res = data["records"];
       }
       );
   } catch (err) {
+    console.log("ERR: ", err)
     throw (err)
   }
 
+  if (res.length === 0) {
+    return null;
+  }
+
   return {
-    longitude: parseFloat(res["longitude"]),
-    latitude: parseFloat(res["latitude"])
+    longitude: parseFloat(res[0]["fields"]["longitude"]),
+    latitude: parseFloat(res[0]["fields"]["latitude"])
   };
 }
