@@ -23,9 +23,14 @@ The admin panel can be found here: [https://github.com/colab-coop/HelloVoter-adm
 
 ### Installation
 
+1. Copy `.env.example` to `.env` and modify as needed: `cp server/.env.example server/.env`
 1. Install dependencies: `npm install`
 1. Setup the database: `npm run database`
 1. Start the server: `npm start`
+
+### Debugging
+
+1. See hellovoter.log for output: `less +F server/hellovoter.log`
 
 ## Production Deployment
 
