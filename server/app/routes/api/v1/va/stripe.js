@@ -1,15 +1,16 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import {
-  _400, _204
+  _204
 } from '../../../../lib/utils';
 
 import stripeSvc from '../../../../services/stripe';
 import plaidSvc from '../../../../services/plaid';
+import { error } from '../../../../services/errors';
 
 async function createStripeAccount(req, res) {
-  if (!req.body.token) return _400(res, "Invalid value to parameter 'token'.");
-  if (!req.body.account_id) return _400(res, "Invalid value to parameter 'account_id'.");
+  if (!req.body.token) return error(400, res, "Invalid value to parameter 'token'.");
+  if (!req.body.account_id) return error(400, res, "Invalid value to parameter 'account_id'.");
 
   try {
     const bankAccountToken = await plaidSvc.createStripeBankToken(req.body.token, req.body.account_id);
@@ -24,7 +25,7 @@ async function createStripeAccount(req, res) {
     await req.user.relateTo(account, 'owns_account');
     await req.user.update({payout_provider: 'stripe'});
   } catch (err) {
-    return _400(res, err);
+    return error(400, res, err);
   }
   
   return _204(res);
@@ -44,7 +45,7 @@ async function createStripeTestAccount(req, res) {
     await req.user.relateTo(account, 'owns_account');
     await req.user.update({payout_provider: 'stripe'});
   } catch (err) {
-    return _400(res, err);
+    return error(400, res, err);
   }
   
   return _204(res);

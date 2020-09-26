@@ -2,9 +2,10 @@ import { Router } from 'express';
 import stripeSvc from '../../../../services/stripe';
 import ambassadorSvc from '../../../../services/ambassadors';
 import triplerSvc from '../../../../services/triplers';
+import { error } from '../../../../services/errors';
 
 import {
-  _400, _401, _403, _204, _500
+  _204, _401, _403
 } from '../../../../lib/utils';
 
 import { ov_config } from '../../../../lib/ov_config';
@@ -27,10 +28,10 @@ module.exports = Router({mergeParams: true})
     return stripe.createStripeAccount(req, res);
   }
   else if (paypalPayout(req)) {
-    return _400(res, 'Not implemented.');
+    return error(400, res, 'Not implemented.');
   }
   else {
-    return _400(res, 'Payouts not supported.');
+    return error(400, res, 'Payouts not supported.');
   }  
 })
 .post('/payouts/test-account', async (req, res) => {
@@ -41,10 +42,10 @@ module.exports = Router({mergeParams: true})
     return stripe.createStripeTestAccount(req, res);
   }
   else if (paypalPayout(req)) {
-    return _400(res, 'Not implemented.');
+    return error(400, res, 'Not implemented.');
   }
   else {
-    return _400(res, 'Payouts not supported.');
+    return error(400, res, 'Payouts not supported.');
   } 
 })
 .put('/payouts/disburse', async (req, res) => {
@@ -55,17 +56,17 @@ module.exports = Router({mergeParams: true})
   let triplerId = req.query['tripler-id'];
 
   if (!ambassadorId || !triplerId) {
-    return _400(res, 'Invalid parameters, cannot disburse.');
+    return error(400, res, 'Invalid parameters, cannot disburse.');
   }
 
   let ambassador = await ambassadorSvc.findById(ambassadorId);
   if (!ambassador) {
-    return _400(res, 'Invalid ambassador, cannot disburse.');
+    return error(400, res, 'Invalid ambassador, cannot disburse.');
   }
 
   let tripler = await triplerSvc.findById(triplerId);
   if (!tripler) {
-    return _400(res, 'Invalid tripler, cannot disburse.');
+    return error(400, res, 'Invalid tripler, cannot disburse.');
   }
 
   // TODO: See what the default account is, and invoke appropriate payment provider api
@@ -75,7 +76,7 @@ module.exports = Router({mergeParams: true})
   }
   catch (err) {
     req.logger.error('Unable to disburse money to ambassador (%s) for tripler (%s): %s', ambassador.get('phone'), tripler.get('phone'), err);
-    return _500(res, 'Unable to disburse money, please check logs.');
+    return error(500, res, 'Unable to disburse money, please check logs.');
   }
 
   return _204(res);
@@ -88,17 +89,17 @@ module.exports = Router({mergeParams: true})
   let triplerId = req.query['tripler-id'];
 
   if (!ambassadorId || !triplerId) {
-    return _400(res, 'Invalid parameters, cannot settle.');
+    return error(400, res, 'Invalid parameters, cannot settle.');
   }
 
   let ambassador = await ambassadorSvc.findById(ambassadorId);
   if (!ambassador) {
-    return _400(res, 'Invalid ambassador, cannot settle.');
+    return error(400, res, 'Invalid ambassador, cannot settle.');
   }
 
   let tripler = await triplerSvc.findById(triplerId);
   if (!tripler) {
-    return _400(res, 'Invalid tripler, cannot settle.');
+    return error(400, res, 'Invalid tripler, cannot settle.');
   }
 
   // TODO: See what the default account is, and invoke appropriate payment provider api
@@ -108,7 +109,7 @@ module.exports = Router({mergeParams: true})
   }
   catch (err) {
     req.logger.error('Unable to settle for ambassador (%s) for tripler (%s): %s', ambassador.get('phone'), tripler.get('phone'), err);
-    return _500(res, 'Unable to settle, please check logs.');
+    return error(500, res, 'Unable to settle, please check logs.');
   }
 
   return _204(res);

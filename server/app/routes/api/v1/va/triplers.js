@@ -6,9 +6,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { normalize } from '../../../../lib/phone';
 import { ov_config } from '../../../../lib/ov_config';
 import triplersSvc from '../../../../services/triplers';
+import { error } from '../../../../services/errors';
 
 import {
-  _204, _400, _401, _403, _404, _500, geoCode
+  _204, _401, _403, geoCode
 } from '../../../../lib/utils';
 
 import {
@@ -25,16 +26,16 @@ async function createTripler(req, res) {
 
   try {
     if (!validateEmpty(req.body, ['first_name', 'phone', 'address'])) {
-      return _400(res, "Invalid payload, tripler cannot be created");
+      return error(400, res, "Invalid payload, tripler cannot be created");
     }
 
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
+      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     if (req.models.Tripler.phone.unique) {
       if (await req.neode.first('Tripler', 'phone', normalize(req.body.phone))) {
-        return _400(res, "That phone number is already in use.");
+        return error(400, res, "That phone number is already in use.");
       }
     }
 
@@ -44,14 +45,14 @@ async function createTripler(req, res) {
       if (req.models.Tripler.email.unique) {
         let existing_tripler = await req.neode.first('Tripler', 'email', req.body.email);
         if(existing_tripler) {
-          return _400(res, "Tripler with this email already exists");
+          return error(400, res, "Tripler with this email already exists");
         }
       }
     }
 
     let coordinates = await geoCode(req.body.address);
     if (coordinates === null) {
-      return _400(res, "Invalid address, tripler cannot be created");
+      return error(400, res, "Invalid address, tripler cannot be created");
     }
 
     const obj = {
@@ -72,7 +73,7 @@ async function createTripler(req, res) {
     new_tripler = await req.neode.create('Tripler', obj);
   } catch(err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
-    return _500(res, 'Unable to create tripler');
+    return error(500, res, 'Unable to create tripler');
   }
   return res.json(serializeTripler(new_tripler));
 }
@@ -119,7 +120,7 @@ async function fetchTripler(req, res) {
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
 
   if (!tripler) {
-    return _400(res, "Invalid triper id");
+    return error(400, res, "Invalid triper id");
   }
   return res.json(serializeTripler(tripler));
 }
@@ -127,16 +128,16 @@ async function fetchTripler(req, res) {
 async function updateTripler(req, res) {
   let found = null;
   found = await req.neode.first('Tripler', 'id', req.params.triplerId);
-  if (!found) return _404(res, "Tripler not found");
+  if (!found) return error(404, res, "Tripler not found");
 
   if (req.body.phone) {
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
+      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(req.body.phone));
     if(existing_tripler && existing_tripler.get('id') !== found.get('id')) {
-      return _400(res, "That phone number is already in use.");
+      return error(400, res, "That phone number is already in use.");
     }
   }
 
@@ -146,7 +147,7 @@ async function updateTripler(req, res) {
     if (req.models.Tripler.email.unique) {
       let existing_tripler = await req.neode.first('Tripler', 'email', req.body.email);
       if(existing_tripler && existing_tripler.get('id') !== found.get('id')) {
-        return _400(res, "Tripler with this email already exists");
+        return error(400, res, "Tripler with this email already exists");
       }
     }
   }
@@ -167,7 +168,7 @@ async function updateTripler(req, res) {
   if (req.body.address) {
     let coordinates = await geoCode(req.body.address);
     if (coordinates === null) {
-      return _400(res, "Invalid address, tripler cannot be updated");
+      return error(400, res, "Invalid address, tripler cannot be updated");
     }
     json.address = JSON.stringify(req.body.address);
     json.location = new neo4j.types.Point(4326, // WGS 84 2D
@@ -189,32 +190,32 @@ async function startTriplerConfirmation(req, res) {
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
 
   if (!tripler) {
-    return _400(res, "Invalid triper id");
+    return error(400, res, "Invalid triper id");
   }
   else if (tripler.get('status') !== 'unconfirmed') {
-    return _400(res, "Invalid status, cannot proceed")
+    return error(400, res, "Invalid status, cannot proceed")
   }
 
   let triplees = req.body.triplees;
   if (!triplees || triplees.length !== 3) {
-    return _400(res, 'Insufficient triplees, cannot start confirmation')
+    return error(400, res, 'Insufficient triplees, cannot start confirmation')
   }
 
   if (req.body.phone) {
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
+      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(req.body.phone));
     if(existing_tripler && existing_tripler.get('id') !== tripler.get('id')) {
-      return _400(res, "That phone number is already in use.");
+      return error(400, res, "That phone number is already in use.");
     }
   }
 
   let triplerPhone = req.body.phone ? normalize(req.body.phone): tripler.get('phone');
 
   if (triplerPhone === ambassador.get('phone')) {
-    return _400(res, "You entered your phone number as the number of this Vote Tripler. Please try again.");
+    return error(400, res, "You entered your phone number as the number of this Vote Tripler. Please try again.");
   }
 
   let carrierLookup = await carrier(triplerPhone);
@@ -227,7 +228,7 @@ async function startTriplerConfirmation(req, res) {
     triplersSvc.startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees);
   } catch (err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
-    return _500(res, 'Error sending confirmation sms to the tripler');
+    return error(500, res, 'Error sending confirmation sms to the tripler');
   }
 
   return _204(res);
@@ -241,16 +242,16 @@ async function remindTripler(req, res) {
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
 
   if (!tripler) {
-    return _400(res, "Invalid triper id");
+    return error(400, res, "Invalid triper id");
   }
   else if (tripler.get('status') !== 'pending') {
-    return _400(res, "Invalid status, cannot proceed")
+    return error(400, res, "Invalid status, cannot proceed")
   }
 
   let new_phone = req.body.phone;
   if (new_phone) {
     if (!validatePhone(req.body.phone)) {
-      return _400(res, "Our system doesn’t recognize that phone number. Please try again.");
+      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
     }
 
     await tripler.update({ phone: new_phone });
@@ -272,7 +273,7 @@ async function remindTripler(req, res) {
                                     }));
   } catch (err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
-    return _500(res, 'Error sending reminder sms to the tripler');
+    return error(500, res, 'Error sending reminder sms to the tripler');
   }
 
   return _204(res);
@@ -282,18 +283,18 @@ async function confirmTripler(req, res) {
   let tripler = await triplersSvc.findById(req.params.triplerId);
 
   if (!tripler) {
-    return _404(res, "Invalid tripler");
+    return error(404, res, "Invalid tripler");
   }
 
   if (tripler.get('status') !== 'pending') {
-    return _400(res, "Invalid status, cannot confirm")
+    return error(400, res, "Invalid status, cannot confirm")
   }
 
   try {
     await triplersSvc.confirmTripler(req.params.triplerId);
   } catch(err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
-    return _500(res, 'Error confirming a tripler');
+    return error(500, res, 'Error confirming a tripler');
   }
   return _204(res);
 }
@@ -302,7 +303,7 @@ async function deleteTripler(req, res) {
   let tripler = await triplersSvc.findById(req.params.triplerId);
 
   if (!tripler) {
-    return _404(res, "Invalid tripler");
+    return error(404, res, "Invalid tripler");
   }
 
   tripler.delete();

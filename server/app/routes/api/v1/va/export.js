@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import {
-  _400, _500
+  _401
 } from '../../../../lib/utils';
 
 import { serializeAmbassador, serializeTripler, serializePayout } from './serializers.js';
