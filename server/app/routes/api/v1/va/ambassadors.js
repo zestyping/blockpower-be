@@ -9,7 +9,7 @@ import ambassadorsSvc from '../../../../services/ambassadors';
 import { error } from '../../../../services/errors';
 
 import {
-  _204, _401, _403, _404, geoCode
+  _204, _400, _401, _403, _404, geoCode
 } from '../../../../lib/utils';
 
 import {
@@ -251,7 +251,7 @@ async function signup(req, res) {
   //check carrier lookup for blocked carriers
   let carrierLookup = await carrier(normalize(req.body.phone));
   if(carrierLookup.carrier.isBlocked) {
-    return _400(res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
+    return error(400, res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
   }
 
   try {
