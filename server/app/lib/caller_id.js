@@ -1,18 +1,17 @@
 /**
  * Wrapper plus some logic around the Twilio Caller ID API.
- * 
+ *
  * The function will return the caller-name lookup info.
- * 
+ *
  * ref: https://www.twilio.com/docs/lookup/api
  */
 
 import logger from 'logops';
 import { international as phoneFormat } from './phone';
 import { ov_config } from './ov_config';
+import { getTwilioClient } from './twilio';
 
-const client = require('twilio')(ov_config.twilio_account_sid, ov_config.twilio_auth_token, { 
-    lazyLoading: true 
-});
+const client = getTwilioClient();
 
 module.exports = async (phone) => {
 

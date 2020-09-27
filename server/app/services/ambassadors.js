@@ -59,8 +59,13 @@ async function signup(json) {
     throw new ValidationError("Our system doesn’t recognize that phone number. Please try again.");
   }
 
-  let allowed_states = ov_config.allowed_states.split(',');
-  if (allowed_states.indexOf(json.address.state) === -1) {
+  // Ensure that address.state is always uppercase
+  let address = json.address;
+  address.state = address.state.toUpperCase();
+
+
+  let allowed_states = ov_config.allowed_states.toUpperCase().split(',');
+  if (allowed_states.indexOf(address.state) === -1) {
     throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.")
   }
 
@@ -87,9 +92,7 @@ async function signup(json) {
     }
   }
 
-
-
-  let coordinates = await geoCode(json.address);
+  let coordinates = await geoCode(address);
   if (coordinates === null) {
     coordinates = await zipToLatLon(json.address.zip);
   }
@@ -132,7 +135,7 @@ async function signup(json) {
     phone: normalize(json.phone),
     email: json.email || null,
     date_of_birth: json.date_of_birth || null,
-    address: JSON.stringify(json.address),
+    address: JSON.stringify(address),
     quiz_results: JSON.stringify(json.quiz_results) || null,
     approved: true,
     locked: false,
