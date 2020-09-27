@@ -121,7 +121,7 @@ async function fetchAmbassador(req, res) {
 }
 
 async function fetchCurrentAmbassador(req, res) {
-  if (!req.user.get) return error(400, res, "No current ambassador");
+  if (!req.user.get) return _404(res, "No current ambassador");
   return res.json(serializeAmbassador(req.user));
 }
 
