@@ -304,12 +304,12 @@ async function adminSearchTriplers(req) {
   return models;
 }
 
-async function searchTriplers(query) {
+function buildSearchTriplerQuery(query) {
   let neo4jquery = "";
   if (query.firstName) {
     neo4jquery += ` apoc.text.levenshteinDistance("${query.firstName
       .trim()
-      .toLowerCase()}", t.first_name) < 2.0`;
+      .toLowerCase()}", t.first_name) < 3.0`;
   }
 
   if (query.lastName) {
@@ -318,9 +318,14 @@ async function searchTriplers(query) {
     }
     neo4jquery += ` apoc.text.levenshteinDistance("${query.lastName
       .trim()
-      .toLowerCase()}", t.last_name) < 2.0`;
+      .toLowerCase()}", t.last_name) < 3.0`;
   }
 
+  return neo4jquery
+}
+
+async function searchTriplersAmbassador(query) {
+  let neo4jquery = buildSearchTriplerQuery(query);
   let collection = await neode
     .query()
     .match("t", "Tripler")
@@ -329,6 +334,32 @@ async function searchTriplers(query) {
     .whereRaw("NOT ()-[:WAS_ONCE]->(t)")
     .return("t")
     .limit(ov_config.suggest_tripler_limit)
+    .execute();
+
+  let models = [];
+
+  for (var index = 0; index < collection.records.length; index++) {
+    let entry = collection.records[index]._fields[0].properties;
+    models.push(serializeNeo4JTripler(entry));
+  }
+
+  return models;
+}
+
+//
+// searchTriplersAdmin
+//
+// searching as admin removes constraint of requiring no claims relationship
+// as well as removing constraint of requiring no upgraded status
+//
+async function searchTriplersAdmin(query) {
+  let neo4jquery = buildSearchTriplerQuery(query);
+  let collection = await neode
+    .query()
+    .match("t", "Tripler")
+    .whereRaw(neo4jquery)
+    .return("t")
+    .limit(1000)
     .execute();
 
   let models = [];
@@ -415,7 +446,8 @@ module.exports = {
   detachTripler: detachTripler,
   reconfirmTripler: reconfirmTripler,
   findRecentlyConfirmedTriplers: findRecentlyConfirmedTriplers,
-  searchTriplers: searchTriplers,
+  searchTriplersAmbassador: searchTriplersAmbassador,
+  searchTriplersAdmin: searchTriplersAdmin,
   adminSearchTriplers: adminSearchTriplers,
   startTriplerConfirmation: startTriplerConfirmation,
   updateTriplerCarrier: updateTriplerCarrier

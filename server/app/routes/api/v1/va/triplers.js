@@ -78,19 +78,47 @@ async function createTripler(req, res) {
   return res.json(serializeTripler(new_tripler));
 }
 
+//
+// adminSearchTriplers
+//
+// useful for QA purposes
+//
 async function adminSearchTriplers(req, res) {
   let models = await triplersSvc.adminSearchTriplers(req)
   return res.json(models);
 }
 
-async function searchTriplers(req, res) {
+//
+// searchTriplersAmbassador
+//
+// search triplers as an ambassador
+//
+async function searchTriplersAmbassador(req, res) {
   if (!req.query.firstName && !req.query.lastName) {
     return res.json([]);
   }
-  let models = await triplersSvc.searchTriplers(req.query)
+  let models = await triplersSvc.searchTriplersAmbassador(req.query)
   return res.json(models);
 }
 
+//
+// searchTriplersAdmin
+//
+// search triplers as an admin
+//
+async function searchTriplersAdmin(req, res) {
+  if (!req.query.firstName && !req.query.lastName) {
+    return res.json([]);
+  }
+  let models = await triplersSvc.searchTriplersAdmin(req.query)
+  return res.json(models);
+}
+
+//
+// suggestTriplers
+//
+// provide a list of potential triplers for an ambassador to select from
+//
 async function suggestTriplers(req, res) {
   let collection = await req.neode.query()
     .match('a', 'Ambassador')
@@ -344,7 +372,11 @@ module.exports = Router({mergeParams: true})
 
 .get('/triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
-  return searchTriplers(req, res);
+  if (req.admin) {
+    return searchTriplersAdmin(req, res);
+  } else {
+    return searchTriplersAmbassador(req, res);
+  }
 })
 .get('/suggest-triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
