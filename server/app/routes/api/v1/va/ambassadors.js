@@ -9,7 +9,7 @@ import ambassadorsSvc from '../../../../services/ambassadors';
 import { error } from '../../../../services/errors';
 
 import {
-  _204, _401, _403, geoCode
+  _204, _401, _403, _404, geoCode
 } from '../../../../lib/utils';
 
 import {
