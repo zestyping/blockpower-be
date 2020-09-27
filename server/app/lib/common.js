@@ -13,11 +13,13 @@ var deepCopy = function (o) {
 
 var getConfig = function (item, required, def) {
   let value = get(item);
-  if (value === null || value === undefined) {
+  if (value === null || value === undefined || value === "") {
     if (required) {
       let msg = "Missing config: "+item.toUpperCase();
-      console.log(msg);
-      throw msg;
+      console.warn(msg);
+      if (process.env.NODE_ENV !== "development") {
+        throw new Error(msg);
+      }
     } else {
       return def;
     }
@@ -25,7 +27,7 @@ var getConfig = function (item, required, def) {
 
   if (value.toString() === 'true') return true;
   if (value.toString() === 'false') return false;
-  
+
   return value;
 }
 
