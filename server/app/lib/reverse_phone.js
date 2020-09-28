@@ -1,6 +1,6 @@
 /**
  * Wrapper plus some logic around the Ekata reverse phone API.
- * 
+ *
  * ref: https://ekata.com/developer/documentation/api-overview/#tag/Reverse-Phone-API
  */
 
@@ -8,14 +8,12 @@ import logger from 'logops';
 import { international as phoneFormat } from './phone';
 import { ov_config } from './ov_config';
 import axios from 'axios';
+import { getTwilioClient } from './twilio';
 
-const client = require('twilio')(ov_config.twilio_account_sid, ov_config.twilio_auth_token, {
-    lazyLoading: true
-});
-
+const client = getTwilioClient();
 
 module.exports = async (phone) => {
-  
+
   let apiKey = ov_config.ekata_api_key;
   let addon = ov_config.ekata_addon;
   if(ov_config.twilio_disable) {

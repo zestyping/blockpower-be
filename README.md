@@ -4,6 +4,8 @@ This software enables a "Voting Ambassador" workflow for get-out-the-vote campai
 
 Once the Ambassador has "claimed" a list of Vote Triplers, the Vote Triplers can be contacted through the system, requesting confirmation that they will assist 3 people to vote. If that Vote Tripler responds in the affirmative to the SMS, the system will record a payment for the Vote Ambassador. This can take the form of Stripe or other payment method.
 
+Also see the [CONTRIBUTING](/CONTRIBUTING.md) document for more background and a technical overview.
+
 ### Frontend
 
 A Vote Ambassador signs up with and interacts mainly with the React front-end. The front-end code can be found here: [hello-voter](https://github.com/colab-coop/hello-voter). 
@@ -23,9 +25,28 @@ The admin panel can be found here: [https://github.com/colab-coop/HelloVoter-adm
 
 ### Installation
 
+1. Copy `.env.example` to `.env` and modify as needed: `cp server/.env.example server/.env`
 1. Install dependencies: `npm install`
 1. Setup the database: `npm run database`
+1. (optional) Seed the database with fake data: `(cd server && npm run seed:fresh)`
 1. Start the server: `npm start`
+
+### Usage
+
+After following the steps above,
+1. The API will be available at <http://localhost:8080/api/v1/>
+1. The Neo4j Browser will be available at <http://localhost:7474/browser/>
+    - Username `neo4j`, default password `hellovoter`
+    - Example query to see all data: `MATCH (n) RETURN n`
+
+For local development without requiring real OAuth:
+1. Set `REACT_APP_NO_AUTH=1`
+1. Modify an Ambassador to work with a mock Authorization token: `MATCH (a:Ambassador {admin: true}) SET a.external_id = "noauth:localuser"`
+1. Use this Bearer token when making requests: `eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Im5vYXV0aDpsb2NhbHVzZXIiLCJuYW1lIjoiTG9jYWwgVXNlciIsImVtYWlsIjoibG9jYWxAbG9jYWxob3N0IiwiaXNzIjoib3Vydm9pY2V1c2Eub3JnIiwiaWF0IjoxLCJleHAiOjIsImRpc2NsYWltZXIiOiJCbGFoIGJsYWggZGlzY2xhaW1lciJ9.qa5K2pgi1uLYkV7jP3aNvazcchvgBD8RwhdG6Q86GxlvusQx7nNCTr3LrAnn6pxDJxNidJoqjD3Ie77jj5hWK_-lbgtHMLhNXGExDxI8pQ0I5ZnAV_5pDu7vARinoy3mctQWFO2pIQSu8KzQc7eQ90IQZBseE7nQV-ugZRfK8Teo_48COcJxGxqwCNCO80G_JzBoif2xaWRb2i2n0qeSUKfXN4Fwy46JOiHFnL9yOS5s54tB6doe1wFJNYps8eVQbVkTBL1I9PQP4Gs-BmzND0vcQaczTdu_J50uvLL5do1FHb48lRhrA44ZrYv3EVwNsJXZtH3MbasxgPrZhl69VQ`
+
+### Debugging
+
+1. See hellovoter.log for output: `less +F server/hellovoter.log`
 
 ## Production Deployment
 

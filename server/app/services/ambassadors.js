@@ -2,14 +2,14 @@ import { v4 as uuidv4 } from 'uuid';
 import stringFormat from 'string-format';
 
 import logger from 'logops';
-import neode  from '../lib/neode';
+import neode from '../lib/neode';
 
 import {
   validateEmpty, validatePhone, validateEmail
 } from '../lib/validations';
 
-import { ValidationError }  from '../lib/errors';
-import { geoCode, serializeName } from '../lib/utils';
+import { ValidationError } from '../lib/errors';
+import { geoCode, serializeName, zipToLatLon } from '../lib/utils';
 import { normalize } from '../lib/phone';
 import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
@@ -31,7 +31,7 @@ async function findAmbassadorsWithPendingDisbursements() {
   let res = await neode.cypher(query);
   let ambassadors = [];
   if (res.records.length > 0) {
-    ambassadors = await Promise.all(res.records.map(async(entry) => {
+    ambassadors = await Promise.all(res.records.map(async (entry) => {
       return await findById(entry._fields[0]);
     }));
   }
@@ -43,7 +43,7 @@ async function findAmbassadorsWithPendingSettlements() {
   let res = await neode.cypher(query);
   let ambassadors = [];
   if (res.records.length > 0) {
-    ambassadors = await Promise.all(res.records.map(async(entry) => {
+    ambassadors = await Promise.all(res.records.map(async (entry) => {
       return await findById(entry._fields[0]);
     }));
   }
@@ -59,37 +59,45 @@ async function signup(json) {
     throw new ValidationError("Our system doesn’t recognize that phone number. Please try again.");
   }
 
-  let allowed_states = ov_config.allowed_states.split(',');
-  if (allowed_states.indexOf(json.address.state) === -1) {
+  // Ensure that address.state is always uppercase
+  let address = json.address;
+  address.state = address.state.toUpperCase();
+
+
+  let allowed_states = ov_config.allowed_states.toUpperCase().split(',');
+  if (allowed_states.indexOf(address.state) === -1) {
     throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.")
   }
 
   if (models.Ambassador.phone.unique) {
     let existing_ambassador = await neode.first('Ambassador', 'phone', normalize(json.phone));
-    if(existing_ambassador) {
+    if (existing_ambassador) {
       throw new ValidationError("That phone number is already in use.");
     }
   }
 
   if (models.Ambassador.external_id.unique) {
     let existing_ambassador = await neode.first('Ambassador', 'external_id', json.externalId);
-    if(existing_ambassador) {
+    if (existing_ambassador) {
       throw new ValidationError("If you have already signed up as an Ambassador using Facebook or Google, you cannot sign up again.");
     }
   }
 
   if (json.email) {
-    if (!validateEmail(json.email)) throw "Invalid email";  
+    if (!validateEmail(json.email)) throw "Invalid email";
 
-    if (models.Ambassador.email.unique && 
+    if (models.Ambassador.email.unique &&
       await neode.first('Ambassador', 'email', json.email)) {
       throw new ValidationError("That email address is already in use.");
     }
   }
 
-  let coordinates = await geoCode(json.address);
+  let coordinates = await geoCode(address);
   if (coordinates === null) {
-    throw new ValidationError("Our system doesn’t recognize that address. Please try again.");
+    coordinates = await zipToLatLon(json.address.zip);
+  }
+  if (coordinates === null) {
+    throw new ValidationError("Our system doesn’t recognize that zip code. Please try again.");
   }
 
   // check against Twilio caller ID and Ekata data
@@ -127,7 +135,7 @@ async function signup(json) {
     phone: normalize(json.phone),
     email: json.email || null,
     date_of_birth: json.date_of_birth || null,
-    address: JSON.stringify(json.address),
+    address: JSON.stringify(address),
     quiz_results: JSON.stringify(json.quiz_results) || null,
     approved: true,
     locked: false,
@@ -151,7 +159,7 @@ async function signup(json) {
 
   // send email in the background
   let ambassador_name = serializeName(new_ambassador.get('first_name'), new_ambassador.get('last_name'))
-  setTimeout(async ()=> {
+  setTimeout(async () => {
     let address = JSON.parse(new_ambassador.get('address'));
     let body = `
     Organization Name:
@@ -201,18 +209,18 @@ async function signup(json) {
     <br>
     Verification:
     <br>
-    ${JSON.parse(new_ambassador.get('verification')).map(v=>v.source + ': ' +  v.name).join(', ')}
+    ${JSON.parse(new_ambassador.get('verification')).map(v => v.source + ': ' + v.name).join(', ')}
     <br>
     <br>
     `;
 
     let subject = stringFormat(ov_config.new_ambassador_signup_admin_email_subject,
-                            {
-                              organization_name: ov_config.organization_name
-                            });
-    await mail(ov_config.admin_emails, null, null, 
-               subject,
-               body);
+      {
+        organization_name: ov_config.organization_name
+      });
+    await mail(ov_config.admin_emails, null, null,
+      subject,
+      body);
   }, 100);
 
   return new_ambassador;

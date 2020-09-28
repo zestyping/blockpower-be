@@ -9,13 +9,14 @@ import ambassadorsSvc from '../../../../services/ambassadors';
 import { error } from '../../../../services/errors';
 
 import {
-  _204, _401, _403, geoCode
+  _204, _401, _403, _404, geoCode
 } from '../../../../lib/utils';
 
 import {
   validateEmpty, validatePhone, validateEmail
 } from '../../../../lib/validations';
 
+import mail from '../../../../lib/mail';
 
 import { serializeAmbassador, serializeAmbassadorForAdmin, serializeTripler, serializePayout, serializeName } from './serializers';
 import sms from '../../../../lib/sms';
@@ -120,7 +121,7 @@ async function fetchAmbassador(req, res) {
 }
 
 async function fetchCurrentAmbassador(req, res) {
-  if (!req.user.get) return error(400, res, "No current ambassador");
+  if (!req.user.get) return _404(res, "No current ambassador");
   return res.json(serializeAmbassador(req.user));
 }
 
@@ -179,6 +180,67 @@ async function makeAdmin(req, res) {
 
   let json = {...{admin: true}};
   await found.update(json);
+
+  // send email in the background
+  setTimeout(async ()=> {
+    let address = JSON.parse(found.get('address'));
+    let body = `
+    Organization Name:
+    <br>
+    ${ov_config.organization_name}
+    <br>
+    <br>
+    Google/FB ID:
+    <br>
+    ${found.get('external_id')}
+    <br>
+    <br>
+    First Name:
+    <br>
+    ${found.get('first_name')}
+    <br>
+    <br>
+    Last Name:
+    <br>
+    ${found.get('last_name')}
+    <br>
+    <br>
+    Date of Birth:
+    <br>
+    ${found.get('date_of_birth')}
+    <br>
+    <br>
+    Street Address:
+    <br>
+    ${address.address1}
+    <br>
+    <br>
+    Zip:
+    <br>
+    ${address.zip}
+    <br>
+    <br>
+    Email:
+    <br>
+    ${found.get('email')}
+    <br>
+    <br>
+    Phone Number:
+    <br>
+    ${found.get('phone')}
+    <br>
+    <br>
+    Verification:
+    <br>
+    ${JSON.parse(found.get('verification')).map(v=>v.source + ': ' +  v.name).join(', ')}
+    <br>
+    <br>
+    `;
+
+    let subject = `New Admin for ${ov_config.organization_name}`;
+    await mail(ov_config.admin_emails, null, null, subject, body);
+  }, 100);
+
   return _204(res);
 }
 

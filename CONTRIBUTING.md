@@ -4,6 +4,8 @@ This CONTRIBUTING.md file is intended to help onboard contributors from the open
 
 Until recently, this project (post HelloVoter) has been implemented by CoLab Cooperative. In the transition to a more open source contribution focus, this document attempts to ease a developer into working in the codebase, providing general history, architecture, and potential pitfalls. It is, of course, helpful to read through the README.md file, as it illustrates some deployment concerns and end user experience.
 
+To contribute to this project, you will want to 1) fork this repo 2) create a feature branch for the item you are working on and 3) issue a PR to the `ambassador-stage2` branch of the colab-coop repo. Please also see the "Tests" and "Standards" sections below.
+
 ## Introduction
 
 This software enables a "Voting Ambassador" workflow for get-out-the-vote campaigns. A Vote Ambassador signs up with the [hello-voter](https://github.com/colab-coop/hello-voter) React front-end. The Vote Ambassador, once signed up, is provided a list of voters in their area (within some configurable number of meters from the Ambassador). This distance is calculated via the Neo4J apoc.distance function, using the Point data type either imported from CSV in the case of a Tripler, or pulled from an external API in the case of Ambassadors. This list must of course be imported using the import script found in `/server/scripts/importer` (NOTE! CSV format, very specific column order). The Vote Ambassador contacts these voters (called Vote Triplers) and encourages them to help 3 additional people vote (called Triplees). Once the Vote Tripler responds "YES" to the system's SMS (this software assumes Twilio SMS integration), the Vote Ambassador will receive payment from the organization who has set up this software. Currently this software assumes payment via Stripe + Plaid, though Paypal is at least somewhat working.
@@ -40,9 +42,13 @@ To get set up locally, simply run the following commands:
     cd HelloVoter
     npm install
     npm run database
-    npm start
+    npm run server
 
 This should initialize the database + Docker instance and start the server.
+
+NOTE: the console output of the server is piped to the log file. You can `tail -f server/hellovoter.log` to view the live logs.
+
+You can access the neo4j database browser by going to localhost:7474. Check that the database is running by checking `docker ps`.
 
 The list of Vote Triplers must of course be imported using the import script found in `/server/scripts/importer` (NOTE! CSV format, very specific column order). 
 
@@ -51,10 +57,6 @@ If you don't have a CSV of Vote Triplers, then you will probably want to generat
 `npm run database` will start the dockerized Neo4J database docker container.
 
 `npm run server` will start the server, which will connect to the Neo4J container.
-
-### Branches
-
-One thing to note is that due to the history of the project being built on top of HelloVoter, what we call "ambassador-stage" is the staging / development branch. What we call "ambassador" is the master branch that we deploy to production, with taggeed releases.
 
 ## "Tests"
 

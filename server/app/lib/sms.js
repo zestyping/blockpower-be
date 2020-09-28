@@ -1,14 +1,9 @@
 import logger from "logops";
 import { international as phoneFormat } from "./phone";
 import { ov_config } from "./ov_config";
+import { getTwilioClient } from './twilio';
 
-const client = require("twilio")(
-  ov_config.twilio_account_sid,
-  ov_config.twilio_auth_token,
-  {
-    lazyLoading: true,
-  }
-);
+const client = getTwilioClient();
 
 module.exports = (to, message) => {
   logger.debug(`Sending SMS to ${phoneFormat(to)}: ${message}`);

@@ -8,13 +8,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "README": "NOTE: See server/package.json for lots more scripts.",
     "database": "cd server && npm run database",
     "makeadmin": "cd server && npm run makeadmin --",
     "test": "cd server && npm test",
     "ncu": "ncu && cd client && ncu && cd ../server && ncu",
     "client": "cd client && npm install && npm start",
     "server": "cd server && npm install && npm start",
-    "start": "concurrently -k \"npm run client\" \"npm run server\""
+    "start": "npm run server"
   },
   "keywords": [],
   "author": "Our Voice USA",
