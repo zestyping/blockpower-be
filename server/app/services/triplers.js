@@ -307,7 +307,7 @@ function buildSearchTriplerQuery(query) {
   if (query.firstName) {
     neo4jquery += ` apoc.text.levenshteinDistance("${query.firstName
       .trim()
-      .toLowerCase()}", t.first_name) < 3.0`;
+      .toLowerCase()}", LOWER(t.first_name)) < 3.0`;
   }
 
   if (query.lastName) {
@@ -316,7 +316,7 @@ function buildSearchTriplerQuery(query) {
     }
     neo4jquery += ` apoc.text.levenshteinDistance("${query.lastName
       .trim()
-      .toLowerCase()}", t.last_name) < 3.0`;
+      .toLowerCase()}", LOWER(t.last_name)) < 3.0`;
   }
 
   return neo4jquery
