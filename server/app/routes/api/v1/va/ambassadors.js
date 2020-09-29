@@ -259,10 +259,10 @@ async function signup(req, res) {
   }
   catch (err) {
     if (err instanceof ValidationError) {
-      return error(400, res, err.message);
+      return error(400, res, err.message, req.body);
     } else {
       req.logger.error("Unhandled error in %s: %s", req.url, err);
-      return error(500, res, 'Unable to update ambassador form data');
+      return error(500, res, 'Unable to update ambassador form data', req.body);
     }
   }
 

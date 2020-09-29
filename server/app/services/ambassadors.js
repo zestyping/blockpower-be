@@ -63,10 +63,9 @@ async function signup(json) {
   let address = json.address;
   address.state = address.state.toUpperCase();
 
-
   let allowed_states = ov_config.allowed_states.toUpperCase().split(',');
   if (allowed_states.indexOf(address.state) === -1) {
-    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.")
+    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.", verification)
   }
 
   if (models.Ambassador.phone.unique) {
