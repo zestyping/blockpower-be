@@ -157,6 +157,23 @@ export async function doDbInit(db) {
     }
   }
 
+  let indexes = [
+    {label: 'Ambassador', property: 'location', create: 'create index on :Ambassador(location)'},
+    {label: 'Tripler', property: 'location', create: 'create index on :Tripler(location)'},
+    {label: 'Tripler', property: 'first_name', create: 'create index on :Tripler(first_name)'},
+    {label: 'Tripler', property: 'last_name', create: 'create index on :Tripler(last_name)'}
+  ];
+
+  // create any indexes we need if they don't exist
+  await asyncForEach(indexes, async (index) => {
+    let ref = await db.query('call db.indexes() yield tokenNames, properties with * where {label} in tokenNames and {property} in properties return count(*)', index);
+    if (ref.data[0] === 0) {
+      console.log("Cypher exec: "+index.create);
+      await db.query(index.create);
+    }
+  });
+
+
   /*
   let indexes = [
     {label: 'Attribute', property: 'id', create: 'create constraint on (a:Attribute) assert a.id is unique'},

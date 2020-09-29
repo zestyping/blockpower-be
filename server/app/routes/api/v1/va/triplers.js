@@ -148,7 +148,7 @@ async function fetchTripler(req, res) {
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
 
   if (!tripler) {
-    return error(400, res, "Invalid triper id");
+    return error(400, res, "Invalid tripler id, could not fetch tripler.", { ambassador: ambassador, triplerId: req.params.triplerId });
   }
   return res.json(serializeTripler(tripler));
 }
@@ -218,10 +218,10 @@ async function startTriplerConfirmation(req, res) {
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
 
   if (!tripler) {
-    return error(400, res, "Invalid triper id");
+    return error(400, res, "Invalid tripler id, could not start tripler confirmation.", { ambassador: ambassador, triplerId: req.params.triplerId });
   }
   else if (tripler.get('status') !== 'unconfirmed') {
-    return error(400, res, "Invalid status, cannot proceed")
+    return error(400, res, "Invalid status, cannot proceed to begin tripler confirmation.", { ambassador: ambassador, triplerId: req.params.triplerId });
   }
 
   let triplees = req.body.triplees;
@@ -236,7 +236,7 @@ async function startTriplerConfirmation(req, res) {
 
     let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(req.body.phone));
     if(existing_tripler && existing_tripler.get('id') !== tripler.get('id')) {
-      return error(400, res, "That phone number is already in use.");
+      return error(400, res, "That phone number is already in use. Cannot begin tripler confirmation.", req.body);
     }
   }
 
@@ -249,11 +249,11 @@ async function startTriplerConfirmation(req, res) {
   let carrierLookup = await carrier(triplerPhone);
   if(carrierLookup.carrier.isBlocked) {
     await triplersSvc.updateTriplerCarrier(tripler, carrierLookup.carrier.name);
-    return _400(res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
+    return error(400, res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
   }
 
   try {
-    triplersSvc.startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees);
+    await triplersSvc.startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees);
   } catch (err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
     return error(500, res, 'Error sending confirmation sms to the tripler');
@@ -270,10 +270,10 @@ async function remindTripler(req, res) {
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
 
   if (!tripler) {
-    return error(400, res, "Invalid triper id");
+    return error(400, res, "Invalid tripler id, could not remind tripler.", { ambassador: ambassador, triplerId: req.params.triplerId });
   }
   else if (tripler.get('status') !== 'pending') {
-    return error(400, res, "Invalid status, cannot proceed")
+    return error(400, res, "Invalid status, cannot proceed to remind tripler.", { ambassador: ambassador, triplerId: req.params.triplerId });
   }
 
   let new_phone = req.body.phone;
@@ -315,7 +315,7 @@ async function confirmTripler(req, res) {
   }
 
   if (tripler.get('status') !== 'pending') {
-    return error(400, res, "Invalid status, cannot confirm")
+    return error(400, res, "Invalid status, cannot confirm tripler.", serializeTripler(tripler));
   }
 
   try {

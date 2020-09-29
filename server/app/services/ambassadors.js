@@ -9,7 +9,7 @@ import {
 } from '../lib/validations';
 
 import { ValidationError } from '../lib/errors';
-import { geoCode, serializeName, zipToLatLon } from '../lib/utils';
+import { trimFields, geoCode, serializeName, zipToLatLon } from '../lib/utils';
 import { normalize } from '../lib/phone';
 import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
@@ -51,6 +51,7 @@ async function findAmbassadorsWithPendingSettlements() {
 }
 
 async function signup(json) {
+  json = trimFields(json)
   if (!validateEmpty(json, ['first_name', 'phone', 'address'])) {
     throw new ValidationError("Invalid payload, ambassador cannot be created");
   }
@@ -63,10 +64,9 @@ async function signup(json) {
   let address = json.address;
   address.state = address.state.toUpperCase();
 
-
   let allowed_states = ov_config.allowed_states.toUpperCase().split(',');
   if (allowed_states.indexOf(address.state) === -1) {
-    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.")
+    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.", verification)
   }
 
   if (models.Ambassador.phone.unique) {
