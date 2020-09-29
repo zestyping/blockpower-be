@@ -9,7 +9,7 @@ import {
 } from '../lib/validations';
 
 import { ValidationError } from '../lib/errors';
-import { geoCode, serializeName, zipToLatLon } from '../lib/utils';
+import { trimFields, geoCode, serializeName, zipToLatLon } from '../lib/utils';
 import { normalize } from '../lib/phone';
 import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
@@ -51,6 +51,7 @@ async function findAmbassadorsWithPendingSettlements() {
 }
 
 async function signup(json) {
+  json = trimFields(json)
   if (!validateEmpty(json, ['first_name', 'phone', 'address'])) {
     throw new ValidationError("Invalid payload, ambassador cannot be created");
   }
