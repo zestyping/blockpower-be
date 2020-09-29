@@ -13,8 +13,6 @@ import { trimFields, geoCode, serializeName, zipToLatLon } from '../lib/utils';
 import { normalize } from '../lib/phone';
 import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
-import caller_id from '../lib/caller_id';
-import reverse_phone from '../lib/reverse_phone';
 
 import models from '../models/va';
 
@@ -50,8 +48,9 @@ async function findAmbassadorsWithPendingSettlements() {
   return ambassadors;
 }
 
-async function signup(json) {
+async function signup(json, verification, carrierLookup) {
   json = trimFields(json)
+
   if (!validateEmpty(json, ['first_name', 'phone', 'address'])) {
     throw new ValidationError("Invalid payload, ambassador cannot be created");
   }
@@ -66,13 +65,13 @@ async function signup(json) {
 
   let allowed_states = ov_config.allowed_states.toUpperCase().split(',');
   if (allowed_states.indexOf(address.state) === -1) {
-    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.", verification)
+    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.", { ambassador: json, verification: verification });
   }
 
   if (models.Ambassador.phone.unique) {
     let existing_ambassador = await neode.first('Ambassador', 'phone', normalize(json.phone));
     if (existing_ambassador) {
-      throw new ValidationError("That phone number is already in use.");
+      throw new ValidationError("That phone number is already in use.", { ambassador: json, verification: verification });
     }
   }
 
@@ -100,34 +99,6 @@ async function signup(json) {
     throw new ValidationError("Our system doesn’t recognize that zip code. Please try again.");
   }
 
-  // check against Twilio caller ID and Ekata data
-  let twilioCallerId = await caller_id(json.phone);
-  let ekataReversePhone = await reverse_phone(json.phone);
-
-  let verification = [];
-
-  if (twilioCallerId) {
-    try {
-      verification.push({
-        source: 'Twilio',
-        name: twilioCallerId.callerName && twilioCallerId.callerName.caller_name
-      })
-    } catch (err) {
-      logger.error("Could not get verification info for ambassador: %s", err);
-    }
-  }
-
-  if (ekataReversePhone) {
-    try {
-      verification.push({
-        source: 'Ekata',
-        name: ekataReversePhone.addOns.results && ekataReversePhone.addOns.results.ekata_reverse_phone.result && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to.name
-      })
-    } catch (err) {
-      logger.error("Could not get verification info for ambassador: %s", err);
-    }
-  }
-
   let new_ambassador = await neode.create('Ambassador', {
     id: uuidv4(),
     first_name: json.first_name,
@@ -135,8 +106,8 @@ async function signup(json) {
     phone: normalize(json.phone),
     email: json.email || null,
     date_of_birth: json.date_of_birth || null,
-    address: JSON.stringify(address),
-    quiz_results: JSON.stringify(json.quiz_results) || null,
+    address: JSON.stringify(address, null, 2),
+    quiz_results: JSON.stringify(json.quiz_results, null, 2) || null,
     approved: true,
     locked: false,
     signup_completed: true,
@@ -146,7 +117,8 @@ async function signup(json) {
       longitude: parseFloat(coordinates.longitude, 10)
     },
     external_id: json.externalId,
-    verification: JSON.stringify(verification)
+    verification: JSON.stringify(verification, null, 2),
+    carrier_info: JSON.stringify(carrierLookup, null, 2)
   });
 
   let existing_tripler = await neode.first('Tripler', {
@@ -209,7 +181,12 @@ async function signup(json) {
     <br>
     Verification:
     <br>
-    ${JSON.parse(new_ambassador.get('verification')).map(v => v.source + ': ' + v.name).join(', ')}
+    ${new_ambassador.get('verification')}
+    <br>
+    <br>
+    Carrier:
+    <br>
+    ${new_ambassador.get('carrier_info')}
     <br>
     <br>
     `;
