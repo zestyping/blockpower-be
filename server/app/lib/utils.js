@@ -216,15 +216,13 @@ export async function geoCode(address) {
 
 export async function zipToLatLon(zip) {
   let res = null;
-  const zipString = zip.toString().split(' ').join('');
 
-  console.log('THIS IS ZIP STRING!!!!!!!!! ', zipString)
-  if (!zip || zipString.length !== 5) {
+  if (!zip || zip.length !== 5) {
     return res;
   }
 
   try {
-    await fetch(`https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-zip-code-latitude-and-longitude&q=${zipString}`, { method: 'GET' })
+    await fetch(`https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-zip-code-latitude-and-longitude&q=${zip}`, { method: 'GET' })
       .then(response => response.json())
       .then(data => {
         res = data["records"];
@@ -234,7 +232,7 @@ export async function zipToLatLon(zip) {
     throw (err)
   }
 
-  if (res.length === 0 || res[0]["fields"]["zip"] !== zipString) {
+  if (res.length === 0 || res[0]["fields"]["zip"] !== zip) {
     return null;
   }
 
