@@ -63,8 +63,8 @@ async function createAmbassador(req, res) {
       last_name: req.body.last_name || null,
       phone: normalize(req.body.phone),
       email: req.body.email || null,
-      address: JSON.stringify(req.body.address),
-      quiz_results: JSON.stringify(req.body.quiz_results) || null,
+      address: JSON.stringify(req.body.address, null, 2),
+      quiz_results: JSON.stringify(req.body.quiz_results, null, 2) || null,
       approved: false,
       locked: false,
       signup_completed: false,
@@ -230,11 +230,6 @@ async function makeAdmin(req, res) {
     ${found.get('phone')}
     <br>
     <br>
-    Verification:
-    <br>
-    ${JSON.parse(found.get('verification')).map(v=>v.source + ': ' +  v.name).join(', ')}
-    <br>
-    <br>
     `;
 
     let subject = `New Admin for ${ov_config.organization_name}`;
@@ -254,15 +249,40 @@ async function signup(req, res) {
     return error(400, res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
   }
 
+  // check against Twilio caller ID and Ekata data
+  let twilioCallerId = await caller_id(req.body.phone);
+  let ekataReversePhone = await reverse_phone(req.body.phone);
+  let verification = [];
+  if (twilioCallerId) {
+    try {
+      verification.push({
+        source: 'Twilio',
+        name: twilioCallerId
+      })
+    } catch (err) {
+      logger.error("Could not get verification info for ambassador: %s", err);
+    }
+  }
+  if (ekataReversePhone) {
+    try {
+      verification.push({
+        source: 'Ekata',
+        name: ekataReversePhone.addOns.results.ekata_reverse_phone
+      })
+    } catch (err) {
+      logger.error("Could not get verification info for ambassador: %s", err);
+    }
+  }
+
   try {
-    new_ambassador = await ambassadorsSvc.signup(req.body);
+    new_ambassador = await ambassadorsSvc.signup(req.body, verification, carrierLookup);
   }
   catch (err) {
     if (err instanceof ValidationError) {
       return error(400, res, err.message, req.body);
     } else {
       req.logger.error("Unhandled error in %s: %s", req.url, err);
-      return error(500, res, 'Unable to update ambassador form data', req.body);
+      return error(500, res, 'Unable to update ambassador form data', { ambassador: req.body, verification: verification });
     }
   }
 
@@ -331,14 +351,14 @@ async function updateAmbassador(req, res) {
     if (coordinates === null) {
       return error(400, res, "Invalid address, ambassador cannot be updated");
     }
-    json.address = JSON.stringify(req.body.address);
+    json.address = JSON.stringify(req.body.address, null, 2);
     json.location = new neo4j.types.Point(4326, // WGS 84 2D
                                            parseFloat(coordinates.longitude, 10),
                                            parseFloat(coordinates.latitude, 10));
   }
 
   if (req.body.quiz_results) {
-    json.quiz_results = JSON.stringify(res.body.quiz_results);
+    json.quiz_results = JSON.stringify(res.body.quiz_results, null, 2);
   }
   let updated = await found.update(json);
   return res.json(serializeAmbassador(updated));
@@ -389,14 +409,14 @@ async function updateCurrentAmbassador(req, res) {
     if (coordinates === null) {
       return error(400, res, "Invalid address, ambassador cannot be updated");
     }
-    json.address = JSON.stringify(req.body.address);
+    json.address = JSON.stringify(req.body.address, null, 2);
     json.location = new neo4j.types.Point(4326, // WGS 84 2D
                                            parseFloat(coordinates.longitude, 10),
                                            parseFloat(coordinates.latitude, 10));
   }
 
   if (req.body.quiz_results) {
-    json.quiz_results = JSON.stringify(req.body.quiz_results);
+    json.quiz_results = JSON.stringify(req.body.quiz_results, null, 2);
   }
   let updated = await found.update(json);
   return res.json(serializeAmbassador(updated));
@@ -469,7 +489,7 @@ async function completeOnboarding(req, res) {
 
   let updated = await found.update({
     onboarding_completed: true,
-    quiz_results: req.body.quiz_results ? JSON.stringify(req.body.quiz_results) : req.body ? JSON.stringify(req.body) : null,
+    quiz_results: req.body.quiz_results ? JSON.stringify(req.body.quiz_results, null, 2) : req.body ? JSON.stringify(req.body, null, 2) : null,
   });
   return res.json(serializeAmbassador(updated));
 }

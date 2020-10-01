@@ -1,8 +1,6 @@
 import stringFormat from "string-format";
 
 import logger from "logops";
-import caller_id from "../lib/caller_id";
-import reverse_phone from "../lib/reverse_phone";
 import neo4j from "neo4j-driver";
 import neode from "../lib/neode";
 import { serializeName } from "../lib/utils";
@@ -200,7 +198,7 @@ async function confirmTripler(triplerId) {
     <br>
     Verification:
     <br>
-    ${JSON.parse(tripler.get('verification')).map(v=>v.source + ': ' +  v.name).join(', ')}
+    ${tripler.get('verification')}
     <br>
     <br>
     Carrier:
@@ -309,7 +307,7 @@ function buildSearchTriplerQuery(query) {
   if (query.firstName) {
     neo4jquery += ` apoc.text.levenshteinDistance("${query.firstName
       .trim()
-      .toLowerCase()}", t.first_name) < 3.0`;
+      .toLowerCase()}", LOWER(t.first_name)) < 3.0`;
   }
 
   if (query.lastName) {
@@ -318,7 +316,7 @@ function buildSearchTriplerQuery(query) {
     }
     neo4jquery += ` apoc.text.levenshteinDistance("${query.lastName
       .trim()
-      .toLowerCase()}", t.last_name) < 3.0`;
+      .toLowerCase()}", LOWER(t.last_name)) < 3.0`;
   }
 
   return neo4jquery
@@ -372,9 +370,15 @@ async function searchTriplersAdmin(query) {
   return models;
 }
 
+async function updateTriplerBlockedCarrier(tripler, carrier) {
+  await tripler.update({
+    blocked_carrier_info: tripler.get('blocked_carrier_info') ? tripler.get('blocked_carrier_info') + JSON.stringify(carrier, null, 2) : JSON.stringify(carrier, null, 2)
+  });
+}
+
 async function updateTriplerCarrier(tripler, carrier) {
   await tripler.update({
-    carrier_info: carrier
+    carrier_info: tripler.get('carrier_info') ? tripler.get('carrier_info') + JSON.stringify(carrier, null, 2) : JSON.stringify(carrier, null, 2)
   });
 }
 
@@ -382,36 +386,9 @@ async function startTriplerConfirmation(
   ambassador,
   tripler,
   triplerPhone,
-  triplees
+  triplees,
+  verification
 ) {
-
-  // check against Twilio caller ID and Ekata data
-  let twilioCallerId = await caller_id(triplerPhone);
-  let ekataReversePhone = await reverse_phone(triplerPhone);
-
-  let verification = [];
-
-  if (twilioCallerId) {
-    try {
-      verification.push({
-        source: 'Twilio',
-        name: twilioCallerId.callerName && twilioCallerId.callerName.caller_name
-      })
-    } catch (err) {
-      logger.error("Could not get verification info for tripler: %s", err);
-    }
-  }
-
-  if (ekataReversePhone) {
-    try {
-      verification.push({
-        source: 'Ekata',
-        name: ekataReversePhone.addOns.results && ekataReversePhone.addOns.results.ekata_reverse_phone.result && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to && ekataReversePhone.addOns.results.ekata_reverse_phone.result.belongs_to.name
-      })
-    } catch (err) {
-      logger.error("Could not get verification info for tripler: %s", err);
-    }
-  }
 
   try {
     await sms(
@@ -432,10 +409,10 @@ async function startTriplerConfirmation(
   }
 
   await tripler.update({
-    triplees: JSON.stringify(triplees),
+    triplees: JSON.stringify(triplees, null, 2),
     status: "pending",
     phone: triplerPhone,
-    verification: JSON.stringify(verification)
+    verification: tripler.get('verification') ? tripler.get('verification') + JSON.stringify(verification, null, 2) : JSON.stringify(verification, null, 2)
   });
 }
 
@@ -450,5 +427,6 @@ module.exports = {
   searchTriplersAdmin: searchTriplersAdmin,
   adminSearchTriplers: adminSearchTriplers,
   startTriplerConfirmation: startTriplerConfirmation,
-  updateTriplerCarrier: updateTriplerCarrier
+  updateTriplerCarrier: updateTriplerCarrier,
+  updateTriplerBlockedCarrier: updateTriplerBlockedCarrier
 };

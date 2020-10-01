@@ -5,6 +5,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { normalize } from '../../../../lib/phone';
 import { ov_config } from '../../../../lib/ov_config';
+import caller_id from '../../../../lib/caller_id';
+import reverse_phone from '../../../../lib/reverse_phone';
 import triplersSvc from '../../../../services/triplers';
 import { error } from '../../../../services/errors';
 
@@ -61,8 +63,8 @@ async function createTripler(req, res) {
       last_name: req.body.last_name || null,
       phone: normalize(req.body.phone),
       email: req.body.email || null,
-      address: JSON.stringify(req.body.address),
-      triplees: !req.body.triplees ? null : JSON.stringify(req.body.triplees),
+      address: JSON.stringify(req.body.address, null, 2),
+      triplees: !req.body.triplees ? null : JSON.stringify(req.body.triplees, null, 2),
       location: {
         latitude: parseFloat(coordinates.latitude, 10),
         longitude: parseFloat(coordinates.longitude, 10)
@@ -198,14 +200,14 @@ async function updateTripler(req, res) {
     if (coordinates === null) {
       return error(400, res, "Invalid address, tripler cannot be updated");
     }
-    json.address = JSON.stringify(req.body.address);
+    json.address = JSON.stringify(req.body.address, null, 2);
     json.location = new neo4j.types.Point(4326, // WGS 84 2D
                                            parseFloat(coordinates.longitude, 10),
                                            parseFloat(coordinates.latitude, 10));
   }
 
   if (req.body.triplees) {
-    json.triplees = JSON.stringify(req.body.triplees);
+    json.triplees = JSON.stringify(req.body.triplees, null, 2);
   }
 
   let updated = await found.update(json);
@@ -216,31 +218,49 @@ async function startTriplerConfirmation(req, res) {
   let ambassador = req.user;
   let tripler = null;
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
-
   if (!tripler) {
     return error(400, res, "Invalid tripler id, could not start tripler confirmation.", { ambassador: ambassador, triplerId: req.params.triplerId });
   }
   else if (tripler.get('status') !== 'unconfirmed') {
-    return error(400, res, "Invalid status, cannot proceed to begin tripler confirmation.", { ambassador: ambassador, triplerId: req.params.triplerId });
-  }
-
-  let triplees = req.body.triplees;
-  if (!triplees || triplees.length !== 3) {
-    return error(400, res, 'Insufficient triplees, cannot start confirmation')
-  }
-
-  if (req.body.phone) {
-    if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
-    }
-
-    let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(req.body.phone));
-    if(existing_tripler && existing_tripler.get('id') !== tripler.get('id')) {
-      return error(400, res, "That phone number is already in use. Cannot begin tripler confirmation.", req.body);
-    }
+    return error(400, res, "Invalid status, cannot proceed to begin tripler confirmation.", { ambassador: ambassador, tripler: tripler, verification: verification });
   }
 
   let triplerPhone = req.body.phone ? normalize(req.body.phone): tripler.get('phone');
+
+  // check against Twilio caller ID and Ekata data
+  let twilioCallerId = await caller_id(triplerPhone);
+  let ekataReversePhone = await reverse_phone(triplerPhone);
+  let verification = [];
+  if (twilioCallerId) {
+    try {
+      verification.push({
+        source: 'Twilio',
+        name: twilioCallerId
+      })
+    } catch (err) {
+      logger.error("Could not get verification info for tripler: %s", err);
+    }
+  }
+  if (ekataReversePhone) {
+    try {
+      verification.push({
+        source: 'Ekata',
+        name: ekataReversePhone.addOns.results.ekata_reverse_phone
+      })
+    } catch (err) {
+      logger.error("Could not get verification info for tripler: %s", err);
+    }
+  }
+
+  if (triplerPhone) {
+    if (!validatePhone(triplerPhone)) {
+      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
+    }
+    let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(triplerPhone));
+    if(existing_tripler && existing_tripler.get('id') !== tripler.get('id')) {
+      return error(400, res, "That phone number is already in use. Cannot begin tripler confirmation.", { ambassador: ambassador, tripler: tripler, verification: verification });
+    }
+  }
 
   if (triplerPhone === ambassador.get('phone')) {
     return error(400, res, "You entered your phone number as the number of this Vote Tripler. Please try again.");
@@ -248,12 +268,19 @@ async function startTriplerConfirmation(req, res) {
 
   let carrierLookup = await carrier(triplerPhone);
   if(carrierLookup.carrier.isBlocked) {
-    await triplersSvc.updateTriplerCarrier(tripler, carrierLookup.carrier.name);
+    await triplersSvc.updateTriplerBlockedCarrier(tripler, carrierLookup.carrier.name);
     return error(400, res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
+  } else {
+    await triplersSvc.updateTriplerCarrier(tripler, carrierLookup.carrier.name);
+  }
+
+  let triplees = req.body.triplees;
+  if (!triplees || triplees.length !== 3) {
+    return error(400, res, 'Insufficient triplees, cannot start confirmation')
   }
 
   try {
-    await triplersSvc.startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees);
+    await triplersSvc.startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees, verification);
   } catch (err) {
     req.logger.error("Unhandled error in %s: %s", req.url, err);
     return error(500, res, 'Error sending confirmation sms to the tripler');
