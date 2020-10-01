@@ -238,8 +238,13 @@ function normalizeName(name) {
 }
 
 async function searchTriplersAmbassador(req) {
-  let firstNameQuery = normalizeName(req.query.firstName);
-  let lastNameQuery = normalizeName(req.query.lastName);
+  const { firstName, lastName } = req.query;
+  if (!firstName && !lastName) {
+    return [];
+  }
+
+  let firstNameQuery = normalizeName(firstName);
+  let lastNameQuery = normalizeName(lastName);
 
   // TODO: Deal with first or last name being blank.
   const q = `
@@ -271,6 +276,11 @@ async function searchTriplersAmbassador(req) {
 // searching as admin removes constraint of requiring no claims relationship
 // as well as removing constraint of requiring no upgraded status
 async function searchTriplersAdmin(req) {
+  const { firstName, lastName } = req.query;
+  if (!firstName && !lastName) {
+    return [];
+  }
+
   let neo4jquery = buildSearchTriplerQuery(req.query);
   let q = await neode
     .query()

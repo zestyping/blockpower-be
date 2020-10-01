@@ -80,17 +80,11 @@ async function adminSearchTriplers(req, res) {
 }
 
 async function searchTriplersAmbassador(req, res) {
-  if (!req.query.firstName && !req.query.lastName) {
-    return res.json([]);
-  }
   let models = await triplersSvc.searchTriplersAmbassador(req)
   return res.json(models);
 }
 
 async function searchTriplersAdmin(req, res) {
-  if (!req.query.firstName && !req.query.lastName) {
-    return res.json([]);
-  }
   let models = await triplersSvc.searchTriplersAdmin(req)
   return res.json(models);
 }
