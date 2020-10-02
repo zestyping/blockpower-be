@@ -155,5 +155,6 @@ export const ov_config = {
   // This should be a pipe delimited list of strings
   blocked_carriers: getConfig("blocked_carriers", false, ""),
   ekata_api_key: getConfig("ekata_api_key", false, null),
-  ekata_addon: getConfig("ekata_addon", false, null)
+  ekata_addon: getConfig("ekata_addon", false, null),
+  stress: getConfig("stress", false, false)
 };
