@@ -243,34 +243,38 @@ async function signup(req, res) {
   req.body.externalId = req.externalId;
   let new_ambassador = null;
 
-  //check carrier lookup for blocked carriers
-  let carrierLookup = await carrier(normalize(req.body.phone));
-  if(carrierLookup.carrier.isBlocked) {
-    return error(400, res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
-  }
-
-  // check against Twilio caller ID and Ekata data
-  let twilioCallerId = await caller_id(req.body.phone);
-  let ekataReversePhone = await reverse_phone(req.body.phone);
+  let carrierLookup = null;
   let verification = [];
-  if (twilioCallerId) {
-    try {
-      verification.push({
-        source: 'Twilio',
-        name: twilioCallerId
-      })
-    } catch (err) {
-      logger.error("Could not get verification info for ambassador: %s", err);
+
+  if (!ov_config.stress) {
+    //check carrier lookup for blocked carriers
+    carrierLookup = await carrier(normalize(req.body.phone));
+    if(carrierLookup.carrier.isBlocked) {
+      return error(400, res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
     }
-  }
-  if (ekataReversePhone) {
-    try {
-      verification.push({
-        source: 'Ekata',
-        name: ekataReversePhone.addOns.results.ekata_reverse_phone
-      })
-    } catch (err) {
-      logger.error("Could not get verification info for ambassador: %s", err);
+
+    // check against Twilio caller ID and Ekata data
+    let twilioCallerId = await caller_id(req.body.phone);
+    let ekataReversePhone = await reverse_phone(req.body.phone);
+    if (twilioCallerId) {
+      try {
+        verification.push({
+          source: 'Twilio',
+          name: twilioCallerId
+        })
+      } catch (err) {
+        logger.error("Could not get verification info for ambassador: %s", err);
+      }
+    }
+    if (ekataReversePhone) {
+      try {
+        verification.push({
+          source: 'Ekata',
+          name: ekataReversePhone.addOns.results.ekata_reverse_phone
+        })
+      } catch (err) {
+        logger.error("Could not get verification info for ambassador: %s", err);
+      }
     }
   }
 

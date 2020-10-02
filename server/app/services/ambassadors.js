@@ -75,7 +75,7 @@ async function signup(json, verification, carrierLookup) {
     }
   }
 
-  if (models.Ambassador.external_id.unique) {
+  if (models.Ambassador.external_id.unique && !ov_config.stress) {
     let existing_ambassador = await neode.first('Ambassador', 'external_id', json.externalId);
     if (existing_ambassador) {
       throw new ValidationError("If you have already signed up as an Ambassador using Facebook or Google, you cannot sign up again.");
