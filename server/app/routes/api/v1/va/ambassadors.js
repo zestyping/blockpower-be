@@ -246,7 +246,7 @@ async function signup(req, res) {
   //check carrier lookup for blocked carriers
   let carrierLookup = await carrier(normalize(req.body.phone));
   if(carrierLookup.carrier.isBlocked) {
-    return error(400, res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
+    return error(400, res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`, { request: req.body });
   }
 
   // check against Twilio caller ID and Ekata data

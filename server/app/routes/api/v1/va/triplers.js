@@ -18,7 +18,7 @@ import {
   validateEmpty, validatePhone, validateEmail
 } from '../../../../lib/validations';
 
-import { serializeTripler, serializeNeo4JTripler, serializeTriplee } from './serializers';
+import { serializeAmbassador, serializeTripler, serializeNeo4JTripler, serializeTriplee } from './serializers';
 
 import sms from '../../../../lib/sms';
 import carrier from '../../../../lib/carrier';
@@ -150,7 +150,7 @@ async function fetchTripler(req, res) {
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
 
   if (!tripler) {
-    return error(400, res, "Invalid tripler id, could not fetch tripler.", { ambassador: ambassador, triplerId: req.params.triplerId });
+    return error(400, res, "Invalid tripler id, could not fetch tripler.", { ambassador: serializeAmbassador(ambassador), triplerId: req.params.triplerId });
   }
   return res.json(serializeTripler(tripler));
 }
@@ -219,10 +219,10 @@ async function startTriplerConfirmation(req, res) {
   let tripler = null;
   ambassador.get('claims').forEach((entry) => { if (entry.otherNode().get('id') === req.params.triplerId) { tripler = entry.otherNode() } } );
   if (!tripler) {
-    return error(400, res, "Invalid tripler id, could not start tripler confirmation.", { ambassador: ambassador, triplerId: req.params.triplerId });
+    return error(400, res, "Invalid tripler id, could not start tripler confirmation.", { ambassador: serializeAmbassador(ambassador), triplerId: req.params.triplerId });
   }
   else if (tripler.get('status') !== 'unconfirmed') {
-    return error(400, res, "Invalid status, cannot proceed to begin tripler confirmation.", { ambassador: ambassador, tripler: tripler, verification: verification });
+    return error(400, res, "Invalid status, cannot proceed to begin tripler confirmation.", { ambassador: serializeAmbassador(ambassador), tripler: serializeTripler(tripler), verification: verification });
   }
 
   let triplerPhone = req.body.phone ? normalize(req.body.phone): tripler.get('phone');
@@ -258,7 +258,7 @@ async function startTriplerConfirmation(req, res) {
     }
     let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(triplerPhone));
     if(existing_tripler && existing_tripler.get('id') !== tripler.get('id')) {
-      return error(400, res, "That phone number is already in use. Cannot begin tripler confirmation.", { ambassador: ambassador, tripler: tripler, verification: verification });
+      return error(400, res, "That phone number is already in use. Cannot begin tripler confirmation.", { ambassador: serializeAmbassador(ambassador), tripler: serializeTripler(tripler), verification: verification });
     }
   }
 
@@ -269,7 +269,7 @@ async function startTriplerConfirmation(req, res) {
   let carrierLookup = await carrier(triplerPhone);
   if(carrierLookup.carrier.isBlocked) {
     await triplersSvc.updateTriplerBlockedCarrier(tripler, carrierLookup.carrier.name);
-    return error(400, res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`);
+    return error(400, res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`, { ambassador: serializeAmbassador(ambassador), tripler: serializeTripler(tripler)});
   } else {
     await triplersSvc.updateTriplerCarrier(tripler, carrierLookup.carrier.name);
   }
