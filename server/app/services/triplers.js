@@ -201,9 +201,14 @@ async function confirmTripler(triplerId) {
     ${tripler.get('verification')}
     <br>
     <br>
-    Carrier:
+    Carrier Info:
     <br>
     ${tripler.get('carrier_info')}
+    <br>
+    <br>
+    Blocked Carrier Info:
+    <br>
+    ${tripler.get('blocked_carrier_info')}
     <br>
     <br>
 
