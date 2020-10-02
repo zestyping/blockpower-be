@@ -116,7 +116,7 @@ async function signup(json, verification, carrierLookup) {
       latitude: parseFloat(coordinates.latitude, 10),
       longitude: parseFloat(coordinates.longitude, 10)
     },
-    external_id: json.externalId,
+    external_id: ov_config.stress ? json.externalId + Math.random() : json.externalId,
     verification: JSON.stringify(verification, null, 2),
     carrier_info: JSON.stringify(carrierLookup, null, 2)
   });
