@@ -1,4 +1,4 @@
-import { serializeAmbassador, serializeTriplerForCSV, serializeTripler, serializePayout, serializeName, serializeTripleeForCSV } from '../routes/api/v1/va/serializers';
+import { serializeAmbassadorForAdmin, serializeAmbassador, serializeTriplerForCSV, serializeTripler, serializePayout, serializeName, serializeTripleeForCSV } from '../routes/api/v1/va/serializers';
 import { ov_config } from '../lib/ov_config';
 
 async function exportAmbassadors(neode) {
@@ -7,7 +7,7 @@ async function exportAmbassadors(neode) {
 
   for (let x = 0; x < collection.length; x++) {
     let entry = collection.get(x);
-    let ambassador = serializeAmbassador(entry);
+    let ambassador = serializeAmbassadorForAdmin(entry);
     let triplers = entry.get('claims');
     let unconfirmed = 0;
     let pending = 0;
@@ -56,7 +56,10 @@ async function exportAmbassadors(neode) {
       pending,
       confirmed,
       total_sent_to_bank,
-      total_earned
+      total_earned,
+      JSON.stringify(ambassador.account.account_id, null, 2),
+      JSON.stringify(ambassador.verification, null, 2),
+      ambassador.admin
     ].join(',');
 
     let header_line = [
@@ -73,7 +76,10 @@ async function exportAmbassadors(neode) {
       'Pending',
       'Confirmed',
       'Total Sent to Bank',
-      'Total Earned'
+      'Total Earned',
+      'Payout account id',
+      'Verification data',
+      'Admin status'
     ];
 
     if (x === 0) {
