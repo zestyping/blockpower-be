@@ -253,6 +253,7 @@ async function signup(req, res) {
   let twilioCallerId = await caller_id(req.body.phone);
   let ekataReversePhone = await reverse_phone(req.body.phone);
   let verification = [];
+
   if (twilioCallerId) {
     try {
       verification.push({

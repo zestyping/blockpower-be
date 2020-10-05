@@ -173,4 +173,5 @@ The meaning of each config item is as follows:
 * `EKATA_ADDON`: If Ekata is available as a Twilio add-on, set this to true.
 * `REJECTION_SMS_FOR_TRIPLER`: The SMS message that the tripler receives when they reply 'no' to the system.
 * `REJECTION_SMS_FOR_AMBASSADOR`: The SMS message that the ambassador receives when one of their triplers replies 'no' to the system.
+* `STRESS`: If stress testing, disable twilio verification and external_id uniqueness constraint.
 * `EXCLUDE_UNREG_EXCEPT_IN`: Exclude unregistered voters except in these comma-separated 2-char states.

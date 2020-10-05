@@ -57,7 +57,7 @@ async function exportAmbassadors(neode) {
       confirmed,
       total_sent_to_bank,
       total_earned,
-      JSON.stringify(ambassador.account.account_id, null, 2),
+      ambassador.account ? JSON.stringify(ambassador.account.account_id, null, 2): '',
       JSON.stringify(ambassador.verification, null, 2),
       ambassador.admin
     ].join(',');
