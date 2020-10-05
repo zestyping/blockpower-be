@@ -122,12 +122,19 @@ async function searchTriplersAdmin(req, res) {
 // provide a list of potential triplers for an ambassador to select from
 //
 async function suggestTriplers(req, res) {
+  let exclude_except = '';
+  if (ov_config.exclude_unreg_except_in) {
+    exclude_except += ov_config.exclude_unreg_except_in.split(",").map((state) => {
+      return `AND NOT t.address CONTAINS '\"state\": \"${state}\"' `
+    })
+  }
   let collection = await req.neode.query()
     .match('a', 'Ambassador')
     .where('a.id', req.user.get('id'))
     .match('t', 'Tripler')
     .whereRaw('NOT ()-[:CLAIMS]->(t)')
     .whereRaw('NOT ()-[:WAS_ONCE]->(t)')
+    .whereRaw(`NOT t.voter_id CONTAINS "Unreg" ${exclude_except}`)
     .whereRaw(`distance(t.location, a.location) <= ${ov_config.ambassador_tripler_relation_max_distance}`) // distance in meters (10km)
     .with('a, t, distance(t.location, a.location) AS distance')
     .orderBy('distance')

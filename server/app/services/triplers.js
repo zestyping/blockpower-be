@@ -329,6 +329,12 @@ function buildSearchTriplerQuery(query) {
 
 async function searchTriplersAmbassador(req) {
   let neo4jquery = buildSearchTriplerQuery(req.query);
+  let exclude_except = '';
+  if (ov_config.exclude_unreg_except_in) {
+    exclude_except += ov_config.exclude_unreg_except_in.split(",").map((state) => {
+      return `AND NOT t.address CONTAINS '\"state\": \"${state}\"' `
+    })
+  }
   let collection = await neode
     .query()
     .match("a", "Ambassador")
@@ -336,6 +342,7 @@ async function searchTriplersAmbassador(req) {
     .match("t", "Tripler")
     .whereRaw("NOT ()-[:CLAIMS]->(t)")
     .whereRaw("NOT ()-[:WAS_ONCE]->(t)")
+    .whereRaw(`NOT t.voter_id CONTAINS "Unreg" ${exclude_except}`)
     .with("a, t, distance(t.location, a.location) AS distance")
     .whereRaw(neo4jquery)
     .orderBy("distance")
