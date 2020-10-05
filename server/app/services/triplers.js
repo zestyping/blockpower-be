@@ -327,15 +327,19 @@ function buildSearchTriplerQuery(query) {
   return neo4jquery
 }
 
-async function searchTriplersAmbassador(query) {
-  let neo4jquery = buildSearchTriplerQuery(query);
+async function searchTriplersAmbassador(req) {
+  let neo4jquery = buildSearchTriplerQuery(req.query);
   let collection = await neode
     .query()
+    .match("a", "Ambassador")
+    .where("a.id", req.user.get("id"))
     .match("t", "Tripler")
-    .whereRaw(neo4jquery)
     .whereRaw("NOT ()-[:CLAIMS]->(t)")
     .whereRaw("NOT ()-[:WAS_ONCE]->(t)")
-    .return("t")
+    .with("a, t, distance(t.location, a.location) AS distance")
+    .whereRaw(neo4jquery)
+    .orderBy("distance")
+    .return("t, distance")
     .limit(ov_config.suggest_tripler_limit)
     .execute();
 
