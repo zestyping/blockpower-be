@@ -234,7 +234,7 @@ export async function geoCode(address) {
 export async function zipToLatLon(zip) {
   let res = null;
 
-  if (!zip || zip.toString().length !== 5) {
+  if (!zip || zip.length !== 5) {
     return res;
   }
 
@@ -249,7 +249,7 @@ export async function zipToLatLon(zip) {
     throw (err)
   }
 
-  if (res.length === 0) {
+  if (res.length === 0 || res[0]["fields"]["zip"] !== zip) {
     return null;
   }
 

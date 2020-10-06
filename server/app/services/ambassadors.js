@@ -62,6 +62,7 @@ async function signup(json, verification, carrierLookup) {
   // Ensure that address.state is always uppercase
   let address = json.address;
   address.state = address.state.toUpperCase();
+  address.zip = address.zip.toString().split(' ').join('');
 
   let allowed_states = ov_config.allowed_states.toUpperCase().split(',');
   if (allowed_states.indexOf(address.state) === -1) {
@@ -93,7 +94,7 @@ async function signup(json, verification, carrierLookup) {
 
   let coordinates = await geoCode(address);
   if (coordinates === null) {
-    coordinates = await zipToLatLon(json.address.zip);
+    coordinates = await zipToLatLon(address.zip);
   }
   if (coordinates === null) {
     throw new ValidationError("Our system doesn’t recognize that zip code. Please try again.");
