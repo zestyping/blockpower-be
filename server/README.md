@@ -88,6 +88,7 @@ For this server, configure an `.env` file. The following is a complete list of v
     REACT_APP_NO_AUTH=
     STRESS=
     EXCLUDE_UNREG_EXCEPT_IN=
+    SEARCH_TRIPLER_MAX_DISTANCE=
 
 The meaning of each config item is as follows:
 
@@ -175,3 +176,5 @@ The meaning of each config item is as follows:
 * `REJECTION_SMS_FOR_AMBASSADOR`: The SMS message that the ambassador receives when one of their triplers replies 'no' to the system.
 * `STRESS`: If stress testing, disable twilio verification and external_id uniqueness constraint.
 * `EXCLUDE_UNREG_EXCEPT_IN`: Exclude unregistered voters except in these comma-separated 2-char states.
+* `SEARCH_TRIPLER_MAX_DISTANCE`: Distance constraint on tripler search
+

@@ -157,5 +157,6 @@ export const ov_config = {
   ekata_api_key: getConfig("ekata_api_key", false, null),
   ekata_addon: getConfig("ekata_addon", false, null),
   stress: getConfig("stress", false, false),
-  exclude_unreg_except_in: getConfig("exclude_unreg_except_in", false, "")
+  exclude_unreg_except_in: getConfig("exclude_unreg_except_in", false, ""),
+  search_tripler_max_distance: getConfig("search_tripler_max_distance", false, 150000)
 };

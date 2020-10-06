@@ -343,6 +343,7 @@ async function searchTriplersAmbassador(req) {
     .whereRaw("NOT ()-[:CLAIMS]->(t)")
     .whereRaw("NOT ()-[:WAS_ONCE]->(t)")
     .whereRaw(`NOT t.voter_id CONTAINS "Unreg" ${exclude_except}`)
+    .whereRaw(`distance(t.location, a.location) <= ${ov_config.search_tripler_max_distance}`) // distance in meters (see .env)
     .with("a, t, distance(t.location, a.location) AS distance")
     .whereRaw(neo4jquery)
     .orderBy("distance")
