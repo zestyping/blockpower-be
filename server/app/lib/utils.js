@@ -7,6 +7,23 @@ import { ov_config } from './ov_config';
 
 export var min_neo4j_version = 3.5;
 
+export function trimFields(obj) {
+  let newObj = {};
+  let keys = Object.keys(obj);
+
+  for (var x = 0; x < keys.length; x++) {
+    let key = keys[x];
+    if (obj[key] && typeof obj[key] === 'object') {
+      newObj[key] = trimFields(obj[key]);
+    } else if (typeof obj[key] === 'string') {
+      newObj[key] = obj[key].trim();
+    } else {
+      newObj[key] = obj[key];
+    }
+  }
+  return newObj;
+}
+
 export function serializeName(first_name, last_name) {
   if (!last_name) return first_name;
   return [first_name, last_name].join(" ");

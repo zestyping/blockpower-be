@@ -129,6 +129,7 @@ module.exports = {
     },
     eager: true
   },
-  verification: 'string'
+  verification: 'string',
+  carrier_info: 'string'
 };
 
