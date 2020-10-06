@@ -114,7 +114,8 @@ async function exportTriplers(neode) {
         'Phone',
         'Triplee1',
         'Triplee2',
-        'Triplee3'
+        'Triplee3',
+        'Verification'
     ];
 
     if (x === 0) {
@@ -140,6 +141,7 @@ async function exportTriplers(neode) {
         tripler.triplees ? tripler.triplees[0].first_name ? serializeTripleeForCSV(tripler.triplees[0]) : tripler.triplees[0] : '',
         tripler.triplees ? tripler.triplees[0].first_name ? serializeTripleeForCSV(tripler.triplees[1]) : tripler.triplees[1] : '',
         tripler.triplees ? tripler.triplees[0].first_name ? serializeTripleeForCSV(tripler.triplees[2]) : tripler.triplees[2] : '',
+        tripler.verification
       ];
 
       text = text + '\n' + tripler_line;
