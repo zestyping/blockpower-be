@@ -18,8 +18,8 @@ export function getClientIP(req) {
 }
 
 function sendError(res, code, msg) {
-  let obj = {code: code, error: true, msg: msg};
-  console.warn('Returning http '+code+' error with msg: '+msg);
+  let obj = { code: code, error: true, msg: msg };
+  console.warn('Returning http ' + code + ' error with msg: ' + msg);
   return res.status(code).json(obj);
 }
 
@@ -38,7 +38,7 @@ export async function cqdo(req, res, q, p, a) {
     return _500(res, e);
   }
 
-  return res.status(200).json({msg: "OK", data: [ref]});
+  return res.status(200).json({ msg: "OK", data: [ref] });
 }
 
 export async function onMyTurf(req, ida, idb) {
@@ -47,7 +47,7 @@ export async function onMyTurf(req, ida, idb) {
   if (ov_config.disable_spatial !== false) return false;
   try {
     // TODO: extend to also seach for direct turf assignments with leader:true
-    let ref = await req.db.query('match (v:Ambassador {id:{idb}}) where exists(v.location) call spatial.intersects("turf", v.location) yield node match (:Ambassador {id:{ida}})-[:MEMBERS {leader:true}]-(:Team)-[:ASSIGNED]-(node) return count(v)', {ida: ida, idb: idb});
+    let ref = await req.db.query('match (v:Ambassador {id:{idb}}) where exists(v.location) call spatial.intersects("turf", v.location) yield node match (:Ambassador {id:{ida}})-[:MEMBERS {leader:true}]-(:Team)-[:ASSIGNED]-(node) return count(v)', { ida: ida, idb: idb });
     if (ref.data[0] > 0) return true;
   } catch (e) {
     console.warn(e);
@@ -57,7 +57,7 @@ export async function onMyTurf(req, ida, idb) {
 
 export async function sameTeam(req, ida, idb) {
   try {
-    let ref = await req.db.query('match (a:Ambassador {id:{ida}})-[:MEMBERS]-(:Team)-[:MEMBERS]-(b:Ambassador {id:{idb}}) return b', {ida: ida, idb: idb});
+    let ref = await req.db.query('match (a:Ambassador {id:{ida}})-[:MEMBERS]-(:Team)-[:MEMBERS]-(b:Ambassador {id:{idb}}) return b', { ida: ida, idb: idb });
     if (ref.data.length > 0) return true;
   } catch (e) {
     console.warn(e);
@@ -89,7 +89,7 @@ export async function volunteerAssignments(req, type, vol) {
   }
 
   try {
-    let ref = await req.db.query('match (a:'+type+' {id:{id}}) optional match (a)-[r:'+members+']-(b:Team) with a, collect(b{.*,leader:r.leader}) as teams optional match (a)-[:'+assigned+']-(b:Form) with a, teams, collect(b{.*,direct:true}) as dforms optional match (a)-[:'+members+']-(:Team)-[:ASSIGNED]-(b:Form) with a, teams, dforms + collect(b{.*}) as forms optional match (a)-[:'+assigned+']-(b:Turf) with a, teams, forms, collect(b{.id,.name,direct:true}) as dturf optional match (a)-[:'+members+']-(:Team)-[:ASSIGNED]-(b:Turf) with a, teams, forms, dturf + collect(b{.id,.name}) as turf return forms, turf', vol);
+    let ref = await req.db.query('match (a:' + type + ' {id:{id}}) optional match (a)-[r:' + members + ']-(b:Team) with a, collect(b{.*,leader:r.leader}) as teams optional match (a)-[:' + assigned + ']-(b:Form) with a, teams, collect(b{.*,direct:true}) as dforms optional match (a)-[:' + members + ']-(:Team)-[:ASSIGNED]-(b:Form) with a, teams, dforms + collect(b{.*}) as forms optional match (a)-[:' + assigned + ']-(b:Turf) with a, teams, forms, collect(b{.id,.name,direct:true}) as dturf optional match (a)-[:' + members + ']-(:Team)-[:ASSIGNED]-(b:Turf) with a, teams, forms, dturf + collect(b{.id,.name}) as turf return forms, turf', vol);
 
     obj.forms = ref.data[0][0];
     obj.turfs = ref.data[0][1];
@@ -183,8 +183,8 @@ export function valid(str) {
 }
 
 export async function geoCode(address) {
-  let file = "1," + address.address1 + "," + 
-             address.city + "," + address.state + "," + address.zip;
+  let file = "1," + address.address1 + "," +
+    address.city + "," + address.state + "," + address.zip;
 
   let fd = new FormData();
   fd.append('benchmark', 'Public_AR_Current');
@@ -194,9 +194,9 @@ export async function geoCode(address) {
   let res = null;
 
   try {
-    res = await fetch('https://geocoding.geo.census.gov/geocoder/locations/addressbatch', {method: 'POST', body: fd });
+    res = await fetch('https://geocoding.geo.census.gov/geocoder/locations/addressbatch', { method: 'POST', body: fd });
   } catch (err) {
-    throw(err);
+    throw (err);
   }
 
   // they return a csv file, parse it
@@ -211,5 +211,33 @@ export async function geoCode(address) {
   return {
     longitude: parseFloat(coordinates[0]),
     latitude: parseFloat(coordinates[1])
+  };
+}
+
+export async function zipToLatLon(zip) {
+  let res = null;
+
+  if (!zip || zip.length !== 5) {
+    return res;
+  }
+
+  try {
+    await fetch(`https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-zip-code-latitude-and-longitude&q=${zip}`, { method: 'GET' })
+      .then(response => response.json())
+      .then(data => {
+        res = data["records"];
+      }
+      );
+  } catch (err) {
+    throw (err)
+  }
+
+  if (res.length === 0 || res[0]["fields"]["zip"] !== zip) {
+    return null;
+  }
+
+  return {
+    longitude: parseFloat(res[0]["fields"]["longitude"]),
+    latitude: parseFloat(res[0]["fields"]["latitude"])
   };
 }

@@ -3,7 +3,8 @@ function formatNumber(number) {
 }
 
 function formatDate(date) {
-  return new Intl.DateTimeFormat('en-US', {dateStyle: 'medium', timeStyle: 'medium'}).format(date);
+  let formatted = new Intl.DateTimeFormat('en-US', {dateStyle: 'medium', timeStyle: 'medium'}).format(date);
+  return formatted.split('T')[0];
 }
 
 module.exports = {

@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "patch-package",
-    "makeadmin": "node node_modules/@babel/node/lib/_babel-node scripts/makeadmin.js",
-    "database": "npm install && node node_modules/@babel/node/lib/_babel-node scripts/runDatabase.js",
-    "sandboxdatabase": "node node_modules/@babel/node/lib/_babel-node scripts/runSandboxDatabase.js",
-    "genkeys": "node node_modules/@babel/node/lib/_babel-node scripts/genkeys.js",
+    "makeadmin": "babel-node scripts/makeadmin.js",
+    "database": "npm install && babel-node scripts/runDatabase.js",
+    "sandboxdatabase": "babel-node scripts/runSandboxDatabase.js",
+    "genkeys": "babel-node scripts/genkeys.js",
+    "seed:fresh": "babel-node scripts/seed_db.js seedall --empty",
     "test": "reset && npm run sandboxdatabase && npm run genkeys && JUNIT_REPORT_PATH=test-result/result.xml JUNIT_REPORT_STACK=1 nyc mocha --exit --file ./test/lib/config.js --recursive --require @babel/register --timeout 25000 --colors --reporter mocha-jenkins-reporter || true",
     "start": "node node_modules/nodemon/bin/nodemon.js --signal SIGKILL --exec babel-node app/server.js  > hellovoter.log 2>&1"
   },
@@ -79,5 +80,9 @@
   },
   "optionalDependencies": {
     "jmx": "github:OurVoiceUSA/node-jmx"
+  },
+  "engines": {
+    "node": "^8.9.4",
+    "npm": "^6.14.8"
   }
 }

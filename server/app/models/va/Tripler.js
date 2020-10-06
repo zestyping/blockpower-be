@@ -21,6 +21,11 @@ module.exports = {
   },
   email: 'string',  
   status: 'string',
+  confirmed_at: 'localdatetime',
+  upgrade_sms_sent: {
+    type: 'boolean',
+    default: false
+  },
   address: {
     type: 'string',
     required: true
@@ -53,5 +58,18 @@ module.exports = {
     direction: 'in',
     eager: true,
     cascade: 'detach'
-  }
+  },
+  is_ambassador: {
+    type: 'node',
+    target: 'Ambassador',
+    relationship: 'WAS_ONCE',
+    eager: true,
+    cascade: 'detach'
+  },
+  is_ambassador_and_has_confirmed: {
+    type: 'boolean',
+    default: false
+  },
+  verification: 'string',
+  carrier_info: 'string'
 };

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "ba172ce0-d50c-455b-a561-aac8d0372698",
+		"_postman_id": "734136a9-5566-4b79-a4ed-d9f1272eb13d",
 		"name": "VoterAmbassador",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,7 +11,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7f640f8a-4e58-4d12-ae2a-25e46c022540",
+						"id": "4792d88f-4c32-4c4d-a7e0-0eb8d3584cf3",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -80,7 +80,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "95f5b80b-88f1-4208-8bb6-169ddb3330ba",
+						"id": "665e8071-d191-4f54-b2c6-43b80d5f909f",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -149,7 +149,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "34d8e05d-1d2f-4edf-86eb-e28ca63e4ea3",
+						"id": "b42c685e-ff82-4348-a825-4396e9703cd1",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -221,7 +221,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "da0a69af-c1a2-4247-bdb9-f90615cdf728",
+						"id": "47ef2ff4-fa2b-43da-96fd-60479034e7bb",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
@@ -290,7 +290,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "0597becf-ac3f-4d4b-9c94-de9d8f60968f",
+						"id": "56847a99-c0e7-46e0-827a-742ca5ba3705",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
@@ -359,7 +359,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "9d307ae6-9afb-4bec-80d8-84eab59a946d",
+						"id": "c9f05414-b01c-4489-9adc-1e03454ebcdd",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -420,7 +420,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a5a7fda3-a329-478f-a07d-9e89f4e3cffd",
+						"id": "e4fe1af6-cb73-4c57-9355-6f7717fb269e",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -486,7 +486,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e9070774-142b-4262-ac12-68f73e34e9f9",
+						"id": "4f303246-4c82-4509-952a-9778a4c08a63",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -557,7 +557,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "60e96ca7-83e1-426a-9f7b-ddf89c35176f",
+						"id": "1f62898b-987b-4a8d-ba5b-c96f70812b59",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -628,7 +628,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "3e679e8f-fa41-4b98-88e3-cd401a1a6510",
+						"id": "d6fd0ce0-aade-4998-b23c-bcbeeb9b16d9",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -679,7 +679,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e0f43e84-3f6c-4396-b39e-2177618242eb",
+						"id": "0b5d39c2-8917-41a0-a98f-102bd7c01618",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -721,7 +721,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "9c74dde0-3686-43d1-8b7d-49ad6dbf55ea",
+						"id": "6db6f197-58c6-413a-8b16-042fd7b9c829",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -762,7 +762,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2a3f14f6-d91b-4e6f-aa6b-29d28101553d",
+						"id": "f26e96b5-5467-412e-8185-fbfedbe8958d",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -804,7 +804,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "0cecd1e1-fd9c-4ca7-ac34-f1f5f08ff661",
+						"id": "5db3124f-dfcd-43ef-953b-8991842fa3cd",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -845,7 +845,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "708ebf4f-8bfb-4e0f-ac50-deb13a60ebc8",
+						"id": "44f22c3b-8b43-400f-9f21-601825ad5f13",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -886,7 +886,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a0f8df90-737a-41a0-9065-cd40b3f54ec8",
+						"id": "47c92e9a-f9ab-4fcf-94f9-3f5937d36b5f",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -936,7 +936,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "d8112b95-5e68-4901-bf29-9018ae4e59b3",
+						"id": "1e7fed86-c19d-415e-accb-2ae5ea800efe",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -978,7 +978,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "da1a0aad-baad-464f-b51e-d47accf5c627",
+						"id": "bf7cddfd-696c-4fd8-961f-0f54a3fc2de6",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -1048,7 +1048,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7126f804-bbcc-4465-96b4-5f4443778594",
+						"id": "5f8b36e9-d893-45a9-b544-3cb5ee5a948b",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -1088,7 +1088,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b88ce3d6-2010-4e49-9578-b51c9af02aa9",
+						"id": "6810639f-587f-44c1-8dc7-af8b8728cdf6",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -1158,7 +1158,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "14d4ab21-bfbe-4b6f-b15c-055e0cbbb5ee",
+						"id": "199d289e-1490-4e71-8504-29cf8372508f",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -1228,7 +1228,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "aa6f936b-b447-444c-a46c-bedd8f81e21c",
+						"id": "53c15853-db5f-4380-8dda-431571bc65c3",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -1298,7 +1298,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "f0224f46-3eef-407d-ad62-984e93c41704",
+						"id": "8ffcccac-0e1e-45ec-97f2-6613d84b5690",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -1358,7 +1358,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "951806eb-82f0-47d0-ba70-890f1a834b9d",
+						"id": "f4f577bd-bd16-4899-b59d-9a41b89e164e",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -1423,7 +1423,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "17f26354-ff8a-4002-83fb-164f4c4c7aa2",
+						"id": "5aac0045-a108-479b-a281-c902326d3015",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -1488,7 +1488,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "4b576045-3f6e-48f9-a95c-a9c1fda9af55",
+						"id": "0f8802a1-3ad2-4d7a-81d8-196496db8619",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -1553,7 +1553,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e4043fa9-c1e7-42f3-88f5-ccc148372ae8",
+						"id": "827fec35-0754-42cd-9da1-15970bf84509",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -1622,7 +1622,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "a76279cf-60c2-414c-9017-0b38c69bb274",
+						"id": "41789a48-760a-4ccc-9525-4a445d717293",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -1692,7 +1692,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7e70aece-17ee-4607-afe1-84468048e7b4",
+						"id": "c67cd349-b67d-4b4d-ad53-c3614fd53fe5",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -1732,7 +1732,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "634aed9a-3571-466f-9d8c-21959fd97f13",
+						"id": "f129218d-12d6-4af1-abe3-bffb8545ad72",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -1803,7 +1803,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "515bad22-01ee-45f0-81bd-f1f7b84b141b",
+						"id": "8e129e01-abfb-408a-a588-fb4bf2cfb112",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
@@ -1871,7 +1871,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "69679376-f3a8-44ac-97a7-193fa9c7199e",
+						"id": "df2b2afd-ba3c-46ca-9f88-72dc284d447c",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -1921,7 +1921,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "305a847a-9c2c-48ef-a095-da5ce6b94735",
+						"id": "5d66f0c1-5e38-48ac-bf6f-e4e4d8ab0a55",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -1993,7 +1993,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "f79aba41-6540-4135-9b2e-87eb609a20d9",
+						"id": "0f76d07f-e755-436f-9a25-fde5d7b0a462",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -2033,7 +2033,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "54ac9377-9d67-4cab-b890-c2c898eedcc3",
+						"id": "615687cf-3150-4d1f-abd9-7981b9546677",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -2079,7 +2079,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "d082e535-9661-4dc7-b858-e1aa31c266a8",
+						"id": "04d9a960-98db-41af-a3c1-852f63b4dbfd",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -2125,7 +2125,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "1bd7c924-8335-4aa5-9cfc-a8838908df2f",
+						"id": "5ff327ea-7e52-44c7-aa21-06c8c1e3856c",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -2171,7 +2171,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "41b38357-044f-4bcc-a032-21d9e525c923",
+						"id": "fc7548d5-f5a7-43a8-8a06-c8e0dc3625af",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -2221,7 +2221,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "c2125884-b5d6-45a4-be9d-2f6e28796e5c",
+						"id": "9594802c-9dc1-4b3f-964b-4fbef20578f4",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -2267,7 +2267,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e73c492e-e171-4e65-8fc3-5e8389c6c3e4",
+						"id": "e527193c-a862-41ad-a780-b23db7750562",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -2321,7 +2321,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "43689f5c-9574-4be7-b849-bf8ba71532e0",
+						"id": "e73bee84-f623-4af7-a65a-fdc110e19cec",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -2362,7 +2362,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "7125013b-4301-40c6-93a1-90aafd6a5db4",
+						"id": "d90c8e4a-fc79-4b1b-9c96-3f4dde1d26e3",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -2398,12 +2398,54 @@
 			"response": []
 		},
 		{
+			"name": "Fetch ambassador caller info (admin api)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d90c8e4a-fc79-4b1b-9c96-3f4dde1d26e3",
+						"exec": [
+							"pm.test(\"Status test\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}/caller-info",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"va",
+						"ambassadors",
+						"{{other_ambassador_id}}",
+						"caller-info"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Update an ambassador (admin api)",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "8433093c-6a10-49c3-b84d-eec25f762b20",
+						"id": "a10e9170-455d-4ff7-91db-6a8ea0d50349",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -2424,7 +2466,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"first_name\": \"Aman\",\n\t\"phone\": \"+15005550006\",\n\t\"email\": \"aman2@colab.coop\"\n}",
+					"raw": "{\n\t\"phone\": \"(612) 428-3486\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -2432,7 +2474,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{base_url}}/api/v1/va/ambassadors/{{other_ambassador_id}}",
+					"raw": "{{base_url}}/api/v1/va/ambassadors/0c81fb53-ab23-4fdf-b73c-3d58b3644f49",
 					"host": [
 						"{{base_url}}"
 					],
@@ -2441,7 +2483,7 @@
 						"v1",
 						"va",
 						"ambassadors",
-						"{{other_ambassador_id}}"
+						"0c81fb53-ab23-4fdf-b73c-3d58b3644f49"
 					]
 				}
 			},
@@ -2453,7 +2495,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "22254200-cd81-4dcd-ba3f-e3c23bd627ae",
+						"id": "b7b00262-b835-45a4-84f2-89ba10d313c9",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -2495,7 +2537,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "b689d96a-dbad-4b64-86b6-94779d6ed73c",
+						"id": "5222fbde-d1a1-44cb-aa3f-72b476678a79",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -2546,7 +2588,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "bfb2034a-f070-4de0-81cd-1f461f4c02e6",
+						"id": "81e70a8f-5681-4725-9fd2-e9862fcdf230",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(400);",
@@ -2596,7 +2638,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e1d0e5ef-5194-4ab9-94e5-702e6ceb4341",
+						"id": "5acc2961-5b80-443a-a3b7-8864fe0e2acc",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -2647,7 +2689,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "23f9dd73-8aa9-49b8-82bd-7f5500db2638",
+						"id": "05ee5794-2055-42c3-a5dc-f651ddb570f2",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -2698,7 +2740,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "2999472c-9b20-4f4a-8c69-d8c1f8d32443",
+						"id": "1f9adcba-70e2-4961-ab0b-f500aa25fa81",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -2749,7 +2791,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "9025b3e2-892e-404c-8ca1-dd3be901f4b8",
+						"id": "1a351906-e9d4-466c-b3e2-6f89b6a9de18",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(200);",
@@ -3114,7 +3156,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "33730024-7ab6-4a03-88d0-a7f2643307dd",
+						"id": "ee97f999-8ef2-417c-81e6-bd2fbac2f743",
 						"exec": [
 							"pm.test(\"Status test\", function () {",
 							"    pm.response.to.have.status(204);",
@@ -3163,7 +3205,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "0a7b3732-00c5-437a-9a19-0973b1a706f3",
+				"id": "5bac9d2b-7e34-4a1e-b87a-e00778875e1d",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -3173,7 +3215,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "48c5ab9f-17c2-44f7-a856-08f400d0891e",
+				"id": "b3188e0b-d3cd-42ca-a3f2-a854a0623d29",
 				"type": "text/javascript",
 				"exec": [
 					""

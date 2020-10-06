@@ -47,6 +47,7 @@ For this server, configure an `.env` file. The following is a complete list of v
     AMBASSADOR_LANDING_PAGE=
     BUSINESS_URL=
     AMBASSADOR_APPROVED_MESSAGE=
+    AMBASSADOR_SIGNUP_MESSAGE=
     TRIPLER_REMINDER_MESSAGE=
     TRIPLER_CONFIRMATION_MESSAGE=
     TRIPLER_RECONFIRMATION_MESSAGE=
@@ -74,6 +75,19 @@ For this server, configure an `.env` file. The following is a complete list of v
     NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_BODY=
     TRIPLER_CONFIRM_ADMIN_EMAIL_SUBJECT=
     TRIPLER_CONFIRM_ADMIN_EMAIL_BODY=
+    DISABLE_UPGRADE_SMS=
+    UPGRADE_SMS_WAITING_PERIOD=
+    UPGRADE_SMS_SCHEDULE=
+    TRIPLER_UPGRADE_MESSAGE=
+    WORDPRESS_LANDING=
+    ALLOWED_STATES=
+    TRIPLER_CONFIRMED_AMBASSADOR_NOTIFICATION=
+    FIRST_REWARD_PAYOUT=
+    BLOCKED_CARRIERS=
+    EKATA_API_KEY=
+    EKATA_ADDON=
+    REJECTION_SMS_FOR_TRIPLER=
+    REJECTION_SMS_FOR_AMBASSADOR=
 
 The meaning of each config item is as follows:
 
@@ -121,6 +135,7 @@ The meaning of each config item is as follows:
 * `AMBASSADOR_LANDING_PAGE`: Link to the webpage where ambassador lands after approval, this is sent in SMS
 * `BUSINESS_URL`: URL of the business running the platform or url of the organization; used in stripe while creating connect accounts
 * `AMBASSADOR_APPROVED_MESSAGE`: The SMS message when an ambassador is approved
+* `AMBASSADOR_SIGNUP_MESSAGE`: The SMS message when an ambassador signs up
 * `TRIPLER_REMINDER_MESSAGE`: The SMS message when a tripler is reminded
 * `TRIPLER_CONFIRMATION_MESSAGE`: The SMS message when a tripler begins confirmation process
 * `TRIPLER_RECONFIRMATION_MESSAGE`: The SMS message when a tripler responds to other than YES or NO in response to confirmation message
@@ -148,3 +163,17 @@ The meaning of each config item is as follows:
 * `NEW_AMBASSADOR_SIGNUP_ADMIN_EMAIL_BODY`: Body of the email sent to admins when new ambassador signs up
 * `TRIPLER_CONFIRM_ADMIN_EMAIL_SUBJECT`: Subject of the email sent to admins when a tripler confirms
 * `TRIPLER_CONFIRM_ADMIN_EMAIL_BODY`: Body of the email sent to admins when a tripler confirms
+* `DISABLE_UPGRADE_SMS`: Flag to disable the tripler upgrade sms background job
+* `UPGRADE_SMS_WAITING_PERIOD`: The time interval (in minutes)
+* `UPGRADE_SMS_SCHEDULE`: The time interval (in minutes) where the tripler upgrade sms background job fires
+* `TRIPLER_UPGRADE_MESSAGE`: The SMS message when a tripler responds YES, informing them that they are eligible to become Voter Ambassadors
+* `WORDPRESS_LANDING`: The URL for the landing page for when a Tripler wants to upgrade to Ambassador
+* `ALLOWED_STATES`: A comma-separated list of 2-letter US state codes that determine which addresses are valid for ambassador signups
+* `TRIPLER_CONFIRMED_AMBASSADOR_NOTIFICATION`: The SMS message that gets sent to the ambassador when one of their triplers is confirmed.
+* `FIRST_REWARD_PAYOUT`: The amount an ambassador receives as a reward for one of their claimed triplers upgrading to an ambassador and confirming a tripler.
+* `BLOCKED_CARRIERS`: A pipe-delimited list of carrier strings in order to block fraudulent phone numbers.
+* `EKATA_API_KEY`: API key used for reverse phone lookup API from [Ekata.com](https://ekata.com/developer/documentation/api-overview/#tag/Reverse-Phone-API).
+* `EKATA_ADDON`: If Ekata is available as a Twilio add-on, set this to true.
+* `REJECTION_SMS_FOR_TRIPLER`: The SMS message that the tripler receives when they reply 'no' to the system.
+* `REJECTION_SMS_FOR_AMBASSADOR`: The SMS message that the ambassador receives when one of their triplers replies 'no' to the system.
+

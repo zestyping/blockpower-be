@@ -125,7 +125,7 @@ async function disburse(ambassador, tripler) {
   let payout_id = res.records[0]._fields[0];
   let payout = await neode.first('Payout', 'id', payout_id);
 
-  let amount = parseInt(ov_config.payout_per_tripler);
+  let amount = parseInt(payout.get('amount'));
 
   let payout_account = getStripeAccount(ambassador);
   if (!payout_account) {
@@ -167,15 +167,29 @@ async function settle(ambassador, tripler) {
   let payout_id = res.records[0]._fields[0];
   let payout = await neode.first('Payout', 'id', payout_id);
 
-  let amount = parseInt(ov_config.payout_per_tripler);
+  let amount = parseInt(payout.get('amount'));
 
   let stripe_payout = null;
   try {
     logger.debug('settling ambassador %s due to tripler %s', ambassador.get('id'), tripler.get('id'));
+    let account = null;
+    let relationships = ambassador.get('owns_account');
+    for (var x = 0; x < relationships.length; x++) {
+      let entry = relationships.get(x);
+      if (entry.get('primary') || relationships.length === 1) {
+        account = entry.otherNode();
+      }
+    }
+
+    if (!account) {
+      throw 'Stripe account for ambassador not found, cannot settle!';
+    }
     stripe_payout = await stripe(ov_config.stripe_secret_key).payouts.create({
       amount: amount,
       currency: 'usd',
       description: getPayoutDescription(ambassador, tripler)
+    }, {
+      stripeAccount: account.get('account_id')
     });
   } catch(err) {
     await payout.update({ error: JSON.stringify(err) });
