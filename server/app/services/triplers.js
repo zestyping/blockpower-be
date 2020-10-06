@@ -333,7 +333,7 @@ async function searchTriplersAmbassador(req) {
   if (ov_config.exclude_unreg_except_in) {
     exclude_except += ov_config.exclude_unreg_except_in.split(",").map((state) => {
       return `AND NOT t.address CONTAINS '\"state\": \"${state}\"' `
-    })
+    }).join(' ')
   }
   let collection = await neode
     .query()

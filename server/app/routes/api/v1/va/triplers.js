@@ -126,7 +126,7 @@ async function suggestTriplers(req, res) {
   if (ov_config.exclude_unreg_except_in) {
     exclude_except += ov_config.exclude_unreg_except_in.split(",").map((state) => {
       return `AND NOT t.address CONTAINS '\"state\": \"${state}\"' `
-    })
+    }).join(' ')
   }
   let collection = await req.neode.query()
     .match('a', 'Ambassador')
