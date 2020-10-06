@@ -39,7 +39,7 @@ async function createAmbassador(req, res) {
     if (req.models.Ambassador.phone.unique) {
       let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
       if(existing_ambassador) {
-        return error(400, res, "That phone number is already in use.");
+        return error(400, res, "That phone number is already in use. Cannot create ambassador.");
       }
     }
 
@@ -48,7 +48,7 @@ async function createAmbassador(req, res) {
 
       if (req.models.Ambassador.email.unique && 
           await req.neode.first('Ambassador', 'email', req.body.email)) {
-        return error(400, res, "That email address is already in use.");
+        return error(400, res, "That email address is already in use. Cannot create ambassador.");
       }
     }
 
@@ -318,7 +318,7 @@ async function updateAmbassador(req, res) {
     if (req.models.Ambassador.phone.unique) {
       let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
       if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-        return error(400, res, "That phone number is already in use.");
+        return error(400, res, "That phone number is already in use. Cannot update ambassador.");
       }
     }
   }
@@ -329,7 +329,7 @@ async function updateAmbassador(req, res) {
     if (req.models.Ambassador.email.unique) {
       let existing_ambassador = await req.neode.first('Ambassador', 'email', req.body.email);
       if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-        return error(400, res, "That email address is already in use.");
+        return error(400, res, "That email address is already in use. Cannot update ambassador.");
       }
     }
   }
@@ -376,7 +376,7 @@ async function updateCurrentAmbassador(req, res) {
     if (req.models.Ambassador.phone.unique) {
       let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
       if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-        return error(400, res, "That phone number is already in use.");
+        return error(400, res, "That phone number is already in use. Cannot update current ambassador.");
       }
     }
   }
@@ -387,7 +387,7 @@ async function updateCurrentAmbassador(req, res) {
     if (req.models.Ambassador.email.unique) {
       let existing_ambassador = await req.neode.first('Ambassador', 'email', req.body.email);
       if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-        return error(400, res, "That email address is already in use.");
+        return error(400, res, "That email address is already in use. Cannot update current ambassador.");
       }
     }
   }

@@ -72,7 +72,7 @@ async function signup(json, verification, carrierLookup) {
   if (models.Ambassador.phone.unique) {
     let existing_ambassador = await neode.first('Ambassador', 'phone', normalize(json.phone));
     if (existing_ambassador) {
-      throw new ValidationError("That phone number is already in use.", { ambassador: json, verification: verification });
+      throw new ValidationError("You already have an account. Email support@blockpower.vote for help. E5", { ambassador: json, verification: verification });
     }
   }
 
@@ -88,7 +88,7 @@ async function signup(json, verification, carrierLookup) {
 
     if (models.Ambassador.email.unique &&
       await neode.first('Ambassador', 'email', json.email)) {
-      throw new ValidationError("That email address is already in use.");
+      throw new ValidationError("You already have an account. Email support@blockpower.vote for help. E6");
     }
   }
 

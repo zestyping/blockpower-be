@@ -32,7 +32,7 @@ async function createTripler(req, res) {
     }
 
     if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
+      return error(400, res, "Our system doesn’t recognize that phone number. Cannot create tripler. Please try again.");
     }
 
     if (req.models.Tripler.phone.unique) {
@@ -169,7 +169,7 @@ async function updateTripler(req, res) {
 
   if (req.body.phone) {
     if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
+      return error(400, res, "Our system doesn’t recognize that phone number. Cannot update tripler. Please try again.");
     }
 
     let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(req.body.phone));
@@ -261,22 +261,22 @@ async function startTriplerConfirmation(req, res) {
 
   if (triplerPhone) {
     if (!validatePhone(triplerPhone)) {
-      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
+      return error(400, res, "Our records suggest that this number may not be the vote tripler's phone number. Please email support@blockpower.vote for help. E4");
     }
     let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(triplerPhone));
     if(existing_tripler && existing_tripler.get('id') !== tripler.get('id')) {
-      return error(400, res, "That phone number is already in use. Cannot begin tripler confirmation.", { ambassador: serializeAmbassador(ambassador), tripler: serializeTripler(tripler), verification: verification });
+      return error(400, res, "Our records suggest that this number may not be the vote tripler's phone number. Please email support@blockpower.vote for help. E3", { ambassador: serializeAmbassador(ambassador), tripler: serializeTripler(tripler), verification: verification });
     }
   }
 
   if (triplerPhone === ambassador.get('phone')) {
-    return error(400, res, "You entered your phone number as the number of this Vote Tripler. Please try again.");
+    return error(400, res, "Our records suggest that this number may not be the vote tripler's phone number. Please email support@blockpower.vote for help. E2");
   }
 
   let carrierLookup = await carrier(triplerPhone);
   if(carrierLookup.carrier.isBlocked) {
     await triplersSvc.updateTriplerBlockedCarrier(tripler, carrierLookup.carrier.name);
-    return error(400, res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`, { ambassador: serializeAmbassador(ambassador), tripler: serializeTripler(tripler)});
+    return error(400, res, "Our records suggest that this number may not be the vote tripler's phone number. Please email support@blockpower.vote for help. E1", { ambassador: serializeAmbassador(ambassador), tripler: serializeTripler(tripler)});
   } else {
     await triplersSvc.updateTriplerCarrier(tripler, carrierLookup.carrier.name);
   }
@@ -313,7 +313,7 @@ async function remindTripler(req, res) {
   let new_phone = req.body.phone;
   if (new_phone) {
     if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
+      return error(400, res, "Our records suggest that this number may not be the vote tripler's phone number. Please email support@blockpower.vote for help. E4");
     }
 
     await tripler.update({ phone: new_phone });
