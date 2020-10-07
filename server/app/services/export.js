@@ -58,7 +58,7 @@ async function exportAmbassadors(neode) {
       total_sent_to_bank,
       total_earned,
       ambassador.account ? JSON.stringify(ambassador.account.account_id, null, 2): '',
-      JSON.stringify(ambassador.verification, null, 2),
+      '"' + JSON.stringify(ambassador.verification, null, 2).replace(/\"/g, '`') + '"',
       ambassador.admin
     ].join(',');
 
@@ -138,10 +138,10 @@ async function exportTriplers(neode) {
         serializeName(ambassador.first_name, ambassador.last_name),
         ambassador.external_id,
         tripler.phone,
-        tripler.triplees ? tripler.triplees[0].first_name ? serializeTripleeForCSV(tripler.triplees[0]) : tripler.triplees[0] : '',
-        tripler.triplees ? tripler.triplees[0].first_name ? serializeTripleeForCSV(tripler.triplees[1]) : tripler.triplees[1] : '',
-        tripler.triplees ? tripler.triplees[0].first_name ? serializeTripleeForCSV(tripler.triplees[2]) : tripler.triplees[2] : '',
-        tripler.verification
+        tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[0]), null, 2) : tripler.triplees[0] : '',
+        tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[1]), null, 2) : tripler.triplees[1] : '',
+        tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[2]), null, 2) : tripler.triplees[2] : '',
+        '"' + JSON.stringify(tripler.verification, null, 2).replace(/\"/g, '`') + '"'
       ];
 
       text = text + '\n' + tripler_line;
