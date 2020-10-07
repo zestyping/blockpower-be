@@ -112,7 +112,7 @@ async function searchTriplersAdmin(req, res) {
   if (!req.query.firstName && !req.query.lastName) {
     return res.json([]);
   }
-  let models = await triplersSvc.searchTriplersAdmin(req.query)
+  let models = await triplersSvc.searchTriplersAdmin(req)
   return res.json(models);
 }
 
