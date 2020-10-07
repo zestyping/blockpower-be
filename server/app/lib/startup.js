@@ -178,11 +178,11 @@ export async function doDbInit(db) {
   await asyncForEach(existingIndexes.data, async (index) => {
     if (index[0] === 'INDEX ON :Tripler(first_name)') {
       console.log('Deleting older name index')
-      await db.query('DROP INDEX :Tripler(first_name)')
+      await db.query('DROP INDEX ON :Tripler(first_name)')
     }
     if (index[0] === 'INDEX ON :Tripler(last_name)') {
       console.log('Deleting older name index')
-      await db.query('DROP INDEX :Tripler(last_name)')
+      await db.query('DROP INDEX ON :Tripler(last_name)')
     }
     if (index[0] === 'INDEX ON NODE:Tripler(first_name, last_name)') {
       full_text_index_needed = false;
