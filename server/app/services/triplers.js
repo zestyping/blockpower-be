@@ -309,19 +309,16 @@ async function adminSearchTriplers(req) {
 
 function buildSearchTriplerQuery(query) {
   let neo4jquery = "";
-  if (query.firstName) {
-    neo4jquery += ` apoc.text.levenshteinDistance("${query.firstName
-      .trim()
-      .toLowerCase()}", LOWER(t.first_name)) < 3.0`;
-  }
-
-  if (query.lastName) {
+  if (query.firstName || query.lastName) {
+    let firstNameQuery = ''
+    let lastNameQuery = ''
     if (query.firstName) {
-      neo4jquery += " AND";
+      firstNameQuery = ` first_name:${query.firstName.trim().toLowerCase()}~`;
     }
-    neo4jquery += ` apoc.text.levenshteinDistance("${query.lastName
-      .trim()
-      .toLowerCase()}", LOWER(t.last_name)) < 3.0`;
+    if (query.lastName) {
+      lastNameQuery = ` last_name:${query.lastName.trim().toLowerCase()}~`;
+    }
+    neo4jquery += ` CALL db.index.fulltext.queryNodes("TriplerNameIndex", "${firstNameQuery + lastNameQuery}") YIELD node AS t `
   }
 
   return neo4jquery
@@ -329,34 +326,24 @@ function buildSearchTriplerQuery(query) {
 
 async function searchTriplersAmbassador(req) {
   let neo4jquery = buildSearchTriplerQuery(req.query);
-
-  /*
-  let exclude_except = '';
-  if (ov_config.exclude_unreg_except_in) {
-    exclude_except += ov_config.exclude_unreg_except_in.split(",").map((state) => {
-      return `AND NOT t.address CONTAINS '\"state\": \"${state}\"' `
-    }).join(' ')
-  }
-  */
-
-  let collection = await neode
+  let q = await neode
     .query()
     .match("a", "Ambassador")
     .where("a.id", req.user.get("id"))
-    .match("t", "Tripler")
     .whereRaw("NOT ()-[:CLAIMS]->(t)")
     .whereRaw("NOT ()-[:WAS_ONCE]->(t)")
-    // .whereRaw(`NOT t.voter_id CONTAINS "Unreg" ${exclude_except}`)
     .whereRaw(`distance(t.location, a.location) <= ${ov_config.search_tripler_max_distance}`) // distance in meters (see .env)
     .with("a, t, distance(t.location, a.location) AS distance")
-    .whereRaw(neo4jquery)
     .orderBy("distance")
     .return("t, distance")
     .limit(ov_config.suggest_tripler_limit)
-    .execute();
+    .build();
 
+  q.query = neo4jquery + q.query
+  q.query = q.query.replace('$where_a_id', '"' + req.user.get("id") + '"')
+
+  let collection = await neode.cypher(q.query);
   let models = [];
-
   for (var index = 0; index < collection.records.length; index++) {
     let entry = collection.records[index]._fields[0].properties;
     models.push(serializeNeo4JTripler(entry));
@@ -371,18 +358,20 @@ async function searchTriplersAmbassador(req) {
 // searching as admin removes constraint of requiring no claims relationship
 // as well as removing constraint of requiring no upgraded status
 //
-async function searchTriplersAdmin(query) {
-  let neo4jquery = buildSearchTriplerQuery(query);
-  let collection = await neode
+async function searchTriplersAdmin(req) {
+  let neo4jquery = buildSearchTriplerQuery(req.query);
+  let q = await neode
     .query()
     .match("t", "Tripler")
-    .whereRaw(neo4jquery)
     .return("t")
-    .limit(1000)
-    .execute();
+    .limit(ov_config.suggest_tripler_limit)
+    .build();
 
+  q.query = neo4jquery + q.query
+  q.query = q.query.replace('$where_a_id', '"' + req.user.get("id") + '"')
+
+  let collection = await neode.cypher(q.query);
   let models = [];
-
   for (var index = 0; index < collection.records.length; index++) {
     let entry = collection.records[index]._fields[0].properties;
     models.push(serializeNeo4JTripler(entry));
