@@ -141,7 +141,7 @@ async function exportTriplers(neode) {
         tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[0]), null, 2) : tripler.triplees[0] : '',
         tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[1]), null, 2) : tripler.triplees[1] : '',
         tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[2]), null, 2) : tripler.triplees[2] : '',
-        '"' + JSON.stringify(tripler.verification, null, 2).replace(/\"/g, '`') + '"'
+        tripler.verification
       ];
 
       text = text + '\n' + tripler_line;
