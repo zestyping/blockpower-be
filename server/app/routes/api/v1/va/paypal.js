@@ -10,6 +10,7 @@ async function createPaypalAccount(req, res) {
       id: uuidv4(),
       account_type: 'paypal',
       account_id: 'paypal-' + req.user.get('phone'),
+      account_data: JSON.stringify({last4: 'PYPL'}),
       is_primary: true
     });
 
