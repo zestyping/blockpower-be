@@ -35,7 +35,6 @@ function validateForPayment(ambassador, tripler) {
 }
 
 function getPaypalAccount(ambassador) {
-  console.log('getting paypal account')
   let payout_account = null;
 
   ambassador.get('owns_account').forEach((entry) => {
