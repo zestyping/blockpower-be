@@ -69,7 +69,7 @@ async function disburse(ambassador, tripler) {
 
   let payout_account = getPaypalAccount(ambassador);
   if (!payout_account) {
-    throw 'Stripe account not set for ambassador, cannot pay';
+    throw 'Paypal account not set for ambassador, cannot pay';
   }
 
   let transfer = null;
