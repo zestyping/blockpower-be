@@ -1,7 +1,112 @@
 import { serializeAmbassadorForAdmin, serializeAmbassador, serializeTriplerForCSV, serializeTripler, serializePayout, serializeName, serializeTripleeForCSV } from '../routes/api/v1/va/serializers';
 import { ov_config } from '../lib/ov_config';
 
-async function exportAmbassadors(neode) {
+async function exportAmbassadorsJSON(neode) {
+  let collection = await neode.model('Ambassador').all();
+  let ambassadors = [];
+
+  for (let x = 0; x < collection.length; x++) {
+    let entry = collection.get(x);
+    let ambassador = serializeAmbassadorForAdmin(entry);
+    let triplers = entry.get('claims');
+    let unconfirmed = 0;
+    let pending = 0;
+    let confirmed = 0;
+
+    for (let y = 0; y < triplers.length; y++) {
+      let tripler = triplers.get(y).otherNode();
+      if (tripler.get('status') === 'unconfirmed') {
+        unconfirmed++;
+      } else if (tripler.get('status') === 'confirmed') {
+        confirmed++;
+      } else if (tripler.get('status') === 'pending') {
+        pending++;
+      }
+    }
+
+    let payouts = entry.get('gets_paid');
+    let total_sent_to_bank = 0;
+    let total_earned = 0;
+    let disbursed = 0;
+    let settled = 0;
+
+    for (let z = 0; z < payouts.length; z++) {
+      let payout = payouts.get(z).otherNode();
+
+      if (payout.get('status') === 'disbursed') {
+        disbursed++;
+      } else if (payout.get('status') === 'settled') {
+        settled++;
+        total_sent_to_bank += ov_config.payout_per_tripler / 100;
+      }
+      total_earned += ov_config.payout_per_tripler / 100;
+    }
+
+    let ambassador_obj = {
+      google_fb_id: ambassador.external_id,
+      created_at: new Date(entry.get('created_at')),
+      date_of_birth: ambassador.date_of_birth,
+      first_name: ambassador.first_name,
+      last_name: ambassador.last_name,
+      address: ambassador.address,
+      email: ambassador.email,
+      phone: ambassador.phone,
+      unconfirmed: unconfirmed,
+      pending: pending,
+      confirmed: confirmed,
+      total_sent_to_bank: total_sent_to_bank,
+      total_earned: total_earned,
+      payout_account_id: ambassador.account ? JSON.stringify(ambassador.account.account_id, null, 2): '',
+      verification_data: JSON.stringify(ambassador.verification, null, 2),
+      admin: ambassador.admin
+    }
+
+    ambassadors.push(ambassador_obj);
+  }
+
+  return ambassadors;
+}
+
+async function exportTriplersJSON(neode) {
+  let collection = await neode.model('Ambassador').all();
+  let triplers = [];
+
+  for (let x = 0; x < collection.length; x++) {
+    let entry = collection.get(x);
+    let ambassador = serializeAmbassador(entry);
+    let relationships = entry.get('claims');
+
+    for (let y = 0; y < relationships.length; y++) {
+      let relationship = relationships.get(y);
+      let entry = relationship.otherNode();
+      let tripler = serializeTriplerForCSV(entry);
+      let tripler_obj = {
+        voter_id: tripler.voter_id,
+        first_name: tripler.first_name,
+        last_name: tripler.last_name,
+        address: tripler.address,
+        status: tripler.status,
+        date_claimed: new Date(relationship.get('since')),
+        date_confirmed: entry.get('confirmed_at')? new Date(entry.get('confirmed_at')) : '',
+        ambassador_name: serializeName(ambassador.first_name, ambassador.last_name),
+        ambassador_external_id: ambassador.external_id,
+        phone: tripler.phone,
+        triplee1: tripler.triplees ? tripler.triplees[0] : null,
+        triplee2: tripler.triplees ? tripler.triplees[1] : null,
+        triplee3: tripler.triplees ? tripler.triplees[2] : null,
+        verification: tripler.verification
+      }
+
+      triplers.push(tripler_obj);
+    }
+  }
+
+  return triplers;
+}
+
+
+
+async function exportAmbassadorsCSV(neode) {
   let collection = await neode.model('Ambassador').all();
   let text = '';
 
@@ -92,7 +197,7 @@ async function exportAmbassadors(neode) {
   return text;
 }
 
-async function exportTriplers(neode) {
+async function exportTriplersCSV(neode) {
   let collection = await neode.model('Ambassador').all();
   let text = '';
   for (let x = 0; x < collection.length; x++) {
@@ -152,7 +257,9 @@ async function exportTriplers(neode) {
 }
 
 module.exports = {
-  exportAmbassadors: exportAmbassadors,
-  exportTriplers: exportTriplers
+  exportAmbassadorsJSON: exportAmbassadorsJSON,
+  exportTriplersJSON: exportTriplersJSON,
+  exportAmbassadorsCSV: exportAmbassadorsCSV,
+  exportTriplersCSV: exportTriplersCSV
 }
 
