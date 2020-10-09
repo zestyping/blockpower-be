@@ -79,13 +79,13 @@ async function disburse(ambassador, tripler) {
     let requestBody = {
       "sender_batch_header": {
         "recipient_type": "EMAIL",
-        "email_message": "Ambassador payout",
-        "note": "Ambassador payout",
+        "email_message": "Ambassador payment",
+        "note": "",
         "sender_batch_id": new Date(),
         "email_subject": "This is a paypal transaction"
       },
       "items": [{
-        "note": "Your Ambassador Payout",
+        "note": "",
         "amount": {
           "currency": "USD",
           "value": amount / 100
