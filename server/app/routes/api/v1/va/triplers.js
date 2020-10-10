@@ -133,6 +133,21 @@ async function suggestTriplers(req, res) {
   let collection = await req.neode.query()
     .match('a', 'Ambassador')
     .where('a.id', req.user.get('id'))
+    .with('a, a.zip as zip')
+    .match('t', 'Tripler')
+    .where('t.zip starts with left(zip,3)')
+    .with('a,t')
+    .whereRaw('NOT ()-[:CLAIMS]->(t)')
+    .whereRaw('NOT ()-[:WAS_ONCE]->(t)')
+    .whereRaw(`NOT t.voter_id CONTAINS "Unreg" ${exclude_except}`)
+    .with('a, t, distance(t.location, a.location) AS distance')
+    .orderBy('distance')
+    .return('t, distance')
+    .limit(ov_config.suggest_tripler_limit)
+    .execute()
+/*
+    .match('a', 'Ambassador')
+    .where('a.id', req.user.get('id'))
     .match('t', 'Tripler')
     .whereRaw('NOT ()-[:CLAIMS]->(t)')
     .whereRaw('NOT ()-[:WAS_ONCE]->(t)')
@@ -143,7 +158,7 @@ async function suggestTriplers(req, res) {
     .return('t, distance')
     .limit(ov_config.suggest_tripler_limit)
     .execute()
-
+*/
   let models = [];
   for (var index = 0; index < collection.records.length; index++) {
     let entry = collection.records[index]._fields[0].properties;
