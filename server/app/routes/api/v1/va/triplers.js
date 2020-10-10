@@ -131,8 +131,7 @@ async function suggestTriplers(req, res) {
   }
 
   let collection = await req.neode.query()
-    .match('a', 'Ambassador')
-    .where('a.id', req.user.get('id'))
+    .match('a', 'Ambassador', {id: req.user.get('id')})
     .with('a, a.zip as zip')
     .match('t', 'Tripler')
     .where('t.zip starts with left(zip,3)')
