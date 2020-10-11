@@ -325,15 +325,17 @@ function buildSearchTriplerQuery(query) {
 }
 
 async function searchTriplersAmbassador(req) {
+  let neo4jquery = buildSearchTriplerQuery(req.query);
 
   /*
-  let neo4jquery = buildSearchTriplerQuery(req.query);
   let exclude_except = '';
   if (ov_config.exclude_unreg_except_in) {
     exclude_except += ov_config.exclude_unreg_except_in.split(",").map((state) => {
       return `AND NOT t.address CONTAINS '\"state\": \"${state}\"' `
     }).join(' ')
   }
+  */
+
   let q = await neode
     .query()
     .match("a", "Ambassador")
@@ -352,14 +354,17 @@ async function searchTriplersAmbassador(req) {
   q.query = q.query.replace('$where_a_id', '"' + req.user.get("id") + '"')
 
   let collection = await neode.cypher(q.query);
-  */
 
+  /*
   let firstNameQuery = req.query.firstName;
   let lastNameQuery = req.query.lastName;
 
   let q = `CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "${firstNameQuery + ' ' + lastNameQuery}") YIELD node with node limit 500 with node, apoc.text.levenshteinSimilarity(toLower(node.full_name), "${firstNameQuery + ' ' + lastNameQuery}") as score1, apoc.text.jaroWinklerDistance(toLower(node.full_name), "${firstNameQuery + ' ' + lastNameQuery}") as score2, apoc.text.sorensenDiceSimilarity(toLower(node.full_name), "${firstNameQuery + ' ' + lastNameQuery}") as score3 with node, (score1 + score2 + score3) / 3 as avg_score return node order by avg_score desc limit 100`
 
   let collection = await neode.cypher(q);
+  */
+
+
   let models = [];
   for (var index = 0; index < collection.records.length; index++) {
     let entry = collection.records[index]._fields[0].properties;
