@@ -57,7 +57,7 @@ async function exportAmbassadorsJSON(neode) {
       total_sent_to_bank: total_sent_to_bank,
       total_earned: total_earned,
       payout_account_id: ambassador.account ? JSON.stringify(ambassador.account.account_id, null, 2): '',
-      verification_data: JSON.stringify(ambassador.verification, null, 2),
+      verification_data: ambassador.verification ? '"' + ambassador.verification.replace(/\"/g, '\'').replace(/\n/g, '') + '"': '',
       admin: ambassador.admin
     }
 
@@ -94,7 +94,7 @@ async function exportTriplersJSON(neode) {
         triplee1: tripler.triplees ? tripler.triplees[0] : null,
         triplee2: tripler.triplees ? tripler.triplees[1] : null,
         triplee3: tripler.triplees ? tripler.triplees[2] : null,
-        verification: tripler.verification
+        verification: tripler.verification ? '"' + tripler.verification.replace(/\"/g, '\'').replace(/\n/g, '') + '"': ''
       }
 
       triplers.push(tripler_obj);
@@ -163,7 +163,7 @@ async function exportAmbassadorsCSV(neode) {
       total_sent_to_bank,
       total_earned,
       ambassador.account ? JSON.stringify(ambassador.account.account_id, null, 2): '',
-      '"' + JSON.stringify(ambassador.verification, null, 2).replace(/\"/g, '`') + '"',
+      ambassador.verification ? '"' + ambassador.verification.replace(/\"/g, '\'').replace(/\n/g, '') + '"': '',
       ambassador.admin
     ].join(',');
 
@@ -246,7 +246,7 @@ async function exportTriplersCSV(neode) {
         tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[0]), null, 2) : tripler.triplees[0] : '',
         tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[1]), null, 2) : tripler.triplees[1] : '',
         tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[2]), null, 2) : tripler.triplees[2] : '',
-        tripler.verification
+        tripler.verification ? '"' + tripler.verification.replace(/\"/g, '\'').replace(/\n/g, '') + '"': ''
       ];
 
       text = text + '\n' + tripler_line;

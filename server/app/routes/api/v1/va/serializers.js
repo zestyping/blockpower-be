@@ -36,7 +36,7 @@ function serializeAmbassador(ambassador) {
 
 function serializeAmbassadorForAdmin(ambassador) {
   let obj = serializeAmbassador(ambassador);
-  obj.verification = JSON.parse(ambassador.get('verification'));
+  obj.verification = ambassador.get('verification');
   return obj;
 }
 
