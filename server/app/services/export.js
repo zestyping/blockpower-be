@@ -153,7 +153,7 @@ async function exportAmbassadorsCSV(neode) {
       ambassador.date_of_birth,
       ambassador.first_name,
       ambassador.last_name,
-      ambassador.address.address1.replace(',', ' ').replace('#', 'no.'),
+      ambassador.address1,
       ambassador.address.zip,
       ambassador.email,
       ambassador.phone,
