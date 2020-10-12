@@ -445,26 +445,30 @@ async function claimTriplers(req, res) {
     return error(400, res, 'Invalid request, empty list of triplers');
   }
 
-  let triplers = [];
+  // The triplers specified by this ambassador
+  let requested_triplers = [];
+  let all_triplers = [];
   for (let entry of req.body.triplers) {
     let model = await req.neode.first('Tripler', 'id', entry);
     if (!model) {
       return error(404, res, 'Tripler not found, invalid id');
     }
-    triplers.push(model);
+    requested_triplers.push(model);
+    all_triplers.push(model);
   }
 
+  // Add all existing triplers
   let current_claims_num = 0;
   ambassador.get('claims').forEach((entry) => {
-    triplers.push(entry.otherNode());
+    all_triplers.push(entry.otherNode());
     current_claims_num++;
   });
-  triplers = [... new Set(triplers)]; // eliminate duplicates
-  if (triplers.length > parseInt(ov_config.claim_tripler_limit)) {
+  all_triplers = [... new Set(all_triplers)]; // eliminate duplicates
+  if (all_triplers.length > parseInt(ov_config.claim_tripler_limit)) {
     return _400(res, `You may select up to ${ov_config.claim_tripler_limit} possible Vote Triplers. Please select up to ${ov_config.claim_tripler_limit - current_claims_num} more to continue.`);
   }
 
-  for(let entry of triplers) {
+  for(let entry of requested_triplers) {
     await ambassador.relateTo(entry, 'claims');
   }
 

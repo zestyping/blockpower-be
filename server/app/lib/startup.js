@@ -157,11 +157,11 @@ export async function doDbInit(db) {
     }
   }
 
+  let existingIndexes = await db.query('call db.indexes()');
+
   let indexes = [
     {label: 'Ambassador', property: 'location', create: 'create index on :Ambassador(location)'},
     {label: 'Tripler', property: 'location', create: 'create index on :Tripler(location)'},
-    {label: 'Tripler', property: 'first_name', create: 'create index on :Tripler(first_name)'},
-    {label: 'Tripler', property: 'last_name', create: 'create index on :Tripler(last_name)'}
   ];
 
   // create any indexes we need if they don't exist
@@ -173,6 +173,27 @@ export async function doDbInit(db) {
     }
   });
 
+  // delete older name indexes, if they exist
+  let full_text_index_needed = true;
+  await asyncForEach(existingIndexes.data, async (index) => {
+    if (index[0] === 'INDEX ON :Tripler(first_name)') {
+      console.log('Deleting older name index')
+      await db.query('DROP INDEX ON :Tripler(first_name)')
+    }
+    if (index[0] === 'INDEX ON :Tripler(last_name)') {
+      console.log('Deleting older name index')
+      await db.query('DROP INDEX ON :Tripler(last_name)')
+    }
+    if (index[0] === 'INDEX ON NODE:Tripler(first_name, last_name)') {
+      full_text_index_needed = false;
+    }
+  });
+
+  // create full text search index, if needed
+  if (full_text_index_needed) {
+    console.log('Creating newer name index')
+    await db.query('CALL db.index.fulltext.createNodeIndex("TriplerNameIndex", ["Tripler"], ["first_name", "last_name"]);');
+  }
 
   /*
   let indexes = [
