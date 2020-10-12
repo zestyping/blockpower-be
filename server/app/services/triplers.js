@@ -357,7 +357,7 @@ async function searchTriplersAmbassador(req) {
   let firstNameQuery = req.query.firstName;
   let lastNameQuery = req.query.lastName;
 
-  let q = `CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "${firstNameQuery + ' ' + lastNameQuery}") YIELD node with node limit 500 with node, apoc.text.levenshteinSimilarity(toLower(node.full_name), "${firstNameQuery + ' ' + lastNameQuery}") as score1, apoc.text.jaroWinklerDistance(toLower(node.full_name), "${firstNameQuery + ' ' + lastNameQuery}") as score2, apoc.text.sorensenDiceSimilarity(toLower(node.full_name), "${firstNameQuery + ' ' + lastNameQuery}") as score3 with node, (score1 + score2 + score3) / 3 as avg_score return node order by avg_score desc limit 100`
+  let q = `CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "${'*' + firstNameQuery + '* *' + lastNameQuery + '*'}") YIELD node with node limit 500 with node, apoc.text.levenshteinSimilarity(toLower(node.full_name), "${firstNameQuery + ' ' + lastNameQuery}") as score1, apoc.text.jaroWinklerDistance(toLower(node.full_name), "${firstNameQuery + ' ' + lastNameQuery}") as score2, apoc.text.sorensenDiceSimilarity(toLower(node.full_name), "${firstNameQuery + ' ' + lastNameQuery}") as score3 with node, (score1 + score2 + score3) / 3 as avg_score return node order by avg_score desc limit 100`
 
   let collection = await neode.cypher(q);
   let models = [];
