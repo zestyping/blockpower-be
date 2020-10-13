@@ -90,11 +90,16 @@ async function exportTriplersJSON(neode) {
         date_confirmed: entry.get('confirmed_at')? new Date(entry.get('confirmed_at')) : '',
         ambassador_name: serializeName(ambassador.first_name, ambassador.last_name),
         ambassador_external_id: ambassador.external_id,
+        ambassador_phone: ambassador.phone,
+        ambassador_email: ambassador.email,
+        ambassador_account_id: ambassador.account.account_id,
         phone: tripler.phone,
         triplee1: tripler.triplees ? tripler.triplees[0] : null,
         triplee2: tripler.triplees ? tripler.triplees[1] : null,
         triplee3: tripler.triplees ? tripler.triplees[2] : null,
-        verification: tripler.verification ? '"' + tripler.verification.replace(/\"/g, '\'').replace(/\n/g, '') + '"': ''
+        verification: tripler.verification ? '"' + tripler.verification.replace(/\"/g, '\'').replace(/\n/g, '') + '"': '',
+        is_ambassador: tripler.is_ambassador,
+        is_ambassador_and_has_confirmed: tripler.is_ambassador_and_has_confirmed,
       }
 
       triplers.push(tripler_obj);
@@ -216,11 +221,16 @@ async function exportTriplersCSV(neode) {
         'Date Confirmed',
         'Ambassador Name',
         'Ambassador External ID',
+        'Ambassador Phone',
+        'Ambassador Email',
+        'Ambassador Account ID',
         'Phone',
         'Triplee1',
         'Triplee2',
         'Triplee3',
-        'Verification'
+        'Verification',
+        'Is Ambassador',
+        'Is Ambassador And Has Confirmed'
     ];
 
     if (x === 0) {
@@ -242,11 +252,16 @@ async function exportTriplersCSV(neode) {
         entry.get('confirmed_at')? new Date(entry.get('confirmed_at')) : '',
         serializeName(ambassador.first_name, ambassador.last_name),
         ambassador.external_id,
+        ambassador.phone,
+        ambassador.email,
+        ambassador.account.account_id,
         tripler.phone,
         tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[0]), null, 2) : tripler.triplees[0] : '',
         tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[1]), null, 2) : tripler.triplees[1] : '',
         tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[2]), null, 2) : tripler.triplees[2] : '',
-        tripler.verification ? '"' + tripler.verification.replace(/\"/g, '\'').replace(/\n/g, '') + '"': ''
+        tripler.verification ? '"' + tripler.verification.replace(/\"/g, '\'').replace(/\n/g, '') + '"': '',
+        tripler.is_ambassador,
+        tripler.is_ambassador_and_has_confirmed,
       ];
 
       text = text + '\n' + tripler_line;
