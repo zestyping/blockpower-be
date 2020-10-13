@@ -4,8 +4,12 @@ import ambassadorSvc from '../services/ambassadors';
 import triplerSvc from '../services/triplers';
 import stripeSvc from '../services/stripe';
 import fifo from '../lib/fifo';
+import { ov_config } from '../lib/ov_config';
+import neode from '../lib/neode';
 
-function disburse_task(ambassador, tripler) {
+async function disburse_task(ambassador_id, tripler_id) {
+  let ambassador = await ambassadorSvc.findById(ambassador_id);
+  let tripler = await triplerSvc.findById(tripler_id);
   return {
     name: `Disbursing ambassador: ${ambassador.get('phone')} for tripler: ${tripler.get('phone')}`,
     execute: async () => {
@@ -20,51 +24,22 @@ function disburse_task(ambassador, tripler) {
   };
 }
 
-function settle_task(ambassador, tripler) {
-  return {
-    name: `Settle ambassador: ${ambassador.get('phone')} for tripler: ${tripler.get('phone')}`,
-    execute: async () => {
-      try {
-        logger.debug('Trying settlement for ambassador (%s) for tripler (%s)', ambassador.get('phone'), tripler.get('phone'));
-        await stripeSvc.settle(ambassador, tripler);
-      }
-      catch(err) {
-        logger.error('Error settling for ambassador (%s) for tripler (%s): %s', ambassador.get('phone'), tripler.get('phone'), err);
-      }
-    },
-  };  
-}
-
 async function disburse() {
   logger.debug('Disbursing amount to ambassadors...');
 
-  let ambassadors = await ambassadorSvc.findAmbassadorsWithPendingDisbursements();
-  logger.debug('%d ambassadors to be processed for disbursement', ambassadors.length);
+  let query = `MATCH (a:Ambassador)-[gp:GETS_PAID]->(:Payout {status: \'pending\'}) MATCH (t:Tripler) WHERE t.id = gp.tripler_id RETURN a.id, t.id LIMIT ${ov_config.payout_batch_size}`;
 
-  await Promise.all(ambassadors.map(async(ambassador) => {
-    await Promise.all(ambassador.get('gets_paid').map(async(relationship) => {
-      let tripler = await triplerSvc.findById(relationship.get('tripler_id'));
-      if (tripler && relationship.otherNode().get('status') === 'pending') {
-        fifo.add(disburse_task(ambassador, tripler));
-      }      
-    }));
-  }));
-}
+  let res = await neode.cypher(query);
 
-async function settle() {
-  logger.debug('Settling for ambassadors...');
-
-  let ambassadors = await ambassadorSvc.findAmbassadorsWithPendingSettlements();
-  logger.debug('%d ambassadors to be processed for settlement', ambassadors.length);
-
-  await Promise.all(ambassadors.map(async(ambassador) => {
-    await Promise.all(ambassador.get('gets_paid').map(async(relationship) => {
-      let tripler = await triplerSvc.findById(relationship.get('tripler_id'));
-      if (tripler && relationship.otherNode().get('status') === 'disbursed') {
-        fifo.add(settle_task(ambassador, tripler));
-      } 
-    }));
-  }));
+  if (res.records.length > 0) {
+    logger.debug('%d ambassadors to be processed for disbursement', res.records.length);
+    for(var x = 0; x < res.records.length; x++) {
+      let record = res.records[x];
+      let ambassador_id = record._fields[0];
+      let tripler_id = record._fields[1];
+      fifo.add(await disburse_task(ambassador_id, tripler_id));
+    }
+  }
 }
 
 module.exports = () => {
@@ -73,7 +48,6 @@ module.exports = () => {
   setTimeout(async() => {
     try {
       await disburse();
-      // await settle();
     } catch(err) {
       logger.error('Error in payouts background job: %s', err);  
     }

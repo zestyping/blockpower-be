@@ -89,6 +89,7 @@ For this server, configure an `.env` file. The following is a complete list of v
     STRESS=
     EXCLUDE_UNREG_EXCEPT_IN=
     SEARCH_TRIPLER_MAX_DISTANCE=
+    PAYOUT_BATCH_SIZE=
 
 The meaning of each config item is as follows:
 
@@ -177,4 +178,5 @@ The meaning of each config item is as follows:
 * `STRESS`: If stress testing, disable twilio verification and external_id uniqueness constraint.
 * `EXCLUDE_UNREG_EXCEPT_IN`: Exclude unregistered voters except in these comma-separated 2-char states.
 * `SEARCH_TRIPLER_MAX_DISTANCE`: Distance constraint on tripler search
+* `PAYOUT_BATCH_SIZE`: How many payouts to attempt per job
 
