@@ -27,7 +27,7 @@ async function disburse_task(ambassador_id, tripler_id) {
 async function disburse() {
   logger.debug('Disbursing amount to ambassadors...');
 
-  let query = `MATCH (a:Ambassador)-[gp:GETS_PAID]->(:Payout {status: \'pending\'}) MATCH (t:Tripler) WHERE t.id = gp.tripler_id RETURN a.id, t.id LIMIT ${ov_config.payout_batch_size}`;
+  let query = `MATCH (:Account)<-[:OWNS_ACCOUNT]-(a:Ambassador)-[gp:GETS_PAID]->(:Payout {status: \'pending\'}) RETURN a.id, gp.tripler_id LIMIT ${ov_config.payout_batch_size}`;
 
   let res = await neode.cypher(query);
 
