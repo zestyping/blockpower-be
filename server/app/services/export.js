@@ -91,6 +91,7 @@ async function exportTriplersJSON(neode) {
         ambassador_name: serializeName(ambassador.first_name, ambassador.last_name),
         ambassador_external_id: ambassador.external_id,
         ambassador_phone: ambassador.phone,
+        ambassador_address: ambassador.address,
         ambassador_email: ambassador.email,
         ambassador_account_id: ambassador.account && ambassador.account.account_id,
         phone: tripler.phone,
@@ -98,6 +99,7 @@ async function exportTriplersJSON(neode) {
         triplee2: tripler.triplees ? tripler.triplees[1] : null,
         triplee3: tripler.triplees ? tripler.triplees[2] : null,
         verification: tripler.verification ? '"' + tripler.verification.replace(/\"/g, '\'').replace(/\n/g, '') + '"': '',
+        blocked_carrier_info: tripler.blocked_carrier_info ? '"' + tripler.blocked_carrier_info.replace(/\"/g, '\'').replace(/\n/g, '') + '"': '',
         is_ambassador: tripler.is_ambassador,
         is_ambassador_and_has_confirmed: tripler.is_ambassador_and_has_confirmed,
       }
@@ -159,6 +161,7 @@ async function exportAmbassadorsCSV(neode) {
       ambassador.first_name,
       ambassador.last_name,
       ambassador.address1,
+      ambassador.address.city,
       ambassador.address.zip,
       ambassador.email,
       ambassador.phone,
@@ -179,6 +182,7 @@ async function exportAmbassadorsCSV(neode) {
       'First Name',
       'Last Name',
       'Street Address',
+      'City',
       'Zip Code',
       'Email',
       'Phone',
@@ -215,6 +219,7 @@ async function exportTriplersCSV(neode) {
         'First Name',
         'Last Name',
         'Street',
+        'City',
         'Zip',
         'Status',
         'Date Claimed',
@@ -229,6 +234,7 @@ async function exportTriplersCSV(neode) {
         'Triplee2',
         'Triplee3',
         'Verification',
+        'Blocked Carrier Info',
         'Is Ambassador',
         'Is Ambassador And Has Confirmed'
     ];
@@ -246,6 +252,7 @@ async function exportTriplersCSV(neode) {
         tripler.first_name,
         tripler.last_name,
         tripler.address.address1.replace(',', ' ').replace('#', 'no.'),
+        tripler.address.city,
         tripler.address.zip,
         tripler.status,
         new Date(relationship.get('since')),
@@ -260,6 +267,7 @@ async function exportTriplersCSV(neode) {
         tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[1]), null, 2) : tripler.triplees[1] : '',
         tripler.triplees ? tripler.triplees[0].first_name ? JSON.stringify(serializeTripleeForCSV(tripler.triplees[2]), null, 2) : tripler.triplees[2] : '',
         tripler.verification ? '"' + tripler.verification.replace(/\"/g, '\'').replace(/\n/g, '') + '"': '',
+        tripler.blocked_carrier_info ? '"' + tripler.blocked_carrier_info.replace(/\"/g, '\'').replace(/\n/g, '') + '"': '',
         tripler.is_ambassador,
         tripler.is_ambassador_and_has_confirmed,
       ];
