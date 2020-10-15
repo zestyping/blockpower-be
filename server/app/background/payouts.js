@@ -7,9 +7,7 @@ import fifo from '../lib/fifo';
 import { ov_config } from '../lib/ov_config';
 import neode from '../lib/neode';
 
-async function disburse_task(ambassador_id, tripler_id) {
-  let ambassador = await ambassadorSvc.findById(ambassador_id);
-  let tripler = await triplerSvc.findById(tripler_id);
+async function disburse_task(ambassador, tripler) {
   return {
     name: `Disbursing ambassador: ${ambassador.get('phone')} for tripler: ${tripler.get('phone')}`,
     execute: async () => {
@@ -37,7 +35,11 @@ async function disburse() {
       let record = res.records[x];
       let ambassador_id = record._fields[0];
       let tripler_id = record._fields[1];
-      fifo.add(await disburse_task(ambassador_id, tripler_id));
+      let ambassador = await ambassadorSvc.findById(ambassador_id);
+      let tripler = await triplerSvc.findById(tripler_id);
+      if (ambassador && tripler) {
+        fifo.add(await disburse_task(ambassador, tripler));
+      }
     }
   }
 }
