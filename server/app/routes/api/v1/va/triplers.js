@@ -122,20 +122,18 @@ async function searchTriplersAdmin(req, res) {
 // provide a list of potential triplers for an ambassador to select from
 //
 async function suggestTriplers(req, res) {
-  /*
   let exclude_except = '';
+
   if (ov_config.exclude_unreg_except_in) {
     exclude_except += ov_config.exclude_unreg_except_in.split(",").map((state) => {
       return `AND NOT t.address CONTAINS '\"state\": \"${state}\"' `
     }).join(' ')
   }
-  */
 
   let collection = await req.neode.query()
-
-  /*
     .match('a', 'Ambassador', {id: req.user.get('id')})
-    .with('a, a.zip as zip')
+    .with('a, apoc.convert.fromJsonMap(a.address) as address')
+    .with('a, toString(address.zip) as zip')
     .match('t', 'Tripler')
     .where('t.zip starts with left(zip,3)')
     .with('a,t')
@@ -147,21 +145,20 @@ async function suggestTriplers(req, res) {
     .return('t, distance')
     .limit(ov_config.suggest_tripler_limit)
     .execute()
-  */
-
+/*
     .match('a', 'Ambassador')
     .where('a.id', req.user.get('id'))
     .match('t', 'Tripler')
     .whereRaw('NOT ()-[:CLAIMS]->(t)')
     .whereRaw('NOT ()-[:WAS_ONCE]->(t)')
-    // .whereRaw(`NOT t.voter_id CONTAINS "Unreg" ${exclude_except}`)
+    .whereRaw(`NOT t.voter_id CONTAINS "Unreg" ${exclude_except}`)
     .whereRaw(`distance(t.location, a.location) <= ${ov_config.ambassador_tripler_relation_max_distance}`) // distance in meters (see .env)
     .with('a, t, distance(t.location, a.location) AS distance')
     .orderBy('distance')
     .return('t, distance')
     .limit(ov_config.suggest_tripler_limit)
     .execute()
-
+*/
   let models = [];
   for (var index = 0; index < collection.records.length; index++) {
     let entry = collection.records[index]._fields[0].properties;
