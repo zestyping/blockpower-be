@@ -360,7 +360,7 @@ async function searchTriplersAmbassador(req) {
 
   if (req.query.firstName && req.query.lastName) {
     q = `
-    CALL db.index.fulltext.queryNodes("${'*' + firstNameQuery + '* *' + lastNameQuery + '*'}") YIELD node
+    CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "${'*' + firstNameQuery + '* *' + lastNameQuery + '*'}") YIELD node
     with node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
     where NOT ()-[:CLAIMS]->(node)
     and NOT ()-[:WAS_ONCE]->(node)
