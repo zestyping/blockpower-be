@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import stringFormat from 'string-format';
 
-import logger from 'logops';
 import neode from '../lib/neode';
 
 import {
@@ -15,6 +14,7 @@ import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
 
 import models from '../models/va';
+import { signupEmail } from '../emails/signupEmail';
 
 async function findByExternalId(externalId) {
   return await neode.first('Ambassador', 'external_id', externalId);
@@ -107,74 +107,13 @@ async function signup(json, verification, carrierLookup) {
   }
 
   // send email in the background
-  let ambassador_name = serializeName(new_ambassador.get('first_name'), new_ambassador.get('last_name'))
   setTimeout(async () => {
     let address = JSON.parse(new_ambassador.get('address'));
-    let body = `
-    Organization Name:
-    <br>
-    ${ov_config.organization_name}
-    <br>
-    <br>
-    Google/FB ID:
-    <br>
-    ${new_ambassador.get('external_id')}
-    <br>
-    <br>
-    First Name:
-    <br>
-    ${new_ambassador.get('first_name')}
-    <br>
-    <br>
-    Last Name:
-    <br>
-    ${new_ambassador.get('last_name')}
-    <br>
-    <br>
-    Date of Birth:
-    <br>
-    ${new_ambassador.get('date_of_birth')}
-    <br>
-    <br>
-    Street Address:
-    <br>
-    ${address.address1}
-    <br>
-    <br>
-    Zip:
-    <br>
-    ${address.zip}
-    <br>
-    <br>
-    Email:
-    <br>
-    ${new_ambassador.get('email')}
-    <br>
-    <br>
-    Phone Number:
-    <br>
-    ${new_ambassador.get('phone')}
-    <br>
-    <br>
-    Verification:
-    <br>
-    ${new_ambassador.get('verification')}
-    <br>
-    <br>
-    Carrier:
-    <br>
-    ${new_ambassador.get('carrier_info')}
-    <br>
-    <br>
-    `;
-
-    let subject = stringFormat(ov_config.new_ambassador_signup_admin_email_subject,
-      {
-        organization_name: ov_config.organization_name
-      });
-    await mail(ov_config.admin_emails, null, null,
-      subject,
-      body);
+    let body = signupEmail(new_ambassador, address);
+    let subject = stringFormat(ov_config.new_ambassador_signup_admin_email_subject, {
+      organization_name: ov_config.organization_name
+    });
+    await mail(ov_config.admin_emails, null, null, subject, body);
   }, 100);
 
   return new_ambassador;
