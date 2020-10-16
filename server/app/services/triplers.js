@@ -359,18 +359,21 @@ async function searchTriplersAmbassador(req) {
   let q = '';
 
   if (req.query.firstName && req.query.lastName) {
-    q = `CALL db.index.fulltext.queryNodes("${'*' + firstNameQuery + '* *' + lastNameQuery + '*'}") YIELD node 
-         with node
-         where NOT ()-[:CLAIMS]->(node)
-         and NOT ()-[:WAS_ONCE]->(node)
-         with node
-         limit 500
-         match(a:Ambassador{id:"${req.user.get('id')}"})
-         with a.location as a_location, node, apoc.text.levenshteinSimilarity(toLower(node.full_name), "${firstNameQuery + ' ' + lastNameQuery}") as score1, apoc.text.jaroWinklerDistance(toLower(node.full_name), "${firstNameQuery + ' ' + lastNameQuery}") as score2, apoc.text.sorensenDiceSimilarity(toLower(node.full_name), "${firstNameQuery + ' ' + lastNameQuery}") as score3
-         with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
-         with node, avg_score / distance as final_score 
-         return node
-         order by final_score desc limit ${ov_config.sugget_tripler_limit}`
+    q = `
+    CALL db.index.fulltext.queryNodes("${'*' + firstNameQuery + '* *' + lastNameQuery + '*'}") YIELD node
+    with node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
+    where NOT ()-[:CLAIMS]->(node)
+    and NOT ()-[:WAS_ONCE]->(node)
+    and NOT node.voter_id CONTAINS "Unreg"
+    with first_n_q, last_n_q, node
+    limit 500
+    match(a:Ambassador{id:"${req.user.get('id')}"})
+    with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score3
+    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
+    with node, avg_score / distance as final_score
+    return node
+    order by final_score desc limit 100
+    `
   } else if (req.query.firstName) {
     q = `CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "${'*' + firstNameQuery + '*'}") YIELD node with node where NOT ()-[:CLAIMS]->(node) and NOT ()-[:WAS_ONCE]->(node) with node limit 500 with node, apoc.text.levenshteinSimilarity(toLower(node.first_name), "${firstNameQuery}") as score1, apoc.text.jaroWinklerDistance(toLower(node.first_name), "${firstNameQuery}") as score2, apoc.text.sorensenDiceSimilarity(toLower(node.first_name), "${firstNameQuery}") as score3 with node, (score1 + score2 + score3) / 3 as avg_score return node order by avg_score desc, node.last_name limit ${ov_config.suggest_tripler_limit}`;
   } else if (req.query.lastName) {
