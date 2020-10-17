@@ -34,7 +34,7 @@ async function createAmbassador(req, res) {
     }
 
     if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
+      return error(400, res, "Our system doesn't recognize that phone number. Please try again.");
     }
 
     if (req.models.Ambassador.phone.unique) {
@@ -55,7 +55,7 @@ async function createAmbassador(req, res) {
 
     let coordinates = await geoCode(req.body.address);
     if (coordinates === null) {
-      return error(400, res, "Our system doesn’t recognize that address. Please try again.");
+      return error(400, res, "Our system doesn't recognize that address. Please try again.");
     }
 
     new_ambassador = await req.neode.create('Ambassador', {
@@ -266,7 +266,7 @@ async function updateAmbassador(req, res) {
 
   if (req.body.phone) {
     if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
+      return error(400, res, "Our system doesn't recognize that phone number. Please try again.");
     }
 
     if (req.models.Ambassador.phone.unique) {
@@ -324,7 +324,7 @@ async function updateCurrentAmbassador(req, res) {
 
   if (req.body.phone) {
     if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn’t recognize that phone number. Please try again.");
+      return error(400, res, "Our system doesn't recognize that phone number. Please try again.");
     }
 
     if (req.models.Ambassador.phone.unique) {
