@@ -382,7 +382,7 @@ async function searchTriplersAmbassador(req) {
     with first_n_q, node
     limit 500
     match(a:Ambassador{id:"${req.user.get('id')}"})
-    with a.location as a_location, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score3
+    with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score3
     with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
     with node, avg_score / distance as final_score
     return node
@@ -397,7 +397,7 @@ async function searchTriplersAmbassador(req) {
     with last_n_q, node
     limit 500
     match(a:Ambassador{id:"${req.user.get('id')}"})
-    with a.location as a_location, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score3
+    with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score3
     with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
     with node, avg_score / distance as final_score
     return node
