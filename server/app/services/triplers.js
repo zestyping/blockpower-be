@@ -364,7 +364,6 @@ async function searchTriplersAmbassador(req) {
     with node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
     where NOT ()-[:CLAIMS]->(node)
     and NOT ()-[:WAS_ONCE]->(node)
-    and NOT node.voter_id CONTAINS "Unreg"
     with first_n_q, last_n_q, node
     limit 500
     match(a:Ambassador{id:"${req.user.get('id')}"})
@@ -380,7 +379,7 @@ async function searchTriplersAmbassador(req) {
     with node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q
     where NOT ()-[:CLAIMS]->(node)
     and NOT ()-[:WAS_ONCE]->(node)
-    with node
+    with first_n_q, node
     limit 500
     match(a:Ambassador{id:"${req.user.get('id')}"})
     with a.location as a_location, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score3
@@ -395,7 +394,7 @@ async function searchTriplersAmbassador(req) {
     with node, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
     where NOT ()-[:CLAIMS]->(node)
     and NOT ()-[:WAS_ONCE]->(node)
-    with node
+    with last_n_q, node
     limit 500
     match(a:Ambassador{id:"${req.user.get('id')}"})
     with a.location as a_location, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score3
