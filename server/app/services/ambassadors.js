@@ -13,6 +13,7 @@ import { normalize } from '../lib/phone';
 import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
 import { signupEmail } from '../emails/signupEmail';
+import { normalizeAddress } from '../lib/normalizers';
 
 async function findByExternalId(externalId) {
   return await neode.first('Ambassador', 'external_id', externalId);
@@ -33,11 +34,7 @@ async function signup(json, verification, carrierLookup) {
     throw new ValidationError("Our system doesn't recognize that phone number. Please try again.");
   }
 
-  // TODO: Modularize this normalization.
-  // Ensure that address.state is always uppercase
-  let address = json.address;
-  address.state = address.state.toUpperCase();
-  address.zip = address.zip.toString().split(' ').join('');
+  let address = normalizeAddress(json.address);
 
   if (!validateState(address.state)) {
     throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.", { ambassador: json, verification: verification });
