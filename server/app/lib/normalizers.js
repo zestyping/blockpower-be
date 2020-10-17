@@ -6,12 +6,14 @@ import neo4j from 'neo4j-driver';
 
 const WGS_84_2D = 4326;
 
+const ALLOWED_ATTRS = ['first_name', 'last_name', 'date_of_birth', 'email', 'status'];
+
 /** This can handle both Ambassadors and Triplers. */
-export async function getUserJsonFromRequest(body, allowedAttrs) {
+export async function getUserJsonFromRequest(body) {
   const json = {};
 
   for (const prop in body) {
-    if (allowedAttrs.indexOf(prop) >= 0) {
+    if (ALLOWED_ATTRS.indexOf(prop) >= 0) {
       json[prop] = body[prop];
     }
   }

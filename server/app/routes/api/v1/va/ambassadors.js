@@ -25,8 +25,6 @@ import reverse_phone from '../../../../lib/reverse_phone';
 import { makeAdminEmail } from '../../../../emails/makeAdminEmail';
 import { getUserJsonFromRequest } from '../../../../lib/normalizers';
 
-const AMBASSADOR_ALLOWED_ATTRS = ['first_name', 'last_name', 'date_of_birth', 'email'];
-
 async function createAmbassador(req, res) {
   let new_ambassador = null;
   try {
@@ -256,7 +254,7 @@ async function updateAmbassador(req, res) {
 
   let json;
   try {
-    json = await getUserJsonFromRequest(req.body, AMBASSADOR_ALLOWED_ATTRS);
+    json = await getUserJsonFromRequest(req.body);
   } catch (error) {
     return error(400, res, error.message);
   }
@@ -287,7 +285,7 @@ async function updateCurrentAmbassador(req, res) {
 
   let json;
   try {
-    json = await getUserJsonFromRequest(req.body, AMBASSADOR_ALLOWED_ATTRS);
+    json = await getUserJsonFromRequest(req.body);
   } catch (error) {
     return error(400, res, error.message);
   }
