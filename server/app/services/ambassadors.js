@@ -32,7 +32,7 @@ async function signup(json, verification, carrierLookup) {
   }
 
   if (!validatePhone(json.phone)) {
-    throw new ValidationError("Our system doesn’t recognize that phone number. Please try again.");
+    throw new ValidationError("Our system doesn't recognize that phone number. Please try again.");
   }
 
   // Ensure that address.state is always uppercase
@@ -73,7 +73,7 @@ async function signup(json, verification, carrierLookup) {
     coordinates = await zipToLatLon(address.zip);
   }
   if (coordinates === null) {
-    throw new ValidationError("Our system doesn’t recognize that zip code. Please try again.");
+    throw new ValidationError("Our system doesn't recognize that zip code. Please try again.");
   }
 
   let new_ambassador = await neode.create('Ambassador', {
