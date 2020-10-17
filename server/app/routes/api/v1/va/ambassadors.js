@@ -13,7 +13,7 @@ import {
 } from '../../../../lib/utils';
 
 import {
-  validateEmpty, validatePhone, validateEmail
+  validateEmpty, validatePhone, validateEmail, validateUnique, validateUniquePhone, validateCarrier, verifyCallerIdAndReversePhone
 } from '../../../../lib/validations';
 
 import mail from '../../../../lib/mail';
@@ -23,8 +23,9 @@ import sms from '../../../../lib/sms';
 import { ov_config } from '../../../../lib/ov_config';
 import caller_id from '../../../../lib/caller_id';
 import reverse_phone from '../../../../lib/reverse_phone';
-import carrier from '../../../../lib/carrier';
 import { makeAdminEmail } from '../../../../emails/makeAdminEmail';
+
+const AMBASSADOR_ALLOWED_ATTRS = ['first_name', 'last_name', 'date_of_birth', 'email'];
 
 async function createAmbassador(req, res) {
   let new_ambassador = null;
@@ -37,18 +38,16 @@ async function createAmbassador(req, res) {
       return error(400, res, "Our system doesn't recognize that phone number. Please try again.");
     }
 
-    if (req.models.Ambassador.phone.unique) {
-      let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
-      if(existing_ambassador) {
-        return error(400, res, "That phone number is already in use. Cannot create ambassador.");
-      }
+    if (!await validateUniquePhone('Ambassador', req.body.phone)) {
+      return error(400, res, "That phone number is already in use. Cannot create ambassador.");
     }
 
     if (req.body.email) {
-      if (!validateEmail(req.body.email)) return error(400, res, "Invalid email");
+      if (!validateEmail(req.body.email)) {
+        return error(400, res, "Invalid email");
+      }
 
-      if (req.models.Ambassador.email.unique &&
-          await req.neode.first('Ambassador', 'email', req.body.email)) {
+      if (!await validateUnique('Ambassador', { email: req.body.email })) {
         return error(400, res, "That email address is already in use. Cannot create ambassador.");
       }
     }
@@ -127,8 +126,7 @@ async function fetchCurrentAmbassador(req, res) {
 }
 
 async function approveAmbassador(req, res) {
-  let found = null;
-  found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
+  let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
 
   if (!found) {
     return error(404 ,res, "Ambassador not found");
@@ -159,8 +157,7 @@ async function approveAmbassador(req, res) {
 }
 
 async function disapproveAmbassador(req, res) {
-  let found = null;
-  found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
+  let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
 
   if (!found) {
     return error(404, res, "Ambassador not found");
@@ -172,8 +169,7 @@ async function disapproveAmbassador(req, res) {
 }
 
 async function makeAdmin(req, res) {
-  let found = null;
-  found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
+  let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
 
   if (!found) {
     return error(404, res, "Ambassador not found");
@@ -197,40 +193,16 @@ async function signup(req, res) {
   req.body.externalId = req.externalId;
   let new_ambassador = null;
 
-  //check carrier lookup for blocked carriers
-  let carrierLookup = await carrier(normalize(req.body.phone));
-  if(carrierLookup.carrier.isBlocked) {
-    return error(400, res, `We're sorry, due to fraud concerns '${carrierLookup.carrier.name}' phone numbers are not permitted. Please try again.`, { request: req.body });
+  const carrierLookup = await validateCarrier(req.body.phone);
+  const { carrier: { name: carrierName, isBlocked } } = carrierLookup;
+  if (isBlocked) {
+    return error(400, res, `We're sorry, due to fraud concerns '${carrierName}' phone numbers are not permitted. Please try again.`, { request: req.body });
   }
 
-  // check against Twilio caller ID and Ekata data
-  let twilioCallerId = await caller_id(req.body.phone);
-  let ekataReversePhone = await reverse_phone(req.body.phone);
-  let verification = [];
-
-  if (twilioCallerId) {
-    try {
-      verification.push({
-        source: 'Twilio',
-        name: twilioCallerId
-      })
-    } catch (err) {
-      logger.error("Could not get verification info for ambassador: %s", err);
-    }
-  }
-  if (ekataReversePhone) {
-    try {
-      verification.push({
-        source: 'Ekata',
-        name: ekataReversePhone.addOns.results.ekata_reverse_phone
-      })
-    } catch (err) {
-      logger.error("Could not get verification info for ambassador: %s", err);
-    }
-  }
+  const verifications = verifyCallerIdAndReversePhone(req.body.phone);
 
   try {
-    new_ambassador = await ambassadorsSvc.signup(req.body, verification, carrierLookup);
+    new_ambassador = await ambassadorsSvc.signup(req.body, verifications, carrierLookup);
   }
   catch (err) {
     if (err instanceof ValidationError) {
@@ -269,34 +241,27 @@ async function updateAmbassador(req, res) {
       return error(400, res, "Our system doesn't recognize that phone number. Please try again.");
     }
 
-    if (req.models.Ambassador.phone.unique) {
-      let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
-      if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-        return error(400, res, "That phone number is already in use. Cannot update ambassador.");
-      }
+    if (!await validateUniquePhone('Ambassador', req.body.phone, found.get('id'))) {
+      return error(400, res, "That phone number is already in use. Cannot update ambassador.");
     }
   }
 
   if (req.body.email) {
     if (!validateEmail(req.body.email)) return error(400, res, "Invalid email");
 
-    if (req.models.Ambassador.email.unique) {
-      let existing_ambassador = await req.neode.first('Ambassador', 'email', req.body.email);
-      if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-        return error(400, res, "That email address is already in use. Cannot update ambassador.");
-      }
+    if (!await validateUnique('Ambassador', { email: req.body.email }, found.get('id'))) {
+      return error(400, res, "That email address is already in use. Cannot update ambassador.");
     }
   }
 
-  let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'email'];
-
   let json = {};
   for (let prop in req.body) {
-    if (whitelistedAttrs.indexOf(prop) !== -1) {
+    if (AMBASSADOR_ALLOWED_ATTRS.indexOf(prop) !== -1) {
       json[prop] = req.body[prop];
     }
   }
 
+  // TODO: Modularize this normalization.
   if (req.body.phone) {
     json.phone = normalize(req.body.phone);
   }
@@ -327,34 +292,27 @@ async function updateCurrentAmbassador(req, res) {
       return error(400, res, "Our system doesn't recognize that phone number. Please try again.");
     }
 
-    if (req.models.Ambassador.phone.unique) {
-      let existing_ambassador = await req.neode.first('Ambassador', 'phone', normalize(req.body.phone));
-      if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-        return error(400, res, "That phone number is already in use. Cannot update current ambassador.");
-      }
+    if (!await validateUniquePhone('Ambassador', req.body.phone, found.get('id'))) {
+      return error(400, res, "That phone number is already in use. Cannot update current ambassador.");
     }
   }
 
   if (req.body.email) {
     if (!validateEmail(req.body.email)) return error(400, res, "Invalid email");
 
-    if (req.models.Ambassador.email.unique) {
-      let existing_ambassador = await req.neode.first('Ambassador', 'email', req.body.email);
-      if(existing_ambassador && existing_ambassador.get('id') !== found.get('id')) {
-        return error(400, res, "That email address is already in use. Cannot update current ambassador.");
-      }
+    if (!await validateUnique('Ambassador', { email: req.body.email }, found.get('id'))) {
+      return error(400, res, "That email address is already in use. Cannot update current ambassador.");
     }
   }
 
-  let whitelistedAttrs = ['first_name', 'last_name', 'date_of_birth', 'email'];
-
   let json = {};
   for (let prop in req.body) {
-    if (whitelistedAttrs.indexOf(prop) !== -1) {
+    if (AMBASSADOR_ALLOWED_ATTRS.indexOf(prop) !== -1) {
       json[prop] = req.body[prop];
     }
   }
 
+  // TODO: Modularize this normalization.
   if (req.body.phone) {
     json.phone = normalize(req.body.phone);
   }
@@ -448,6 +406,7 @@ async function completeOnboarding(req, res) {
 
   let updated = await found.update({
     onboarding_completed: true,
+    // TODO: Modularize this normalization.
     quiz_results: req.body.quiz_results ? JSON.stringify(req.body.quiz_results, null, 2) : req.body ? JSON.stringify(req.body, null, 2) : null,
   });
   return res.json(serializeAmbassador(updated));
