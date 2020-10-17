@@ -2,7 +2,7 @@ import PhoneNumber from 'awesome-phonenumber';
 import EmailValidator from 'email-validator';
 import neode from '../lib/neode';
 import { ov_config } from './ov_config';
-import { normalize } from './phone';
+import { normalizePhone } from './normalizers';
 import carrier from './carrier';
 import caller_id from './caller_id';
 import reverse_phone from './reverse_phone';
@@ -38,7 +38,7 @@ export function validateEmail(email) {
 }
 
 export async function validateUniquePhone(modelName, phone, existingId = null) {
-  return validateUnique(modelName, { phone: normalize(phone) }, existingId);
+  return validateUnique(modelName, { phone: normalizePhone(phone) }, existingId);
 }
 
 /**
@@ -61,7 +61,7 @@ export function validateState(state) {
 }
 
 export async function validateCarrier(phone) {
-  return await carrier(normalize(phone));
+  return await carrier(normalizePhone(phone));
 }
 
 /** Check against Twilio caller ID and Ekata data. */

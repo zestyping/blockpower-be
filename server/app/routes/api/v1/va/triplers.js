@@ -2,7 +2,7 @@ import { Router } from 'express';
 import stringFormat from 'string-format';
 import { v4 as uuidv4 } from 'uuid';
 
-import { normalize } from '../../../../lib/phone';
+import { normalizePhone } from '../../../../lib/normalizers';
 import { ov_config } from '../../../../lib/ov_config';
 import triplersSvc from '../../../../services/triplers';
 import { error } from '../../../../services/errors';
@@ -55,7 +55,7 @@ async function createTripler(req, res) {
       id: uuidv4(),
       first_name: req.body.first_name,
       last_name: req.body.last_name || null,
-      phone: normalize(req.body.phone),
+      phone: normalizePhone(req.body.phone),
       email: req.body.email || null,
       address: JSON.stringify(req.body.address, null, 2),
       triplees: !req.body.triplees ? null : JSON.stringify(req.body.triplees, null, 2),
@@ -207,8 +207,7 @@ async function startTriplerConfirmation(req, res) {
     return error(400, res, "Invalid tripler id, could not start tripler confirmation.", { ambassador: serializeAmbassador(ambassador), triplerId: req.params.triplerId });
   }
 
-  // TODO: Modularize this normalization.
-  let triplerPhone = req.body.phone ? normalize(req.body.phone): tripler.get('phone');
+  let triplerPhone = req.body.phone ? normalizePhone(req.body.phone): tripler.get('phone');
 
   const verifications = verifyCallerIdAndReversePhone(triplerPhone);
 

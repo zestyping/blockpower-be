@@ -9,7 +9,7 @@ import {
 
 import { ValidationError } from '../lib/errors';
 import { trimFields, geoCode, zipToLatLon } from '../lib/utils';
-import { normalize } from '../lib/phone';
+import { normalizePhone } from '../lib/normalizers';
 import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
 import { signupEmail } from '../emails/signupEmail';
@@ -71,7 +71,7 @@ async function signup(json, verification, carrierLookup) {
     id: uuidv4(),
     first_name: json.first_name,
     last_name: json.last_name || null,
-    phone: normalize(json.phone),
+    phone: normalizePhone(json.phone),
     email: json.email || null,
     date_of_birth: json.date_of_birth || null,
     address: JSON.stringify(address, null, 2),
@@ -91,7 +91,7 @@ async function signup(json, verification, carrierLookup) {
 
   // TODO: Modularize this normalization.
   let existing_tripler = await neode.first('Tripler', {
-    phone: normalize(json.phone)
+    phone: normalizePhone(json.phone)
   });
 
   if (existing_tripler) {
