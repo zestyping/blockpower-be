@@ -1,6 +1,5 @@
 import stringFormat from "string-format";
 
-import logger from "logops";
 import neo4j from "neo4j-driver";
 import neode from "../lib/neode";
 import { serializeName } from "../lib/utils";
@@ -8,13 +7,12 @@ import { normalize } from "../lib/phone";
 import mail from "../lib/mail";
 import { ov_config } from "../lib/ov_config";
 import sms from "../lib/sms";
-import stripe from "./stripe";
 import {
   serializeTripler,
   serializeNeo4JTripler,
   serializeTriplee,
-  serializeTripleeForCSV,
 } from "../routes/api/v1/va/serializers";
+import { confirmTriplerEmail } from '../emails/confirmTriplerEmail';
 
 async function findById(triplerId) {
   return await neode.first("Tripler", "id", triplerId);
@@ -103,17 +101,11 @@ async function confirmTripler(triplerId) {
   }
 
   // send email in the background
-  let tripler_name = serializeName(
-    tripler.get("first_name"),
-    tripler.get("last_name")
-  );
-  let tripler_phone = tripler.get("phone");
-  let ambassador_name = serializeName(
-    ambassador.get("first_name"),
-    ambassador.get("last_name")
-  );
-
   setTimeout(async () => {
+    let ambassador_name = serializeName(
+      ambassador.get("first_name"),
+      ambassador.get("last_name")
+    );
     let relationships = ambassador.get("claims");
     let date_claimed = null;
     let relationship = null;
@@ -128,91 +120,8 @@ async function confirmTripler(triplerId) {
         date_claimed = relationship.get("since");
       }
     }
-    let verification = JSON.parse(tripler.get("verification"));
     let address = JSON.parse(tripler.get("address"));
-    let body = `
-    Organization Name:
-    <br>
-    ${ov_config.organization_name}
-    <br>
-    <br>
-    LALVOTERID:
-    <br>
-    ${tripler.get("voter_id")}
-    <br>
-    <br>
-    First Name:
-    <br>
-    ${tripler.get("first_name")}
-    <br>
-    <br>
-    Last Name:
-    <br>
-    ${tripler.get("last_name")}
-    <br>
-    <br>
-    Street Address:
-    <br>
-    ${address.address1}
-    <br>
-    <br>
-    Zip:
-    <br>
-    ${address.zip}
-    <br>
-    <br>
-    Date Claimed:
-    <br>
-    ${new Date(relationship.get("since"))}
-    <br>
-    <br>
-    Date Confirmed:
-    <br>
-    ${new Date(confirmed_at)}
-    <br>
-    <br>
-    Ambassador:
-    <br>
-    ${ambassador_name}
-    <br>
-    <br>
-    Phone Number:
-    <br>
-    ${tripler.get("phone")}
-    <br>
-    <br>
-    Triplee 1:
-    <br>
-    ${serializeTripleeForCSV(triplees[0])}
-    <br>
-    <br>
-    Triplee 2:
-    <br>
-    ${serializeTripleeForCSV(triplees[1])}
-    <br>
-    <br>
-    Triplee 3:
-    <br>
-    ${serializeTripleeForCSV(triplees[2])}
-    <br>
-    <br>
-    Verification:
-    <br>
-    ${tripler.get('verification')}
-    <br>
-    <br>
-    Carrier Info:
-    <br>
-    ${tripler.get('carrier_info')}
-    <br>
-    <br>
-    Blocked Carrier Info:
-    <br>
-    ${tripler.get('blocked_carrier_info')}
-    <br>
-    <br>
-
-    `;
+    let body = confirmTriplerEmail(tripler, address, relationship, confirmed_at, ambassador_name, triplees);
     let subject = stringFormat(ov_config.tripler_confirm_admin_email_subject, {
       organization_name: ov_config.organization_name,
     });

@@ -32,7 +32,7 @@ async function createTripler(req, res) {
     }
 
     if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn’t recognize that phone number. Cannot create tripler. Please try again.");
+      return error(400, res, "Our system doesn't recognize that phone number. Cannot create tripler. Please try again.");
     }
 
     if (req.models.Tripler.phone.unique) {
@@ -186,7 +186,7 @@ async function updateTripler(req, res) {
 
   if (req.body.phone) {
     if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn’t recognize that phone number. Cannot update tripler. Please try again.");
+      return error(400, res, "Our system doesn't recognize that phone number. Cannot update tripler. Please try again.");
     }
 
     let existing_tripler = await req.neode.first('Tripler', 'phone', normalize(req.body.phone));
