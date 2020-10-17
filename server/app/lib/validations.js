@@ -52,8 +52,8 @@ export async function validateUnique(modelName, properties, existingId = null) {
   const all = await neode.all(modelName, properties);
   if (all.length === 0) return true;
   if (all.length > 1) return false;
-  const only = all[0];
-  return existingId == null || only.get('id') === existingId;
+  // Exactly one match, return false unless it's existingId.
+  return all.first().get('id') === existingId;
 }
 
 export function validateState(state) {

@@ -11,7 +11,7 @@ export function normalizeAddress(address) {
   return {
     ...address,
     state: address.state.toUpperCase(),
-    zip: address.zip.toString().replaceAll(' ', ''),
+    zip: address.zip.toString().replace(/ /g, ''),
   };
 }
 
