@@ -233,87 +233,30 @@ function buildSearchTriplerQuery(query) {
   return neo4jquery
 }
 
+function normalizeName(name) {
+  return (name || "").replace(/-'/g, "").toLowerCase();
+}
+
 async function searchTriplersAmbassador(req) {
+  let firstNameQuery = normalizeName(req.query.firstName);
+  let lastNameQuery = normalizeName(req.query.lastName);
 
-  /*
-  let neo4jquery = buildSearchTriplerQuery(req.query);
-  let exclude_except = '';
-  if (ov_config.exclude_unreg_except_in) {
-    exclude_except += ov_config.exclude_unreg_except_in.split(",").map((state) => {
-      return `AND NOT t.address CONTAINS '\"state\": \"${state}\"' `
-    }).join(' ')
-  }
-  let q = await neode
-    .query()
-    .match("a", "Ambassador")
-    .where("a.id", req.user.get("id"))
-    .whereRaw("NOT ()-[:CLAIMS]->(t)")
-    .whereRaw("NOT ()-[:WAS_ONCE]->(t)")
-    // .whereRaw(`NOT t.voter_id CONTAINS "Unreg" ${exclude_except}`)
-    .whereRaw(`distance(t.location, a.location) <= ${ov_config.search_tripler_max_distance}`) // distance in meters (see .env)
-    .with("a, t, distance(t.location, a.location) AS distance")
-    .orderBy("distance")
-    .return("t, distance")
-    .limit(ov_config.suggest_tripler_limit)
-    .build();
-
-  q.query = neo4jquery + q.query
-  q.query = q.query.replace('$where_a_id', '"' + req.user.get("id") + '"')
-
-  let collection = await neode.cypher(q.query);
-  */
-
-  let firstNameQuery = req.query.firstName;
-  let lastNameQuery = req.query.lastName;
-  let q = '';
-
-  if (req.query.firstName && req.query.lastName) {
-    q = `
-    CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "${'*' + firstNameQuery + '* *' + lastNameQuery + '*'}") YIELD node
-    with node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
-    where NOT ()-[:CLAIMS]->(node)
-    and NOT ()-[:WAS_ONCE]->(node)
-    with first_n_q, last_n_q, node
-    limit 500
-    match(a:Ambassador{id:"${req.user.get('id')}"})
-    with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score3
-    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/1000 as distance
-    with node, avg_score / distance as final_score
-    return node
-    order by final_score desc limit 100
-    `
-  } else if (req.query.firstName) {
-    q = `
-    CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "${'*' + firstNameQuery + '*'}") YIELD node
-    with node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q
-    where NOT ()-[:CLAIMS]->(node)
-    and NOT ()-[:WAS_ONCE]->(node)
-    with first_n_q, node
-    limit 500
-    match(a:Ambassador{id:"${req.user.get('id')}"})
-    with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score3
-    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/1000 as distance
-    with node, avg_score / distance as final_score
-    return node
-    order by final_score desc, node.last_name limit 100
-    `;
-  } else if (req.query.lastName) {
-    q = `
-    CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "${'*' + replace(lastNameQuery, '-', ' ') + '*'}") YIELD node
-    with node, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
+  // TODO: Deal with first or last name being blank.
+  const q = `
+    CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "${'*' + lastNameQuery + '*'}") YIELD node
+    with node, ${lastNameQuery} as last_n_q
     where NOT ()-[:CLAIMS]->(node)
     and NOT ()-[:WAS_ONCE]->(node)
     with last_n_q, node
     limit 500
-    match(a:Ambassador{id:"${req.user.get('id')}"})
-    with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score3
-    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
-    with node, avg_score + (1/distance)* "${slider}" as final_score 
+    match(a:Ambassador {id:"${req.user.get('id')}"})
+    with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.last_name), '-', ''), "'", ''), last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.last_name), '-', ''), "'", ''), last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.last_name), '-', ''), "'", ''), last_n_q) as score3
+    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location) / 10000 as distance
+    with node, avg_score + (1 / distance) * "${slider}" as final_score 
     return node.full_name, distance, avg_score, final_score
     order by final_score desc, node.full_name asc
-    limit 100 
-    `;
-  }
+    limit 100
+  `;
 
   let collection = await neode.cypher(q);
   let models = [];
