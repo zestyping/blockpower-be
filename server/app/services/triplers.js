@@ -238,8 +238,10 @@ function normalizeName(name) {
 }
 
 async function searchTriplersAmbassador(req) {
-  const { firstName, lastName } = req.query;
-  if (!firstName && !lastName) {
+  const { firstName, lastName, phone, distance, age, gender, msa } = req.query;
+
+  // They need to search for SOMETHING valid.
+  if (!firstName && !lastName && !phone && !distance && !age && !gender && !msa) {
     return [];
   }
 
@@ -247,6 +249,8 @@ async function searchTriplersAmbassador(req) {
   let lastNameQuery = normalizeName(lastName);
 
   // TODO: Deal with first or last name being blank.
+  // TODO: Neode makes it quite painful to do conditional queries,
+  //  and raw user input is also insecure. We should use parameter isolation.
   const q = `
     CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "${'*' + lastNameQuery + '*'}") YIELD node
     with node, ${lastNameQuery} as last_n_q
@@ -257,7 +261,7 @@ async function searchTriplersAmbassador(req) {
     match(a:Ambassador {id:"${req.user.get('id')}"})
     with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.last_name), '-', ''), "'", ''), last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.last_name), '-', ''), "'", ''), last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.last_name), '-', ''), "'", ''), last_n_q) as score3
     with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location) / 10000 as distance
-    with node, avg_score + (1 / distance) * "${slider}" as final_score 
+    with node, avg_score + (1 / distance) * "${distance}" as final_score 
     return node.full_name, distance, avg_score, final_score
     order by final_score desc, node.full_name asc
     limit 100
