@@ -299,7 +299,7 @@ async function searchTriplersAmbassador(req) {
     `;
   } else if (req.query.lastName) {
     q = `
-    CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "${'*' + lastNameQuery + '*'}") YIELD node
+    CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "${'*' + replace(lastNameQuery, '-', ' ') + '*'}") YIELD node
     with node, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
     where NOT ()-[:CLAIMS]->(node)
     and NOT ()-[:WAS_ONCE]->(node)
@@ -307,10 +307,11 @@ async function searchTriplersAmbassador(req) {
     limit 500
     match(a:Ambassador{id:"${req.user.get('id')}"})
     with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score3
-    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/1000 as distance
-    with node, avg_score / distance as final_score
-    return node
-    order by final_score desc, node.first_name limit 100
+    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
+    with node, avg_score + (1/distance)* "${slider}" as final_score 
+    return node.full_name, distance, avg_score, final_score
+    order by final_score desc, node.full_name asc
+    limit 100 
     `;
   }
 
