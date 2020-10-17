@@ -20,8 +20,6 @@ import { serializeAmbassador, serializeTripler, serializeNeo4JTripler, serialize
 import sms from '../../../../lib/sms';
 import { getUserJsonFromRequest } from '../../../../lib/normalizers';
 
-const TRIPER_ALLOWED_ATTRS = ['first_name', 'last_name', 'date_of_birth', 'email', 'status'];
-
 async function createTripler(req, res) {
   let new_tripler = null
   try {
@@ -188,7 +186,7 @@ async function updateTripler(req, res) {
 
   let json;
   try {
-    json = await getUserJsonFromRequest(req.body, TRIPER_ALLOWED_ATTRS);
+    json = await getUserJsonFromRequest(req.body);
   } catch (error) {
     return error(400, res, error.message);
   }
