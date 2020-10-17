@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import neo4j from 'neo4j-driver';
 import stringFormat from 'string-format';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -19,6 +18,7 @@ import {
 import { serializeAmbassador, serializeTripler, serializeNeo4JTripler, serializeTriplee } from './serializers';
 
 import sms from '../../../../lib/sms';
+import { getUserJsonFromRequest } from '../../../../lib/normalizers';
 
 const TRIPER_ALLOWED_ATTRS = ['first_name', 'last_name', 'date_of_birth', 'email', 'status'];
 
@@ -186,33 +186,12 @@ async function updateTripler(req, res) {
     }
   }
 
-  let json = {};
-  for (let prop in req.body) {
-    if (TRIPER_ALLOWED_ATTRS.indexOf(prop) !== -1) {
-      json[prop] = req.body[prop];
-    }
+  let json;
+  try {
+    json = await getUserJsonFromRequest(req.body, TRIPER_ALLOWED_ATTRS);
+  } catch (error) {
+    return error(400, res, error.message);
   }
-
-  // TODO: Modularize this normalization.
-  if (req.body.phone) {
-    json.phone = normalize(req.body.phone);
-  }
-
-  if (req.body.address) {
-    let coordinates = await geoCode(req.body.address);
-    if (coordinates === null) {
-      return error(400, res, "Invalid address, tripler cannot be updated");
-    }
-    json.address = JSON.stringify(req.body.address, null, 2);
-    json.location = new neo4j.types.Point(4326, // WGS 84 2D
-                                           parseFloat(coordinates.longitude, 10),
-                                           parseFloat(coordinates.latitude, 10));
-  }
-
-  if (req.body.triplees) {
-    json.triplees = JSON.stringify(req.body.triplees, null, 2);
-  }
-
   let updated = await found.update(json);
   return res.json(serializeTripler(updated));
 }
