@@ -364,8 +364,9 @@ async function completeOnboarding(req, res) {
 
   let updated = await found.update({
     onboarding_completed: true,
-    // TODO: Modularize this normalization.
-    quiz_results: req.body.quiz_results ? JSON.stringify(req.body.quiz_results, null, 2) : req.body ? JSON.stringify(req.body, null, 2) : null,
+    quiz_results: req.body.quiz_results
+      ? JSON.stringify(req.body.quiz_results, null, 2)
+      : req.body ? JSON.stringify(req.body, null, 2) : null,
   });
   return res.json(serializeAmbassador(updated));
 }
