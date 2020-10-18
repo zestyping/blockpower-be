@@ -42,7 +42,7 @@ async function createAmbassador(req, res) {
     }
 
     let coordinates = await geoCode(req.body.address);
-    if (coordinates === null) {
+    if (!coordinates) {
       return error(400, res, "Our system doesn't recognize that address. Please try again.");
     }
 
@@ -59,8 +59,8 @@ async function createAmbassador(req, res) {
       signup_completed: false,
       onboarding_completed: false,
       location: {
-        latitude: parseFloat(coordinates.latitude, 10),
-        longitude: parseFloat(coordinates.longitude, 10)
+        latitude: parseFloat(coordinates.latitude),
+        longitude: parseFloat(coordinates.longitude)
       }
     })
   } catch(err) {

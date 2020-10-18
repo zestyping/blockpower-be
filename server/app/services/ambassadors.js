@@ -26,6 +26,24 @@ async function findById(id) {
   return await neode.first('Ambassador', 'id', id);
 }
 
+async function getValidCoordinates(address) {
+  const addressNorm = normalizeAddress(address);
+
+  if (!validateState(addressNorm.state)) {
+    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.");
+  }
+
+  let coordinates = await geoCode(addressNorm);
+  if (!coordinates) {
+    coordinates = await zipToLatLon(addressNorm.zip);
+  }
+  if (!coordinates) {
+    throw new ValidationError("Our system doesn't recognize that zip code. Please try again.");
+  }
+
+  return [coordinates, addressNorm];
+}
+
 async function signup(json, verification, carrierLookup) {
   json = trimFields(json)
 
@@ -35,23 +53,11 @@ async function signup(json, verification, carrierLookup) {
 
   await assertUserPhoneAndEmail('Ambassador', json.phone, json.email);
 
-  let address = normalizeAddress(json.address);
-
-  if (!validateState(address.state)) {
-    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.");
-  }
-
   if (!await validateUnique('Ambassador', { external_id: json.externalId })) {
     throw new ValidationError("If you have already signed up as an Ambassador using Facebook or Google, you cannot sign up again.");
   }
 
-  let coordinates = await geoCode(address);
-  if (coordinates === null) {
-    coordinates = await zipToLatLon(address.zip);
-  }
-  if (coordinates === null) {
-    throw new ValidationError("Our system doesn't recognize that zip code. Please try again.");
-  }
+  const [coordinates, address] = await getValidCoordinates(json.address);
 
   let new_ambassador = await neode.create('Ambassador', {
     id: uuidv4(),
@@ -67,8 +73,8 @@ async function signup(json, verification, carrierLookup) {
     signup_completed: true,
     onboarding_completed: true,
     location: {
-      latitude: parseFloat(coordinates.latitude, 10),
-      longitude: parseFloat(coordinates.longitude, 10)
+      latitude: parseFloat(coordinates.latitude),
+      longitude: parseFloat(coordinates.longitude)
     },
     external_id: ov_config.stress ? json.externalId + Math.random() : json.externalId,
     verification: JSON.stringify(verification, null, 2),

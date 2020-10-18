@@ -39,7 +39,7 @@ async function createTripler(req, res) {
     }
 
     let coordinates = await geoCode(req.body.address);
-    if (coordinates === null) {
+    if (!coordinates) {
       return error(400, res, "Invalid address, tripler cannot be created");
     }
 
@@ -52,8 +52,8 @@ async function createTripler(req, res) {
       address: JSON.stringify(req.body.address, null, 2),
       triplees: !req.body.triplees ? null : JSON.stringify(req.body.triplees, null, 2),
       location: {
-        latitude: parseFloat(coordinates.latitude, 10),
-        longitude: parseFloat(coordinates.longitude, 10)
+        latitude: parseFloat(coordinates.latitude),
+        longitude: parseFloat(coordinates.longitude)
       },
       status: 'unconfirmed'
     }
