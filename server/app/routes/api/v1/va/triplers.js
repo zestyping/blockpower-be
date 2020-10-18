@@ -12,7 +12,12 @@ import {
 } from '../../../../lib/utils';
 
 import {
-  validateEmpty, validatePhone, validateEmail, validateUniquePhone, validateUnique, verifyCallerIdAndReversePhone, validateCarrier
+  validateEmpty,
+  validatePhone,
+  validateUniquePhone,
+  verifyCallerIdAndReversePhone,
+  validateCarrier,
+  assertUserPhoneAndEmail
 } from '../../../../lib/validations';
 
 import { serializeAmbassador, serializeTripler, serializeNeo4JTripler, serializeTriplee } from './serializers';
@@ -27,22 +32,10 @@ async function createTripler(req, res) {
       return error(400, res, "Invalid payload, tripler cannot be created");
     }
 
-    if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn't recognize that phone number. Cannot create tripler. Please try again.");
-    }
-
-    if (!await validateUniquePhone('Tripler', req.body.phone)) {
-      return error(400, res, "That phone number is already in use.");
-    }
-
-    if (req.body.email) {
-      if (!validateEmail(req.body.email)) {
-        return error(400, res, "Invalid email");
-      }
-
-      if (!await validateUnique('Tripler', { email: req.body.email })) {
-        return error(400, res, "Tripler with this email already exists.");
-      }
+    try {
+      await assertUserPhoneAndEmail('Tripler', req.body.phone, req.body.email);
+    } catch (err) {
+      return error(400, res, err.message, req.body);
     }
 
     let coordinates = await geoCode(req.body.address);
@@ -106,27 +99,14 @@ async function fetchTripler(req, res) {
 
 async function updateTripler(req, res) {
   let found = await req.neode.first('Tripler', 'id', req.params.triplerId);
-
   if (!found) {
     return error(404, res, "Tripler not found");
   }
 
-  if (req.body.phone) {
-    if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn't recognize that phone number. Cannot update tripler. Please try again.");
-    }
-
-    if (!await validateUniquePhone('Tripler', req.body.phone, found.get('id'))) {
-      return error(400, res, "That phone number is already in use.");
-    }
-  }
-
-  if (req.body.email) {
-    if (!validateEmail(req.body.email)) return _400(res, "Invalid email");
-
-    if (!await validateUnique('Tripler', { email: req.body.email }, found.get('id'))) {
-      return error(400, res, "Tripler with this email already exists.");
-    }
+  try {
+    await assertUserPhoneAndEmail('Tripler', req.body.phone, req.body.email, found.get('id'));
+  } catch (err) {
+    return error(400, res, err.message, req.body);
   }
 
   let json;

@@ -7,7 +7,7 @@ import {
   validateEmpty,
   validateState,
   validateUnique,
-  assertAmbassadorPhoneAndEmail,
+  assertUserPhoneAndEmail,
 } from '../lib/validations';
 
 import { ValidationError } from '../lib/errors';
@@ -33,7 +33,7 @@ async function signup(json, verification, carrierLookup) {
     throw new ValidationError("Invalid payload, ambassador cannot be created");
   }
 
-  await assertAmbassadorPhoneAndEmail(json.phone, json.email);
+  await assertUserPhoneAndEmail('Ambassador', json.phone, json.email);
 
   let address = normalizeAddress(json.address);
 

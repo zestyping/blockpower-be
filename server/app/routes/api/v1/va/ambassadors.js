@@ -13,13 +13,9 @@ import {
 
 import {
   validateEmpty,
-  validatePhone,
-  validateEmail,
-  validateUnique,
-  validateUniquePhone,
   validateCarrier,
   verifyCallerIdAndReversePhone,
-  assertAmbassadorPhoneAndEmail
+  assertUserPhoneAndEmail
 } from '../../../../lib/validations';
 
 import mail from '../../../../lib/mail';
@@ -40,7 +36,7 @@ async function createAmbassador(req, res) {
     }
 
     try {
-      await assertAmbassadorPhoneAndEmail(req.body.phone, req.body.email);
+      await assertUserPhoneAndEmail('Ambassador', req.body.phone, req.body.email);
     } catch (err) {
       return error(400, res, err.message, req.body);
     }
@@ -229,7 +225,7 @@ async function updateAmbassador(req, res) {
   }
 
   try {
-    await assertAmbassadorPhoneAndEmail(req.body.phone, req.body.email, found.get('id'));
+    await assertUserPhoneAndEmail('Ambassador', req.body.phone, req.body.email, found.get('id'));
   } catch (err) {
     return error(400, res, err.message, req.body);
   }
@@ -248,7 +244,7 @@ async function updateCurrentAmbassador(req, res) {
   let found = req.user;
 
   try {
-    await assertAmbassadorPhoneAndEmail(req.body.phone, req.body.email, found.get('id'));
+    await assertUserPhoneAndEmail('Ambassador', req.body.phone, req.body.email, found.get('id'));
   } catch (err) {
     return error(400, res, err.message, req.body);
   }
