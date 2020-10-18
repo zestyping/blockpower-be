@@ -261,9 +261,7 @@ async function searchTriplersAmbassador(req) {
     nameType = 'last';
     nameToCompare = `last_n_q`;
   } else {
-    // TODO: Get the base node a different way.
-    //  Currently we don't handle any other search params, so bail out.
-    return [];
+    triplerQuery = 'match (node:Tripler)';
   }
   const nodeName = `replace(replace(toLower(node.${nameType}_name), '-', ''), "'", '')`;
   const stringDistScores = firstName || lastName ? `
