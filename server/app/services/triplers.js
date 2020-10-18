@@ -238,30 +238,31 @@ function normalizeName(name) {
 }
 
 async function searchTriplersAmbassador(req) {
-  let { firstName, lastName, phone, distance, age, gender, msa } = req.query;
+  const { firstName, lastName, phone, distance, age, gender, msa } = req.query;
 
   // They need to search for SOMETHING valid.
   if (!firstName && !lastName && !phone && !distance && !age && !gender && !msa) {
     return [];
   }
 
-  firstName = normalizeName(firstName);
-  lastName = normalizeName(lastName);
+  const firstNameNorm = normalizeName(firstName);
+  const lastNameNorm = normalizeName(lastName);
   let nameQuery, nameType, nameToCompare;
-  if (firstName && lastName) {
-    nameQuery = `CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "*${firstName}* *${lastName}*") YIELD node`;
+  if (firstNameNorm && lastNameNorm) {
+    nameQuery = `CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "*${firstNameNorm}* *${lastNameNorm}*") YIELD node`;
     nameType = 'full';
     nameToCompare = `first_n_q + ' ' + last_n_q`;
-  } else if (firstName) {
-    nameQuery = `CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "*${firstName}*") YIELD node`;
+  } else if (firstNameNorm) {
+    nameQuery = `CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "*${firstNameNorm}*") YIELD node`;
     nameType = 'first';
     nameToCompare = `first_n_q`;
-  } else if (lastName) {
-    nameQuery = `CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "*${lastName}*") YIELD node`;
+  } else if (lastNameNorm) {
+    nameQuery = `CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "*${lastNameNorm}*") YIELD node`;
     nameType = 'last';
     nameToCompare = `last_n_q`;
   } else {
-    // TODO: Currently we don't handle any other search params, so bail out.
+    // TODO: Get the base node a different way.
+    //  Currently we don't handle any other search params, so bail out.
     return [];
   }
   const nodeName = `replace(replace(toLower(node.${nameType}_name), '-', ''), "'", '')`;
@@ -269,7 +270,7 @@ async function searchTriplersAmbassador(req) {
   // TODO: Use parameter isolation for security.
   const q = `
     ${nameQuery}
-    with node, ${firstName || 'null'} as first_n_q, ${lastName || 'null'} as last_n_q
+    with node, ${firstNameNorm || 'null'} as first_n_q, ${lastNameNorm || 'null'} as last_n_q
     where
       not ()-[:CLAIMS]->(node)
       and not ()-[:WAS_ONCE]->(node)
