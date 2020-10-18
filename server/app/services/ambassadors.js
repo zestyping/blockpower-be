@@ -192,6 +192,11 @@ async function getPrimaryAccount(ambassador) {
     });
   }
 
+  if (!primaryAccount) {
+    // probably a legacy account
+    relationships[0].otherNode().update({is_primary: true});
+  }
+
   return primaryAccount;
 }
 
