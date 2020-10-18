@@ -272,6 +272,7 @@ async function searchTriplersAmbassador(req) {
     0 as score1, 0 as score2, 0 as score3
   `
 
+  const phoneFilter = phone ? `and node.phone in ${[normalizePhone(phone)]}` : '';
   const genderFilter = gender ? `and node.gender in ${[gender, 'U']}` : '';
   const ageFilter = age ? `and node.age_decade in ${[age]}` : '';
   const msaFilter = msa ? `and node.msa in ${[msa]}` : '';
@@ -283,6 +284,7 @@ async function searchTriplersAmbassador(req) {
     where
       not ()-[:CLAIMS]->(node)
       and not ()-[:WAS_ONCE]->(node)
+      ${phoneFilter}
       ${genderFilter}
       ${ageFilter}
       ${msaFilter}
