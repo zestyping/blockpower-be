@@ -57,4 +57,6 @@ export async function getUserJsonFromRequest(body) {
   if (body.triplees) {
     json.triplees = JSON.stringify(body.triplees, null, 2);
   }
+
+  return json;
 }
