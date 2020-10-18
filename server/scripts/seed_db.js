@@ -81,18 +81,26 @@ async function emptyDatabase() {
 async function baseUserData() {
   const address = addresses[faker.random.number({ min: 0, max: addresses.length - 1 })];
   const coordinates = await geoCode(address);
-  return {
+  const user = {
     id: uuidv4(),
     first_name: faker.name.firstName(),
     last_name: faker.name.lastName(),
+    gender: faker.random.arrayElement(['F', 'M', 'U']),
     phone: await randomPhone('Ambassador'),
+    age_decade: faker.random.arrayElement(["20-29", "30-39", "40-49"]),
     email: faker.internet.email(),
     address: JSON.stringify(address),
+    zip: address.zip,
+    msa: `${address.state} other`,
     location: {
       latitude: parseFloat(coordinates.latitude),
       longitude: parseFloat(coordinates.longitude)
     },
   };
+  return {
+    ...user,
+    full_name: `${user.first_name} ${user.last_name}`,
+  }
 }
 
 async function createTripler({ status }) {
