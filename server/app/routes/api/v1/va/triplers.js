@@ -99,6 +99,7 @@ async function suggestTriplers(req, res) {
     }).join(' ')
   }
 
+  // TODO: remove this endpoint and use Lee's separate query in search
   let collection = await req.neode.query()
     .match('a', 'Ambassador', {id: req.user.get('id')})
     .with('a, apoc.convert.fromJsonMap(a.address) as address')

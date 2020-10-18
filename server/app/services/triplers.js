@@ -247,17 +247,17 @@ async function searchTriplersAmbassador(req) {
 
   const firstNameNorm = normalizeName(firstName);
   const lastNameNorm = normalizeName(lastName);
-  let nameQuery, nameType, nameToCompare;
+  let triplerQuery, nameType, nameToCompare;
   if (firstNameNorm && lastNameNorm) {
-    nameQuery = `CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "*${firstNameNorm}* *${lastNameNorm}*") YIELD node`;
+    triplerQuery = `CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "*${firstNameNorm}* *${lastNameNorm}*") YIELD node`;
     nameType = 'full';
     nameToCompare = `first_n_q + ' ' + last_n_q`;
   } else if (firstNameNorm) {
-    nameQuery = `CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "*${firstNameNorm}*") YIELD node`;
+    triplerQuery = `CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "*${firstNameNorm}*") YIELD node`;
     nameType = 'first';
     nameToCompare = `first_n_q`;
   } else if (lastNameNorm) {
-    nameQuery = `CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "*${lastNameNorm}*") YIELD node`;
+    triplerQuery = `CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "*${lastNameNorm}*") YIELD node`;
     nameType = 'last';
     nameToCompare = `last_n_q`;
   } else {
@@ -266,6 +266,13 @@ async function searchTriplersAmbassador(req) {
     return [];
   }
   const nodeName = `replace(replace(toLower(node.${nameType}_name), '-', ''), "'", '')`;
+  const stringDistScores = firstName || lastName ? `
+    apoc.text.levenshteinSimilarity(${nodeName}, ${nameToCompare}) as score1,
+    apoc.text.jaroWinklerDistance(${nodeName}, ${nameToCompare}) as score2,
+    apoc.text.sorensenDiceSimilarity(${nodeName}, ${nameToCompare}) as score3
+  ` : `
+    0 as score1, 0 as score2, 0 as score3
+  `
 
   const genderFilter = gender ? `and node.gender in ${[gender, 'U']}` : '';
   const ageFilter = age ? `and node.age_decade in ${[age]}` : '';
@@ -273,7 +280,7 @@ async function searchTriplersAmbassador(req) {
 
   // TODO: Use parameter isolation for security.
   const q = `
-    ${nameQuery}
+    ${triplerQuery}
     with node, ${firstNameNorm || 'null'} as first_n_q, ${lastNameNorm || 'null'} as last_n_q
     where
       not ()-[:CLAIMS]->(node)
@@ -286,9 +293,7 @@ async function searchTriplersAmbassador(req) {
     match (a:Ambassador {id: "${req.user.get('id')}"})
     with
       node, a.location as a_location,
-      apoc.text.levenshteinSimilarity(${nodeName}, ${nameToCompare}) as score1,
-      apoc.text.jaroWinklerDistance(${nodeName}, ${nameToCompare}) as score2,
-      apoc.text.sorensenDiceSimilarity(${nodeName}, ${nameToCompare}) as score3
+      ${stringDistScores}
     with
       node, (score1 + score2 + score3) / 3 as avg_score,
       distance(a_location, node.location) / 10000 as distance
