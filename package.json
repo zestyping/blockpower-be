@@ -12,6 +12,8 @@
     "database": "cd server && npm run database",
     "makeadmin": "cd server && npm run makeadmin --",
     "test": "cd server && npm test",
+    "test:snapshots": "cd server && npm run test:snapshots",
+    "test:snapshots:update": "npm run test:snapshots -- -- -u",
     "ncu": "ncu && cd client && ncu && cd ../server && ncu",
     "client": "cd client && npm install && npm start",
     "server": "cd server && npm install && npm start",
@@ -22,9 +24,5 @@
   "license": "AGPL-3.0",
   "devDependencies": {
     "concurrently": "^5.1.0"
-  },
-  "engines": {
-    "node": "^8.9.4",
-    "npm": "^6.14.8"
   }
 }

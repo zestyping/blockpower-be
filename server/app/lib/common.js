@@ -16,8 +16,10 @@ var getConfig = function (item, required, def) {
   if (value === null || value === undefined || value === "") {
     if (required) {
       let msg = "Missing config: "+item.toUpperCase();
-      console.warn(msg);
-      if (process.env.NODE_ENV !== "development") {
+      if (process.env.NODE_ENV !== "test") {
+        console.warn(msg);
+      }
+      if (process.env.NODE_ENV === "production") {
         throw new Error(msg);
       }
     } else {

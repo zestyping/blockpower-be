@@ -237,7 +237,7 @@ function normalizeName(name) {
   return (name || "").replace(/-'/g, "").toLowerCase();
 }
 
-async function searchTriplersAmbassador(req) {
+function buildTriplerSearchQuery(req) {
   const { firstName, lastName, phone, distance, age, gender, msa } = req.query;
 
   const { zip } = req.user.get('address');
@@ -279,7 +279,7 @@ async function searchTriplersAmbassador(req) {
   const secondZipFilter = firstName || lastName ? '' : `and ${zipFilter}`;
 
   // TODO: Use parameter isolation for security.
-  const q = `
+  return `
     ${triplerQuery}
     with node, ${firstNameNorm || 'null'} as first_n_q, ${lastNameNorm || 'null'} as last_n_q
     where
@@ -304,8 +304,11 @@ async function searchTriplersAmbassador(req) {
     order by final_score desc, node.full_name asc
     limit 100
   `;
+}
 
-  let collection = await neode.cypher(q);
+async function searchTriplersAmbassador(req) {
+  const query = buildTriplerSearchQuery(req);
+  let collection = await neode.cypher(query);
   let models = [];
   for (let index = 0; index < collection.records.length; index++) {
     let entry = collection.records[index]._fields[0].properties;
@@ -397,6 +400,7 @@ module.exports = {
   detachTripler: detachTripler,
   reconfirmTripler: reconfirmTripler,
   findRecentlyConfirmedTriplers: findRecentlyConfirmedTriplers,
+  buildTriplerSearchQuery: buildTriplerSearchQuery,
   searchTriplersAmbassador: searchTriplersAmbassador,
   searchTriplersAdmin: searchTriplersAdmin,
   adminSearchTriplers: adminSearchTriplers,

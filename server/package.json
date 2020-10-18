@@ -11,6 +11,7 @@
     "genkeys": "babel-node scripts/genkeys.js",
     "seed:fresh": "babel-node scripts/seed_db.js seedall --empty",
     "test": "reset && npm run sandboxdatabase && npm run genkeys && JUNIT_REPORT_PATH=test-result/result.xml JUNIT_REPORT_STACK=1 nyc mocha --exit --file ./test/lib/config.js --recursive --require @babel/register --timeout 25000 --colors --reporter mocha-jenkins-reporter || true",
+    "test:snapshots": "jest",
     "start": "node node_modules/nodemon/bin/nodemon.js --signal SIGKILL --exec babel-node app/server.js  > hellovoter.log 2>&1"
   },
   "author": "Our Voice USA",
@@ -19,6 +20,7 @@
     "@babel/register": "^7.9.0",
     "chai": "^4.2.0",
     "docker-cli-js": "^2.7.1",
+    "jest": "^26.5.3",
     "keypair": "^1.0.1",
     "mocha": "^7.1.1",
     "mocha-jenkins-reporter": "^0.4.2",
@@ -26,6 +28,11 @@
     "nyc": "^15.0.0",
     "superagent-defaults": "^0.1.14",
     "supertest": "^4.0.2"
+  },
+  "jest": {
+    "testMatch": [
+      "**/app/**/*.jest.js"
+    ]
   },
   "nodemonConfig": {
     "ignore": [
@@ -80,9 +87,5 @@
   },
   "optionalDependencies": {
     "jmx": "github:OurVoiceUSA/node-jmx"
-  },
-  "engines": {
-    "node": "^8.9.4",
-    "npm": "^6.14.8"
   }
 }
