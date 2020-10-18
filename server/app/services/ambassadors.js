@@ -5,18 +5,16 @@ import neode from '../lib/neode';
 
 import {
   validateEmpty,
-  validateState,
   validateUnique,
   assertUserPhoneAndEmail,
 } from '../lib/validations';
 
 import { ValidationError } from '../lib/errors';
-import { trimFields, geoCode, zipToLatLon } from '../lib/utils';
-import { normalizePhone } from '../lib/normalizers';
+import { trimFields } from '../lib/utils';
+import { getValidCoordinates, normalizePhone } from '../lib/normalizers';
 import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
 import { signupEmail } from '../emails/signupEmail';
-import { normalizeAddress } from '../lib/normalizers';
 
 async function findByExternalId(externalId) {
   return await neode.first('Ambassador', 'external_id', externalId);
@@ -24,24 +22,6 @@ async function findByExternalId(externalId) {
 
 async function findById(id) {
   return await neode.first('Ambassador', 'id', id);
-}
-
-async function getValidCoordinates(address) {
-  const addressNorm = normalizeAddress(address);
-
-  if (!validateState(addressNorm.state)) {
-    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.");
-  }
-
-  let coordinates = await geoCode(addressNorm);
-  if (!coordinates) {
-    coordinates = await zipToLatLon(addressNorm.zip);
-  }
-  if (!coordinates) {
-    throw new ValidationError("Our system doesn't recognize that zip code. Please try again.");
-  }
-
-  return [coordinates, addressNorm];
 }
 
 async function signup(json, verification, carrierLookup) {

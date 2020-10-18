@@ -2,7 +2,7 @@ import { Router } from 'express';
 import stringFormat from 'string-format';
 import { v4 as uuidv4 } from 'uuid';
 
-import { normalizePhone } from '../../../../lib/normalizers';
+import { getValidCoordinates, normalizePhone } from '../../../../lib/normalizers';
 import { ov_config } from '../../../../lib/ov_config';
 import triplersSvc from '../../../../services/triplers';
 import { error } from '../../../../services/errors';
@@ -32,15 +32,12 @@ async function createTripler(req, res) {
       return error(400, res, "Invalid payload, tripler cannot be created");
     }
 
+    let coordinates, address;
     try {
       await assertUserPhoneAndEmail('Tripler', req.body.phone, req.body.email);
+      [coordinates, address] = await getValidCoordinates(req.body.address);
     } catch (err) {
       return error(400, res, err.message, req.body);
-    }
-
-    let coordinates = await geoCode(req.body.address);
-    if (!coordinates) {
-      return error(400, res, "Invalid address, tripler cannot be created");
     }
 
     const obj = {
@@ -49,7 +46,7 @@ async function createTripler(req, res) {
       last_name: req.body.last_name || null,
       phone: normalizePhone(req.body.phone),
       email: req.body.email || null,
-      address: JSON.stringify(req.body.address, null, 2),
+      address: JSON.stringify(address, null, 2),
       triplees: !req.body.triplees ? null : JSON.stringify(req.body.triplees, null, 2),
       location: {
         latitude: parseFloat(coordinates.latitude),

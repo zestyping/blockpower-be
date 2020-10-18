@@ -1,6 +1,7 @@
 import neo4j from 'neo4j-driver';
 import PhoneNumber from 'awesome-phonenumber';
-import { geoCode } from './utils';
+import { geoCode, zipToLatLon } from './utils';
+import { validateState } from './validations';
 import { ValidationError } from './errors';
 
 const WGS_84_2D = 4326;
@@ -23,6 +24,24 @@ export function normalizePhone(phone) {
   return internationalNumber(phone).replace(/[^0-9xX]/g, '')
 }
 
+export async function getValidCoordinates(address) {
+  const addressNorm = normalizeAddress(address);
+
+  if (!validateState(addressNorm.state)) {
+    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.");
+  }
+
+  let coordinates = await geoCode(addressNorm);
+  if (!coordinates) {
+    coordinates = await zipToLatLon(addressNorm.zip);
+  }
+  if (!coordinates) {
+    throw new ValidationError("Our system doesn't recognize that zip code. Please try again.");
+  }
+
+  return [coordinates, addressNorm];
+}
+
 /** This can handle both Ambassadors and Triplers. */
 export async function getUserJsonFromRequest(body) {
   const json = {};
@@ -38,11 +57,8 @@ export async function getUserJsonFromRequest(body) {
   }
 
   if (body.address) {
-    const coordinates = await geoCode(body.address);
-    if (!coordinates) {
-      throw new ValidationError("Invalid address.");
-    }
-    json.address = JSON.stringify(body.address, null, 2);
+    const [coordinates, address] = await getValidCoordinates(body.address);
+    json.address = JSON.stringify(address, null, 2);
     json.location = new neo4j.types.Point(
       WGS_84_2D,
       coordinates.longitude,
