@@ -240,10 +240,8 @@ function normalizeName(name) {
 async function searchTriplersAmbassador(req) {
   const { firstName, lastName, phone, distance, age, gender, msa } = req.query;
 
-  // They need to search for SOMETHING valid.
-  if (!firstName && !lastName && !phone && !distance && !age && !gender && !msa) {
-    return [];
-  }
+  const { zip } = req.user.get('address');
+  const zipFilter = `node.zip starts with left(${zip}, 3)`;
 
   const firstNameNorm = normalizeName(firstName);
   const lastNameNorm = normalizeName(lastName);
@@ -261,7 +259,8 @@ async function searchTriplersAmbassador(req) {
     nameType = 'last';
     nameToCompare = `last_n_q`;
   } else {
-    triplerQuery = 'match (node:Tripler)';
+    // Limit to triplers in the ambassador's broad area.
+    triplerQuery = `match (node:Tripler) where ${zipFilter}`;
   }
   const nodeName = `replace(replace(toLower(node.${nameType}_name), '-', ''), "'", '')`;
   const stringDistScores = firstName || lastName ? `
@@ -270,12 +269,14 @@ async function searchTriplersAmbassador(req) {
     apoc.text.sorensenDiceSimilarity(${nodeName}, ${nameToCompare}) as score3
   ` : `
     0 as score1, 0 as score2, 0 as score3
-  `
+  `;
 
   const phoneFilter = phone ? `and node.phone in ${[normalizePhone(phone)]}` : '';
   const genderFilter = gender ? `and node.gender in ${[gender, 'U']}` : '';
   const ageFilter = age ? `and node.age_decade in ${[age]}` : '';
   const msaFilter = msa ? `and node.msa in ${[msa]}` : '';
+  // This will have already been included above if there's no name specified.
+  const secondZipFilter = firstName || lastName ? '' : `and ${zipFilter}`;
 
   // TODO: Use parameter isolation for security.
   const q = `
@@ -288,8 +289,8 @@ async function searchTriplersAmbassador(req) {
       ${genderFilter}
       ${ageFilter}
       ${msaFilter}
+      ${secondZipFilter}
     with node, first_n_q, last_n_q
-    limit 500
     match (a:Ambassador {id: "${req.user.get('id')}"})
     with
       node, a.location as a_location,
