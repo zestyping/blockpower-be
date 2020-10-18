@@ -241,7 +241,7 @@ function buildTriplerSearchQuery(req) {
   const { firstName, lastName, phone, distance, age, gender, msa } = req.query;
 
   const { zip } = req.user.get('address');
-  const zipFilter = `node.zip starts with left(${zip}, 3)`;
+  const zipFilter = `node.address contains left("${zip}", 3)`;
 
   const firstNameNorm = normalizeName(firstName);
   const lastNameNorm = normalizeName(lastName);
@@ -276,7 +276,10 @@ function buildTriplerSearchQuery(req) {
   const ageFilter = age ? `and node.age_decade in ${[age]}` : '';
   const msaFilter = msa ? `and node.msa in ${[msa]}` : '';
   // This will have already been included above if there's no name specified.
-  const secondZipFilter = firstName || lastName ? '' : `and ${zipFilter}`;
+  const secondZipFilter = firstName || lastName ? `and ${zipFilter}` : '';
+
+  // 0 means "Doesn't matter".
+  const distanceValue = distance == null ? 0 : parseFloat(distance);
 
   // TODO: Use parameter isolation for security.
   return `
@@ -299,9 +302,9 @@ function buildTriplerSearchQuery(req) {
       node, (score1 + score2 + score3) / 3 as avg_score,
       distance(a_location, node.location) / 10000 as distance
     with
-      node, avg_score + (1 / distance) * "${distance}" as final_score 
-    return node, distance, avg_score, final_score
-    order by final_score desc, node.full_name asc
+      node, avg_score + (1 / distance) * ${distanceValue} as final_score 
+    return node, final_score
+    order by final_score desc, node.last_name asc, node.first_name asc
     limit 100
   `;
 }

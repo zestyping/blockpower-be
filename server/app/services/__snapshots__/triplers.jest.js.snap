@@ -2,7 +2,7 @@
 
 exports[`triplers search query without any parameters 1`] = `
 "
-    match (node:Tripler) where node.zip starts with left(12345, 3)
+    match (node:Tripler) where node.address contains left(\\"12345\\", 3)
     with node, null as first_n_q, null as last_n_q
     where
       not ()-[:CLAIMS]->(node)
@@ -11,7 +11,7 @@ exports[`triplers search query without any parameters 1`] = `
       
       
       
-      and node.zip starts with left(12345, 3)
+      
     with node, first_n_q, last_n_q
     match (a:Ambassador {id: \\"123\\"})
     with
@@ -23,9 +23,9 @@ exports[`triplers search query without any parameters 1`] = `
       node, (score1 + score2 + score3) / 3 as avg_score,
       distance(a_location, node.location) / 10000 as distance
     with
-      node, avg_score + (1 / distance) * \\"undefined\\" as final_score 
-    return node, distance, avg_score, final_score
-    order by final_score desc, node.full_name asc
+      node, avg_score + (1 / distance) * 0 as final_score 
+    return node, final_score
+    order by final_score desc, node.last_name asc, node.first_name asc
     limit 100
   "
 `;
