@@ -238,30 +238,54 @@ function normalizeName(name) {
 }
 
 async function searchTriplersAmbassador(req) {
-  const { firstName, lastName, phone, distance, age, gender, msa } = req.query;
+  let { firstName, lastName, phone, distance, age, gender, msa } = req.query;
 
   // They need to search for SOMETHING valid.
   if (!firstName && !lastName && !phone && !distance && !age && !gender && !msa) {
     return [];
   }
 
-  let firstNameQuery = normalizeName(firstName);
-  let lastNameQuery = normalizeName(lastName);
+  firstName = normalizeName(firstName);
+  lastName = normalizeName(lastName);
+  let nameQuery, nameType, nameToCompare;
+  if (firstName && lastName) {
+    nameQuery = `CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "*${firstName}* *${lastName}*") YIELD node`;
+    nameType = 'full';
+    nameToCompare = `first_n_q + ' ' + last_n_q`;
+  } else if (firstName) {
+    nameQuery = `CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "*${firstName}*") YIELD node`;
+    nameType = 'first';
+    nameToCompare = `first_n_q`;
+  } else if (lastName) {
+    nameQuery = `CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "*${lastName}*") YIELD node`;
+    nameType = 'last';
+    nameToCompare = `last_n_q`;
+  } else {
+    // TODO: Currently we don't handle any other search params, so bail out.
+    return [];
+  }
+  const nodeName = `replace(replace(toLower(node.${nameType}_name), '-', ''), "'", '')`;
 
-  // TODO: Deal with first or last name being blank.
-  // TODO: Neode makes it quite painful to do conditional queries,
-  //  and raw user input is also insecure. We should use parameter isolation.
+  // TODO: Use parameter isolation for security.
   const q = `
-    CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "${'*' + lastNameQuery + '*'}") YIELD node
-    with node, ${lastNameQuery} as last_n_q
-    where NOT ()-[:CLAIMS]->(node)
-    and NOT ()-[:WAS_ONCE]->(node)
-    with last_n_q, node
+    ${nameQuery}
+    with node, ${firstName || 'null'} as first_n_q, ${lastName || 'null'} as last_n_q
+    where
+      not ()-[:CLAIMS]->(node)
+      and not ()-[:WAS_ONCE]->(node)
+    with node, first_n_q, last_n_q
     limit 500
-    match(a:Ambassador {id:"${req.user.get('id')}"})
-    with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.last_name), '-', ''), "'", ''), last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.last_name), '-', ''), "'", ''), last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.last_name), '-', ''), "'", ''), last_n_q) as score3
-    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location) / 10000 as distance
-    with node, avg_score + (1 / distance) * "${distance}" as final_score 
+    match (a:Ambassador {id: "${req.user.get('id')}"})
+    with
+      node, a.location as a_location,
+      apoc.text.levenshteinSimilarity(${nodeName}, ${nameToCompare}) as score1,
+      apoc.text.jaroWinklerDistance(${nodeName}, ${nameToCompare}) as score2,
+      apoc.text.sorensenDiceSimilarity(${nodeName}, ${nameToCompare}) as score3
+    with
+      node, (score1 + score2 + score3) / 3 as avg_score,
+      distance(a_location, node.location) / 10000 as distance
+    with
+      node, avg_score + (1 / distance) * "${distance}" as final_score 
     return node.full_name, distance, avg_score, final_score
     order by final_score desc, node.full_name asc
     limit 100
@@ -269,7 +293,7 @@ async function searchTriplersAmbassador(req) {
 
   let collection = await neode.cypher(q);
   let models = [];
-  for (var index = 0; index < collection.records.length; index++) {
+  for (let index = 0; index < collection.records.length; index++) {
     let entry = collection.records[index]._fields[0].properties;
     models.push(serializeNeo4JTripler(entry));
   }
