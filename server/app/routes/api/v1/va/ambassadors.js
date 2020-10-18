@@ -228,28 +228,40 @@ async function signup(req, res) {
   return res.json(serializeAmbassador(new_ambassador));
 }
 
+async function validateAmbassadorPhoneAndEmail(id, phone, email) {
+  if (phone) {
+    if (!validatePhone(phone)) {
+      throw new ValidationError("Our system doesn't recognize that phone number. Please try again.");
+    }
+
+    if (!await validateUniquePhone('Ambassador', phone, id)) {
+      throw new ValidationError("That phone number is already in use. Cannot update ambassador.");
+    }
+  }
+
+  if (email) {
+    if (!validateEmail(email)) {
+      throw new ValidationError("Invalid email");
+    }
+
+    if (!await validateUnique('Ambassador', { email }, id)) {
+      throw new ValidationError("That email address is already in use. Cannot update ambassador.");
+    }
+  }
+
+  return true;
+}
+
 async function updateAmbassador(req, res) {
   let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
   if (!found) {
     return error(404, res, "Ambassador not found");
   }
 
-  if (req.body.phone) {
-    if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn't recognize that phone number. Please try again.");
-    }
-
-    if (!await validateUniquePhone('Ambassador', req.body.phone, found.get('id'))) {
-      return error(400, res, "That phone number is already in use. Cannot update ambassador.");
-    }
-  }
-
-  if (req.body.email) {
-    if (!validateEmail(req.body.email)) return error(400, res, "Invalid email");
-
-    if (!await validateUnique('Ambassador', { email: req.body.email }, found.get('id'))) {
-      return error(400, res, "That email address is already in use. Cannot update ambassador.");
-    }
+  try {
+    await validateAmbassadorPhoneAndEmail(found.get('id'), req.body.phone, req.body.email);
+  } catch (error) {
+    return error(400, res, error.message);
   }
 
   let json;
@@ -265,22 +277,10 @@ async function updateAmbassador(req, res) {
 async function updateCurrentAmbassador(req, res) {
   let found = req.user;
 
-  if (req.body.phone) {
-    if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn't recognize that phone number. Please try again.");
-    }
-
-    if (!await validateUniquePhone('Ambassador', req.body.phone, found.get('id'))) {
-      return error(400, res, "That phone number is already in use. Cannot update current ambassador.");
-    }
-  }
-
-  if (req.body.email) {
-    if (!validateEmail(req.body.email)) return error(400, res, "Invalid email");
-
-    if (!await validateUnique('Ambassador', { email: req.body.email }, found.get('id'))) {
-      return error(400, res, "That email address is already in use. Cannot update current ambassador.");
-    }
+  try {
+    await validateAmbassadorPhoneAndEmail(found.get('id'), req.body.phone, req.body.email);
+  } catch (error) {
+    return error(400, res, error.message);
   }
 
   let json;
