@@ -78,56 +78,44 @@ async function emptyDatabase() {
   await neode.deleteAll('Tripler');
 }
 
-async function createTripler(opts) {
-  let firstName = faker.name.firstName();
-  let lastName = faker.name.lastName();
-  let phone = await randomPhone('Ambassador');
-  let email = faker.internet.email();
-  let address = addresses[faker.random.number({ min: 0, max: addresses.length - 1 })];
-  let coordinates = await geoCode(address);
-  let triplees = [faker.name.findName(), faker.name.findName(), faker.name.findName()];
-
-  let json = {
+async function baseUserData() {
+  const address = addresses[faker.random.number({ min: 0, max: addresses.length - 1 })];
+  const coordinates = await geoCode(address);
+  return {
     id: uuidv4(),
-    first_name: firstName,
-    last_name: lastName,
-    phone: phone,
-    email: email,
+    first_name: faker.name.firstName(),
+    last_name: faker.name.lastName(),
+    phone: await randomPhone('Ambassador'),
+    email: faker.internet.email(),
     address: JSON.stringify(address),
     location: {
-      latitude: parseFloat(coordinates.latitude, 10),
-      longitude: parseFloat(coordinates.longitude, 10)
+      latitude: parseFloat(coordinates.latitude),
+      longitude: parseFloat(coordinates.longitude)
     },
-    status: argv['force-unconfirmed'] ? 'unconfirmed' : opts.status,
-    triplees: JSON.stringify(triplees)
+  };
+}
+
+async function createTripler({ status }) {
+  let json = {
+    ...await baseUserData(),
+    status: argv['force-unconfirmed'] ? 'unconfirmed' : status,
+    triplees: JSON.stringify([
+      faker.name.findName(),
+      faker.name.findName(),
+      faker.name.findName(),
+    ]),
   }
   return neode.create('Tripler', json);
 }
 
 async function createAmbassador(opts) {
-  let firstName = faker.name.firstName();
-  let lastName = faker.name.lastName();
-  let phone = await randomPhone('Ambassador');
-  let email = faker.internet.email();
-  let address = addresses[faker.random.number({ min: 0, max: addresses.length - 1 })];
-  let coordinates = await geoCode(address);
-
   let json = {
-    id: uuidv4(),
-    first_name: firstName,
-    last_name: lastName,
-    phone: phone,
-    email: email,
-    address: JSON.stringify(address),
+    ...await baseUserData(),
     quiz_results: null,
     approved: !!opts.approved,
     locked: !!opts.locked,
     signup_completed: !!opts.signup_completed,
     admin: !!opts.admin,
-    location: {
-      latitude: parseFloat(coordinates.latitude, 10),
-      longitude: parseFloat(coordinates.longitude, 10)
-    }
   };
 
   let new_ambassador = await neode.create('Ambassador', json);
@@ -137,8 +125,8 @@ async function createAmbassador(opts) {
     let max = faker.random.number({ min: 1, max: 2 });
     for (let index = 0; index < max; index++) {
       console.log(`Creating ${status} tripler ${index + 1} of ${max} ...`);
-      let tripler = await createTripler({ status: status });
-      new_ambassador.relateTo(tripler, 'claims');
+      let tripler = await createTripler({ status });
+      await new_ambassador.relateTo(tripler, 'claims');
     }
   }
   return new_ambassador;
@@ -193,6 +181,6 @@ async function seed(argv) {
   let status = statuses[faker.random.number({ min: 0, max: 2 })];
   for (let index = 0; index < max; index++) {
     console.log(`Creating ${status} tripler ${index + 1} of ${max} ...`);
-    await createTripler({ status: status });
+    await createTripler({ status });
   }
 }
