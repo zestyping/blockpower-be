@@ -109,8 +109,8 @@ async function updateTripler(req, res) {
   let json;
   try {
     json = await getUserJsonFromRequest(req.body);
-  } catch (error) {
-    return error(400, res, error.message);
+  } catch (err) {
+    return error(400, res, err.message);
   }
   let updated = await found.update(json);
   return res.json(serializeTripler(updated));

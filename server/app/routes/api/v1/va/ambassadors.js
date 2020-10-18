@@ -230,8 +230,8 @@ async function updateAmbassador(req, res) {
   let json;
   try {
     json = await getUserJsonFromRequest(req.body);
-  } catch (error) {
-    return error(400, res, error.message);
+  } catch (err) {
+    return error(400, res, err.message);
   }
   let updated = await found.update(json);
   return res.json(serializeAmbassador(updated));
@@ -240,6 +240,7 @@ async function updateAmbassador(req, res) {
 async function updateCurrentAmbassador(req, res) {
   let found = req.user;
 
+  // TODO: Assert they're not trying to change their phone number.
   try {
     await assertUserPhoneAndEmail('Ambassador', req.body.phone, req.body.email, found.get('id'));
   } catch (err) {
@@ -249,8 +250,8 @@ async function updateCurrentAmbassador(req, res) {
   let json;
   try {
     json = await getUserJsonFromRequest(req.body);
-  } catch (error) {
-    return error(400, res, error.message);
+  } catch (err) {
+    return error(400, res, err.message);
   }
   let updated = await found.update(json);
   return res.json(serializeAmbassador(updated));
