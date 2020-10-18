@@ -267,6 +267,10 @@ async function searchTriplersAmbassador(req) {
   }
   const nodeName = `replace(replace(toLower(node.${nameType}_name), '-', ''), "'", '')`;
 
+  const genderFilter = gender ? `and node.gender in ${[gender, 'U']}` : '';
+  const ageFilter = age ? `and node.age_decade in ${[age]}` : '';
+  const msaFilter = msa ? `and node.msa in ${[msa]}` : '';
+
   // TODO: Use parameter isolation for security.
   const q = `
     ${nameQuery}
@@ -274,6 +278,9 @@ async function searchTriplersAmbassador(req) {
     where
       not ()-[:CLAIMS]->(node)
       and not ()-[:WAS_ONCE]->(node)
+      ${genderFilter}
+      ${ageFilter}
+      ${msaFilter}
     with node, first_n_q, last_n_q
     limit 500
     match (a:Ambassador {id: "${req.user.get('id')}"})
@@ -287,7 +294,7 @@ async function searchTriplersAmbassador(req) {
       distance(a_location, node.location) / 10000 as distance
     with
       node, avg_score + (1 / distance) * "${distance}" as final_score 
-    return node.full_name, distance, avg_score, final_score
+    return node, distance, avg_score, final_score
     order by final_score desc, node.full_name asc
     limit 100
   `;
