@@ -10,12 +10,12 @@ function runOnce() {
 
 function schedule() {
   if (!ov_config.disable_auto_payouts) {
-    logger.debug('Scheduling payout cron job for every %s minutes', ov_config.payout_schedule);
+    logger.debug('Scheduling payout cron job: ', ov_config.payout_cron_string);
     cron.schedule(ov_config.payout_cron_string, payouts);
   }
 
   if (!ov_config.disable_upgrade_sms) {
-    logger.debug('Scheduling upgrade sms cron job for every %s minutes', ov_config.upgrade_sms_schedule);
+    logger.debug('Scheduling upgrade sms cron job: ', ov_config.upgrade_sms_cron_string);
     cron.schedule(ov_config.upgrade_sms_cron_string, upgrade_sms);
   }
 }
