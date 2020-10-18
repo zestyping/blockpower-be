@@ -240,7 +240,13 @@ async function updateAmbassador(req, res) {
 async function updateCurrentAmbassador(req, res) {
   let found = req.user;
 
-  // TODO: Assert they're not trying to change their phone number.
+  // Disabled form fields don't get sent from the frontend, so default it if missing.
+  if (!req.body.phone) {
+    req.body.phone = req.user.get('phone');
+  } else if (req.user.get('phone') !== normalizePhone(req.body.phone)) {
+    return error(400, res, "You're not allowed to change your phone number. Email support@blockpower.vote for help. (E8)", req.body);
+  }
+
   try {
     await assertUserPhoneAndEmail('Ambassador', req.body.phone, req.body.email, found.get('id'));
   } catch (err) {
