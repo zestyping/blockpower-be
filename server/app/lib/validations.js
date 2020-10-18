@@ -6,6 +6,7 @@ import { normalizePhone } from './normalizers';
 import carrier from './carrier';
 import caller_id from './caller_id';
 import reverse_phone from './reverse_phone';
+import { ValidationError } from './errors';
 
 const ENFORCE_UNIQUE = !ov_config.stress_testing;
 
@@ -93,4 +94,29 @@ export async function verifyCallerIdAndReversePhone(phone) {
   }
 
   return verifications;
+}
+
+/** Throws if phone or email is invalid or duplicate. */
+export async function assertAmbassadorPhoneAndEmail(phone, email, id = null) {
+  if (phone) {
+    if (!validatePhone(phone)) {
+      throw new ValidationError("Our system doesn't understand that phone number. Please try again.");
+    }
+
+    if (!await validateUniquePhone('Ambassador', phone, id)) {
+      throw new ValidationError("That phone number is already in use. Email support@blockpower.vote for help. (E5)");
+    }
+  }
+
+  if (email) {
+    if (!validateEmail(email)) {
+      throw new ValidationError("Invalid email");
+    }
+
+    if (!await validateUnique('Ambassador', { email }, id)) {
+      throw new ValidationError("That email address is already in use. Email support@blockpower.vote for help. (E6)");
+    }
+  }
+
+  return true;
 }

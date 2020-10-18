@@ -12,7 +12,14 @@ import {
 } from '../../../../lib/utils';
 
 import {
-  validateEmpty, validatePhone, validateEmail, validateUnique, validateUniquePhone, validateCarrier, verifyCallerIdAndReversePhone
+  validateEmpty,
+  validatePhone,
+  validateEmail,
+  validateUnique,
+  validateUniquePhone,
+  validateCarrier,
+  verifyCallerIdAndReversePhone,
+  assertAmbassadorPhoneAndEmail
 } from '../../../../lib/validations';
 
 import mail from '../../../../lib/mail';
@@ -32,22 +39,10 @@ async function createAmbassador(req, res) {
       return error(400, res, "Invalid payload, ambassador cannot be created");
     }
 
-    if (!validatePhone(req.body.phone)) {
-      return error(400, res, "Our system doesn't recognize that phone number. Please try again.");
-    }
-
-    if (!await validateUniquePhone('Ambassador', req.body.phone)) {
-      return error(400, res, "That phone number is already in use. Cannot create ambassador.");
-    }
-
-    if (req.body.email) {
-      if (!validateEmail(req.body.email)) {
-        return error(400, res, "Invalid email");
-      }
-
-      if (!await validateUnique('Ambassador', { email: req.body.email })) {
-        return error(400, res, "That email address is already in use. Cannot create ambassador.");
-      }
+    try {
+      await assertAmbassadorPhoneAndEmail(req.body.phone, req.body.email);
+    } catch (err) {
+      return error(400, res, err.message, req.body);
     }
 
     let coordinates = await geoCode(req.body.address);
@@ -201,8 +196,7 @@ async function signup(req, res) {
 
   try {
     new_ambassador = await ambassadorsSvc.signup(req.body, verifications, carrierLookup);
-  }
-  catch (err) {
+  } catch (err) {
     if (err instanceof ValidationError) {
       return error(400, res, err.message, req.body);
     } else {
@@ -228,30 +222,6 @@ async function signup(req, res) {
   return res.json(serializeAmbassador(new_ambassador));
 }
 
-async function validateAmbassadorPhoneAndEmail(id, phone, email) {
-  if (phone) {
-    if (!validatePhone(phone)) {
-      throw new ValidationError("Our system doesn't recognize that phone number. Please try again.");
-    }
-
-    if (!await validateUniquePhone('Ambassador', phone, id)) {
-      throw new ValidationError("That phone number is already in use. Cannot update ambassador.");
-    }
-  }
-
-  if (email) {
-    if (!validateEmail(email)) {
-      throw new ValidationError("Invalid email");
-    }
-
-    if (!await validateUnique('Ambassador', { email }, id)) {
-      throw new ValidationError("That email address is already in use. Cannot update ambassador.");
-    }
-  }
-
-  return true;
-}
-
 async function updateAmbassador(req, res) {
   let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
   if (!found) {
@@ -259,9 +229,9 @@ async function updateAmbassador(req, res) {
   }
 
   try {
-    await validateAmbassadorPhoneAndEmail(found.get('id'), req.body.phone, req.body.email);
-  } catch (error) {
-    return error(400, res, error.message);
+    await assertAmbassadorPhoneAndEmail(req.body.phone, req.body.email, found.get('id'));
+  } catch (err) {
+    return error(400, res, err.message, req.body);
   }
 
   let json;
@@ -278,9 +248,9 @@ async function updateCurrentAmbassador(req, res) {
   let found = req.user;
 
   try {
-    await validateAmbassadorPhoneAndEmail(found.get('id'), req.body.phone, req.body.email);
-  } catch (error) {
-    return error(400, res, error.message);
+    await assertAmbassadorPhoneAndEmail(req.body.phone, req.body.email, found.get('id'));
+  } catch (err) {
+    return error(400, res, err.message, req.body);
   }
 
   let json;

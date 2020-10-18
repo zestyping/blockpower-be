@@ -4,7 +4,10 @@ import stringFormat from 'string-format';
 import neode from '../lib/neode';
 
 import {
-  validateEmpty, validatePhone, validateEmail, validateState, validateUniquePhone, validateUnique
+  validateEmpty,
+  validateState,
+  validateUnique,
+  assertAmbassadorPhoneAndEmail,
 } from '../lib/validations';
 
 import { ValidationError } from '../lib/errors';
@@ -30,32 +33,16 @@ async function signup(json, verification, carrierLookup) {
     throw new ValidationError("Invalid payload, ambassador cannot be created");
   }
 
-  if (!validatePhone(json.phone)) {
-    throw new ValidationError("Our system doesn't recognize that phone number. Please try again.");
-  }
+  await assertAmbassadorPhoneAndEmail(json.phone, json.email);
 
   let address = normalizeAddress(json.address);
 
   if (!validateState(address.state)) {
-    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.", { ambassador: json, verification: verification });
-  }
-
-  if (!await validateUniquePhone('Ambassador', json.phone)) {
-    throw new ValidationError("You already have an account. Email support@blockpower.vote for help. E5", { ambassador: json, verification: verification });
+    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.");
   }
 
   if (!await validateUnique('Ambassador', { external_id: json.externalId })) {
     throw new ValidationError("If you have already signed up as an Ambassador using Facebook or Google, you cannot sign up again.");
-  }
-
-  if (json.email) {
-    if (!validateEmail(json.email)) {
-      throw new ValidationError("Invalid email");
-    }
-
-    if (!await validateUnique('Ambassador', { email: json.email })) {
-      throw new ValidationError("You already have an account. Email support@blockpower.vote for help. E6");
-    }
   }
 
   let coordinates = await geoCode(address);
