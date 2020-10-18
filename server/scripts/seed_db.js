@@ -61,6 +61,12 @@ const argv = yargs
       type: 'boolean'
     }
   })
+  .option({
+    'real-geocodes': {
+      describe: 'use a live geocoder to determine address locations (slow)',
+      type: 'boolean'
+    }
+  })
   .help()
   .argv
 
@@ -80,7 +86,10 @@ async function emptyDatabase() {
 
 async function baseUserData() {
   const address = addresses[faker.random.number({ min: 0, max: addresses.length - 1 })];
-  const coordinates = await geoCode(address);
+  const coordinates = argv['real-geocodes'] ? await geoCode(address) : {
+    latitude: faker.address.latitude(),
+    longitude: faker.address.longitude(),
+  };
   const user = {
     id: uuidv4(),
     first_name: faker.name.firstName(),
