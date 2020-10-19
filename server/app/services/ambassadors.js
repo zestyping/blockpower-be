@@ -119,6 +119,15 @@ async function getPrimaryAccount(ambassador) {
         primaryAccount = ownsAccount.otherNode();
       }
     });
+
+    if (!primaryAccount) {
+      // probably a legacy account
+      relationships.forEach(async (ownsAccount) => {
+        if (primaryAccount) return;
+        await ownsAccount.otherNode().update({is_primary: true});
+        primaryAccount = ownsAccount.otherNode();
+      });
+    }
   }
 
   return primaryAccount;
