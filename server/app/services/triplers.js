@@ -241,10 +241,7 @@ function buildTriplerSearchQuery(req) {
   const { firstName, lastName, phone, distance, age, gender, msa } = req.query;
 
   const { zip } = JSON.parse(req.user.get('address'));
-  // Instead of parsing the 'address' JSON of *every tripler in the database*,
-  // this just matches on any part of the address string to at least narrow the matches.
-  // Later in the query, distance will be calculated explicitly.
-  const zipFilter = `node.address contains left("${zip}", 3)`;
+  const zipFilter = `node.zip starts with left("${zip}", 3)`;
 
   const firstNameNorm = normalizeName(firstName);
   const lastNameNorm = normalizeName(lastName);

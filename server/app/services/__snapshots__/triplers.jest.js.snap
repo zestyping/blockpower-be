@@ -2,7 +2,7 @@
 
 exports[`triplers search query with age only 1`] = `
 "
-    match (node:Tripler) where node.address contains left(\\"12345\\", 3)
+    match (node:Tripler) where node.zip starts with left(\\"12345\\", 3)
     with node, null as first_n_q, null as last_n_q
     where
       not ()-[:CLAIMS]->(node)
@@ -41,7 +41,7 @@ exports[`triplers search query with everything 1`] = `
       and node.gender in [\\"F\\", \\"U\\"]
       and node.age_decade in [\\"20-29\\"]
       and node.msa in [\\"Jacksonville, FL area\\"]
-      and node.address contains left(\\"12345\\", 3)
+      and node.zip starts with left(\\"12345\\", 3)
     with node, first_n_q, last_n_q
     match (a:Ambassador {id: \\"123\\"})
     with
@@ -73,7 +73,7 @@ exports[`triplers search query with firstName only 1`] = `
       
       
       
-      and node.address contains left(\\"12345\\", 3)
+      and node.zip starts with left(\\"12345\\", 3)
     with node, first_n_q, last_n_q
     match (a:Ambassador {id: \\"123\\"})
     with
@@ -105,7 +105,7 @@ exports[`triplers search query with fullName only 1`] = `
       
       
       
-      and node.address contains left(\\"12345\\", 3)
+      and node.zip starts with left(\\"12345\\", 3)
     with node, first_n_q, last_n_q
     match (a:Ambassador {id: \\"123\\"})
     with
@@ -137,7 +137,7 @@ exports[`triplers search query with lastName only 1`] = `
       
       
       
-      and node.address contains left(\\"12345\\", 3)
+      and node.zip starts with left(\\"12345\\", 3)
     with node, first_n_q, last_n_q
     match (a:Ambassador {id: \\"123\\"})
     with
@@ -160,7 +160,7 @@ exports[`triplers search query with lastName only 1`] = `
 
 exports[`triplers search query without any parameters 1`] = `
 "
-    match (node:Tripler) where node.address contains left(\\"12345\\", 3)
+    match (node:Tripler) where node.zip starts with left(\\"12345\\", 3)
     with node, null as first_n_q, null as last_n_q
     where
       not ()-[:CLAIMS]->(node)
