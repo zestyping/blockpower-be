@@ -377,7 +377,7 @@ async function searchTriplersAmbassador(req) {
     q = `
     match(a:Ambassador{id:"${req.user.get('id')}"})
     with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
-    CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "${'*' + replace(firstNameQuery, '-', ' ') + '*'}") YIELD node
+    CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "${'*' + firstNameQuery.replace('-', ' ') + '*'}") YIELD node
     where NOT ()-[:CLAIMS]->(node)
     and NOT ()-[:WAS_ONCE]->(node)
     and node.zip starts with left(toString(address.zip), 3)
@@ -392,7 +392,7 @@ async function searchTriplersAmbassador(req) {
     q = `
     match(a:Ambassador{id:"${req.user.get('id')}"})
     with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
-    CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "${'*' + replace(lastNameQuery, '-', ' ') + '*'}") YIELD node
+    CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "${'*' + lastNameQuery.replace('-', ' ') + '*'}") YIELD node
     where NOT ()-[:CLAIMS]->(node)
     and NOT ()-[:WAS_ONCE]->(node)
     and node.zip starts with left(toString(address.zip), 3)
