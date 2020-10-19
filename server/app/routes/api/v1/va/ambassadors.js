@@ -24,7 +24,6 @@ import { ov_config } from '../../../../lib/ov_config';
 import caller_id from '../../../../lib/caller_id';
 import reverse_phone from '../../../../lib/reverse_phone';
 import carrier from '../../../../lib/carrier';
-import { makeAdminEmail } from '../../../../emails/makeAdminEmail';
 
 async function createAmbassador(req, res) {
   let new_ambassador = null;
@@ -185,7 +184,54 @@ async function makeAdmin(req, res) {
   // send email in the background
   setTimeout(async ()=> {
     let address = JSON.parse(found.get('address'));
-    let body = makeAdminEmail(found, address);
+    let body = `
+    Organization Name:
+    <br>
+    ${ov_config.organization_name}
+    <br>
+    <br>
+    Google/FB ID:
+    <br>
+    ${found.get('external_id')}
+    <br>
+    <br>
+    First Name:
+    <br>
+    ${found.get('first_name')}
+    <br>
+    <br>
+    Last Name:
+    <br>
+    ${found.get('last_name')}
+    <br>
+    <br>
+    Date of Birth:
+    <br>
+    ${found.get('date_of_birth')}
+    <br>
+    <br>
+    Street Address:
+    <br>
+    ${address.address1}
+    <br>
+    <br>
+    Zip:
+    <br>
+    ${address.zip}
+    <br>
+    <br>
+    Email:
+    <br>
+    ${found.get('email')}
+    <br>
+    <br>
+    Phone Number:
+    <br>
+    ${found.get('phone')}
+    <br>
+    <br>
+    `;
+
     let subject = `New Admin for ${ov_config.organization_name}`;
     await mail(ov_config.admin_emails, null, null, subject, body);
   }, 100);
