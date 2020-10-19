@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import neo4j from 'neo4j-driver';
 import format from 'string-format';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -23,7 +24,6 @@ import { ov_config } from '../../../../lib/ov_config';
 import caller_id from '../../../../lib/caller_id';
 import reverse_phone from '../../../../lib/reverse_phone';
 import { makeAdminEmail } from '../../../../emails/makeAdminEmail';
-import { getUserJsonFromRequest } from '../../../../lib/normalizers';
 
 const AMBASSADOR_ALLOWED_ATTRS = ['first_name', 'last_name', 'date_of_birth', 'email'];
 
@@ -254,11 +254,31 @@ async function updateAmbassador(req, res) {
     }
   }
 
-  let json;
-  try {
-    json = await getUserJsonFromRequest(req.body, AMBASSADOR_ALLOWED_ATTRS);
-  } catch (error) {
-    return error(400, res, error.message);
+  let json = {};
+  for (let prop in req.body) {
+    if (AMBASSADOR_ALLOWED_ATTRS.indexOf(prop) !== -1) {
+      json[prop] = req.body[prop];
+    }
+  }
+
+  // TODO: Modularize this normalization.
+  if (req.body.phone) {
+    json.phone = normalize(req.body.phone);
+  }
+
+  if (req.body.address) {
+    let coordinates = await geoCode(req.body.address);
+    if (coordinates === null) {
+      return error(400, res, "Invalid address, ambassador cannot be updated");
+    }
+    json.address = JSON.stringify(req.body.address, null, 2);
+    json.location = new neo4j.types.Point(4326, // WGS 84 2D
+                                           parseFloat(coordinates.longitude, 10),
+                                           parseFloat(coordinates.latitude, 10));
+  }
+
+  if (req.body.quiz_results) {
+    json.quiz_results = JSON.stringify(res.body.quiz_results, null, 2);
   }
   let updated = await found.update(json);
   return res.json(serializeAmbassador(updated));
@@ -285,11 +305,31 @@ async function updateCurrentAmbassador(req, res) {
     }
   }
 
-  let json;
-  try {
-    json = await getUserJsonFromRequest(req.body, AMBASSADOR_ALLOWED_ATTRS);
-  } catch (error) {
-    return error(400, res, error.message);
+  let json = {};
+  for (let prop in req.body) {
+    if (AMBASSADOR_ALLOWED_ATTRS.indexOf(prop) !== -1) {
+      json[prop] = req.body[prop];
+    }
+  }
+
+  // TODO: Modularize this normalization.
+  if (req.body.phone) {
+    json.phone = normalize(req.body.phone);
+  }
+
+  if (req.body.address) {
+    let coordinates = await geoCode(req.body.address);
+    if (coordinates === null) {
+      return error(400, res, "Invalid address, ambassador cannot be updated");
+    }
+    json.address = JSON.stringify(req.body.address, null, 2);
+    json.location = new neo4j.types.Point(4326, // WGS 84 2D
+                                           parseFloat(coordinates.longitude, 10),
+                                           parseFloat(coordinates.latitude, 10));
+  }
+
+  if (req.body.quiz_results) {
+    json.quiz_results = JSON.stringify(req.body.quiz_results, null, 2);
   }
   let updated = await found.update(json);
   return res.json(serializeAmbassador(updated));
