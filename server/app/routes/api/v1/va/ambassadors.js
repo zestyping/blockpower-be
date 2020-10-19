@@ -44,9 +44,9 @@ async function createAmbassador(req, res) {
     }
 
     if (req.body.email) {
-      if (!validateEmail(req.body.email)) return error(400, res, "Invalid email");
+      if (!validateEmail(req.body.email)) return error(400, res, "Invalid email");  
 
-      if (req.models.Ambassador.email.unique &&
+      if (req.models.Ambassador.email.unique && 
           await req.neode.first('Ambassador', 'email', req.body.email)) {
         return error(400, res, "That email address is already in use. Cannot create ambassador.");
       }
@@ -92,11 +92,11 @@ async function countAmbassadors(req, res) {
 
 async function fetchAmbassadors(req, res) {
   let query = {};
-
+  
   if (req.query.phone) query.phone = normalize(req.query.phone);
   if (req.query.email) query.email = req.query.email;
   if (req.query['external-id']) query.external_id = req.query['external-id'];
-  if (req.query.approved) query.approved = req.query.approved.toLowerCase() === 'true';
+  if (req.query.approved) query.approved = req.query.approved.toLowerCase() === 'true';  
   if (req.query.locked) query.locked = req.query.locked.toLowerCase() === 'true';
   if (req.query['signup-completed']) query.signup_completed = req.query['signup-completed'] === 'true';
   if (req.query['onboarding-completed']) query.onboarding_completed = req.query['onboarding-completed'] === 'true';
@@ -324,7 +324,7 @@ async function updateAmbassador(req, res) {
   }
 
   if (req.body.email) {
-    if (!validateEmail(req.body.email)) return error(400, res, "Invalid email");
+    if (!validateEmail(req.body.email)) return error(400, res, "Invalid email");  
 
     if (req.models.Ambassador.email.unique) {
       let existing_ambassador = await req.neode.first('Ambassador', 'email', req.body.email);
@@ -382,7 +382,7 @@ async function updateCurrentAmbassador(req, res) {
   }
 
   if (req.body.email) {
-    if (!validateEmail(req.body.email)) return error(400, res, "Invalid email");
+    if (!validateEmail(req.body.email)) return error(400, res, "Invalid email");  
 
     if (req.models.Ambassador.email.unique) {
       let existing_ambassador = await req.neode.first('Ambassador', 'email', req.body.email);
@@ -502,7 +502,7 @@ async function completeOnboarding(req, res) {
 async function ambassadorPayouts(ambassador, neode) {
   let payouts = [];
 
-  if (!ambassador.get('gets_paid') || ambassador.get('gets_paid').length === 0)
+  if (!ambassador.get('gets_paid') || ambassador.get('gets_paid').length === 0) 
     return payouts;
 
   await Promise.all(ambassador.get('gets_paid').map(async (entry) => {
