@@ -197,7 +197,7 @@ async function signup(req, res) {
     return error(400, res, `We're sorry, due to fraud concerns '${carrierName}' phone numbers are not permitted. Please try again.`, { request: req.body });
   }
 
-  const verifications = verifyCallerIdAndReversePhone(req.body.phone);
+  const verifications = await verifyCallerIdAndReversePhone(req.body.phone);
 
   try {
     new_ambassador = await ambassadorsSvc.signup(req.body, verifications, carrierLookup);
@@ -207,7 +207,7 @@ async function signup(req, res) {
       return error(400, res, err.message, req.body);
     } else {
       req.logger.error("Unhandled error in %s: %s", req.url, err);
-      return error(500, res, 'Unable to update ambassador form data', { ambassador: req.body, verification: verification });
+      return error(500, res, 'Unable to update ambassador form data', { ambassador: req.body, verification: verifications });
     }
   }
 

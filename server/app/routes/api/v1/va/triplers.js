@@ -208,7 +208,7 @@ async function startTriplerConfirmation(req, res) {
 
   let triplerPhone = req.body.phone ? normalizePhone(req.body.phone): tripler.get('phone');
 
-  const verifications = verifyCallerIdAndReversePhone(triplerPhone);
+  const verifications = await verifyCallerIdAndReversePhone(triplerPhone);
 
   if (tripler.get('status') !== 'unconfirmed') {
     return error(400, res, "Invalid status, cannot proceed to begin tripler confirmation.", { ambassador: serializeAmbassador(ambassador), tripler: serializeTripler(tripler), verification: verifications });
