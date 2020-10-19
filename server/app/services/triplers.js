@@ -324,8 +324,12 @@ async function searchTriplersAmbassador(req) {
   return models;
 }
 
+//
+// searchTriplersAdmin
+//
 // searching as admin removes constraint of requiring no claims relationship
 // as well as removing constraint of requiring no upgraded status
+//
 async function searchTriplersAdmin(req) {
   let neo4jquery = buildSearchTriplerQuery(req.query);
   let q = await neode

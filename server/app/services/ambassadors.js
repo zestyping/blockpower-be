@@ -4,14 +4,16 @@ import stringFormat from 'string-format';
 import neode from '../lib/neode';
 
 import {
-  validateEmpty, validatePhone, validateEmail, validateState, validateUniquePhone, validateUnique
+  validateEmpty, validatePhone, validateEmail
 } from '../lib/validations';
 
 import { ValidationError } from '../lib/errors';
-import { trimFields, geoCode, zipToLatLon } from '../lib/utils';
+import { trimFields, geoCode, serializeName, zipToLatLon } from '../lib/utils';
 import { normalize } from '../lib/phone';
 import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
+
+import models from '../models/va';
 import { signupEmail } from '../emails/signupEmail';
 
 async function findByExternalId(externalId) {
@@ -33,35 +35,39 @@ async function signup(json, verification, carrierLookup) {
     throw new ValidationError("Our system doesn't recognize that phone number. Please try again.");
   }
 
-  // TODO: Modularize this normalization.
   // Ensure that address.state is always uppercase
   let address = json.address;
   address.state = address.state.toUpperCase();
   address.zip = address.zip.toString().split(' ').join('');
 
-  if (!validateState(address.state)) {
+  let allowed_states = ov_config.allowed_states.toUpperCase().split(',');
+  if (allowed_states.indexOf(address.state) === -1) {
     throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.", { ambassador: json, verification: verification });
   }
 
-  if (!await validateUniquePhone('Ambassador', json.phone)) {
-    throw new ValidationError("You already have an account. Email support@blockpower.vote for help. E5", { ambassador: json, verification: verification });
+  if (models.Ambassador.phone.unique) {
+    let existing_ambassador = await neode.first('Ambassador', 'phone', normalize(json.phone));
+    if (existing_ambassador) {
+      throw new ValidationError("You already have an account. Email support@blockpower.vote for help. E5", { ambassador: json, verification: verification });
+    }
   }
 
-  if (!await validateUnique('Ambassador', { external_id: json.externalId })) {
-    throw new ValidationError("If you have already signed up as an Ambassador using Facebook or Google, you cannot sign up again.");
+  if (models.Ambassador.external_id.unique && !ov_config.stress) {
+    let existing_ambassador = await neode.first('Ambassador', 'external_id', json.externalId);
+    if (existing_ambassador) {
+      throw new ValidationError("If you have already signed up as an Ambassador using Facebook or Google, you cannot sign up again.");
+    }
   }
 
   if (json.email) {
-    if (!validateEmail(json.email)) {
-      throw new ValidationError("Invalid email");
-    }
+    if (!validateEmail(json.email)) throw "Invalid email";
 
-    if (!await validateUnique('Ambassador', { email: json.email })) {
+    if (models.Ambassador.email.unique &&
+      await neode.first('Ambassador', 'email', json.email)) {
       throw new ValidationError("You already have an account. Email support@blockpower.vote for help. E6");
     }
   }
 
-  // TODO: Modularize this normalization.
   let coordinates = await geoCode(address);
   if (coordinates === null) {
     coordinates = await zipToLatLon(address.zip);
@@ -92,7 +98,6 @@ async function signup(json, verification, carrierLookup) {
     carrier_info: JSON.stringify(carrierLookup, null, 2)
   });
 
-  // TODO: Modularize this normalization.
   let existing_tripler = await neode.first('Tripler', {
     phone: normalize(json.phone)
   });
