@@ -45,6 +45,7 @@ async function createTripler(req, res) {
       }
     }
 
+    // TODO: Modularize this normalization.
     let coordinates = await geoCode(req.body.address);
     if (coordinates === null) {
       return error(400, res, "Invalid address, tripler cannot be created");

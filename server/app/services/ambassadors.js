@@ -58,6 +58,7 @@ async function signup(json, verification, carrierLookup) {
     }
   }
 
+  // TODO: Modularize this normalization.
   let coordinates = await geoCode(address);
   if (coordinates === null) {
     coordinates = await zipToLatLon(address.zip);
@@ -88,6 +89,7 @@ async function signup(json, verification, carrierLookup) {
     carrier_info: JSON.stringify(carrierLookup, null, 2)
   });
 
+  // TODO: Modularize this normalization.
   let existing_tripler = await neode.first('Tripler', {
     phone: normalizePhone(json.phone)
   });
