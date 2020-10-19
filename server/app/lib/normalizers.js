@@ -8,14 +8,6 @@ const WGS_84_2D = 4326;
 
 const ALLOWED_ATTRS = ['first_name', 'last_name', 'date_of_birth', 'email', 'status'];
 
-export function normalizeAddress(address) {
-  return {
-    ...address,
-    state: address.state.toUpperCase(),
-    zip: address.zip.toString().replaceAll(' ', ''),
-  };
-}
-
 /** This can handle both Ambassadors and Triplers. */
 export async function getUserJsonFromRequest(body) {
   const json = {};
