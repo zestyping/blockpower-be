@@ -382,7 +382,7 @@ async function searchTriplersAmbassador(req) {
     and NOT ()-[:WAS_ONCE]->(node)
     and node.zip starts with left(toString(address.zip), 3)
     with a_location, node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q
-    with a_location, last_n_q, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score3
+    with a_location, first_n_q, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score3
     with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
     with node, avg_score / distance as final_score
     return node
