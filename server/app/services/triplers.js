@@ -360,45 +360,45 @@ async function searchTriplersAmbassador(req) {
 
   if (req.query.firstName && req.query.lastName) {
     q = `
+    match(a:Ambassador{id:"${req.user.get('id')}"})
+    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
     CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "${'*' + firstNameQuery + '* *' + lastNameQuery + '*'}") YIELD node
-    with node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
     where NOT ()-[:CLAIMS]->(node)
     and NOT ()-[:WAS_ONCE]->(node)
-    with first_n_q, last_n_q, node
-    limit 500
-    match(a:Ambassador{id:"${req.user.get('id')}"})
-    with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score3
-    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/1000 as distance
+    and node.zip starts with left(toString(address.zip), 3)
+    with a_location, node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
+    with a_location, first_n_q, last_n_q, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score3
+    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
     with node, avg_score / distance as final_score
     return node
     order by final_score desc limit 100
     `
   } else if (req.query.firstName) {
     q = `
-    CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "${'*' + firstNameQuery + '*'}") YIELD node
-    with node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q
+    match(a:Ambassador{id:"${req.user.get('id')}"})
+    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
+    CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "${'*' + replace(firstNameQuery, '-', ' ') + '*'}") YIELD node
     where NOT ()-[:CLAIMS]->(node)
     and NOT ()-[:WAS_ONCE]->(node)
-    with first_n_q, node
-    limit 500
-    match(a:Ambassador{id:"${req.user.get('id')}"})
-    with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score3
-    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/1000 as distance
+    and node.zip starts with left(toString(address.zip), 3)
+    with a_location, node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q
+    with a_location, last_n_q, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score3
+    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
     with node, avg_score / distance as final_score
     return node
     order by final_score desc, node.last_name limit 100
     `;
   } else if (req.query.lastName) {
     q = `
-    CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "${'*' + lastNameQuery + '*'}") YIELD node
-    with node, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
+    match(a:Ambassador{id:"${req.user.get('id')}"})
+    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
+    CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "${'*' + replace(lastNameQuery, '-', ' ') + '*'}") YIELD node
     where NOT ()-[:CLAIMS]->(node)
     and NOT ()-[:WAS_ONCE]->(node)
-    with last_n_q, node
-    limit 500
-    match(a:Ambassador{id:"${req.user.get('id')}"})
-    with a.location as a_location, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score3
-    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/1000 as distance
+    and node.zip starts with left(toString(address.zip), 3)
+    with a_location, node, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
+    with a_location, last_n_q, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score3
+    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
     with node, avg_score / distance as final_score
     return node
     order by final_score desc, node.first_name limit 100
