@@ -3,7 +3,7 @@ import stringFormat from "string-format";
 import neo4j from "neo4j-driver";
 import neode from "../lib/neode";
 import { serializeName } from "../lib/utils";
-import { normalizePhone } from "../lib/normalizers";
+import { normalize } from "../lib/phone";
 import mail from "../lib/mail";
 import { ov_config } from "../lib/ov_config";
 import sms from "../lib/sms";
@@ -19,7 +19,7 @@ async function findById(triplerId) {
 }
 
 async function findByPhone(phone) {
-  return await neode.first("Tripler", "phone", normalizePhone(phone));
+  return await neode.first("Tripler", "phone", normalize(phone));
 }
 
 async function findRecentlyConfirmedTriplers() {
@@ -197,7 +197,7 @@ async function upgradeNotification(triplerId) {
 async function adminSearchTriplers(req) {
   let query = {};
 
-  if (req.query.phone) query.phone = normalizePhone(req.query.phone);
+  if (req.query.phone) query.phone = normalize(req.query.phone);
   if (req.query.email) query.email = req.query.email;
   if (req.query.firstName) query.first_name = req.query.firstName;
   if (req.query.lastName) query.last_name = req.query.lastName;

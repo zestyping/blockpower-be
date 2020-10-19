@@ -2,7 +2,7 @@ import { Router } from 'express';
 import format from 'string-format';
 import { v4 as uuidv4 } from 'uuid';
 
-import { normalizePhone } from '../../../../lib/normalizers';
+import { normalize } from '../../../../lib/phone';
 import { ValidationError } from '../../../../lib/errors';
 import ambassadorsSvc from '../../../../services/ambassadors';
 import { error } from '../../../../services/errors';
@@ -59,7 +59,7 @@ async function createAmbassador(req, res) {
       id: uuidv4(),
       first_name: req.body.first_name,
       last_name: req.body.last_name || null,
-      phone: normalizePhone(req.body.phone),
+      phone: normalize(req.body.phone),
       email: req.body.email || null,
       address: JSON.stringify(req.body.address, null, 2),
       quiz_results: JSON.stringify(req.body.quiz_results, null, 2) || null,
@@ -91,7 +91,7 @@ async function countAmbassadors(req, res) {
 async function fetchAmbassadors(req, res) {
   let query = {};
 
-  if (req.query.phone) query.phone = normalizePhone(req.query.phone);
+  if (req.query.phone) query.phone = normalize(req.query.phone);
   if (req.query.email) query.email = req.query.email;
   if (req.query['external-id']) query.external_id = req.query['external-id'];
   if (req.query.approved) query.approved = req.query.approved.toLowerCase() === 'true';

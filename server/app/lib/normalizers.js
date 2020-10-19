@@ -1,7 +1,8 @@
-import neo4j from 'neo4j-driver';
-import PhoneNumber from 'awesome-phonenumber';
+import { normalize } from './phone';
 import { geoCode } from './utils';
 import { ValidationError } from './errors';
+
+import neo4j from 'neo4j-driver';
 
 const WGS_84_2D = 4326;
 
@@ -15,14 +16,6 @@ export function normalizeAddress(address) {
   };
 }
 
-export function internationalNumber(phone) {
-  return (new PhoneNumber(phone, 'US')).getNumber('international');
-}
-
-export function normalizePhone(phone) {
-  return internationalNumber(phone).replace(/[^0-9xX]/g, '')
-}
-
 /** This can handle both Ambassadors and Triplers. */
 export async function getUserJsonFromRequest(body) {
   const json = {};
@@ -34,7 +27,7 @@ export async function getUserJsonFromRequest(body) {
   }
 
   if (body.phone) {
-    json.phone = normalizePhone(body.phone);
+    json.phone = normalize(body.phone);
   }
 
   if (body.address) {
