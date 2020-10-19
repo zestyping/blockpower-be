@@ -20,6 +20,15 @@ const argv = yargs
       process.exit(1);
     }
   })
+  .command('index', 'only add DB indexes without seeding', async function (argv) {
+    try {
+      await addIndexes(argv.argv);
+      process.exit(0);
+    } catch (err) {
+      console.log(err);
+      process.exit(1);
+    }
+  })
   .command('delete', 'only delete all the Ambassadors and Triplers, do not seed', async function () {
     try {
       await emptyDatabase();
@@ -200,4 +209,20 @@ async function seed(argv) {
     console.log(`Creating ${status} tripler ${index + 1} of ${max} ...`);
     await createTripler({ status });
   }
+
+  await addIndexes();
+}
+
+async function addIndexes() {
+  console.log('Adding indexes...');
+  // Hacky cypher to avoid errors when indexes already exist (it's much easier in Neo v4).
+  await neode.cypher(`
+    with 1 as ignored where not apoc.schema.node.indexExists("Tripler", ["full_name"])
+    call db.index.fulltext.createNodeIndex("triplerFullNameIndex", ["Tripler"], ["full_name"])
+    with 1 as ignored where not apoc.schema.node.indexExists("Tripler", ["first_name"])
+    call db.index.fulltext.createNodeIndex("triplerFirstNameIndex", ["Tripler"], ["first_name"])
+    with 1 as ignored where not apoc.schema.node.indexExists("Tripler", ["last_name"])
+    call db.index.fulltext.createNodeIndex("triplerLastNameIndex", ["Tripler"], ["last_name"])
+    return ignored
+  `);
 }
