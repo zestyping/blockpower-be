@@ -285,7 +285,6 @@ function buildTriplerSearchQuery(req) {
 
   // TODO: Use parameter isolation for security.
   return `
-
     match (a:Ambassador {id: "${req.user.get('id')}"})
     with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
     ${triplerQuery}

@@ -2,188 +2,188 @@
 
 exports[`triplers search query with age only 1`] = `
 "
-    match (node:Tripler) where node.zip starts with left(\\"12345\\", 3)
-    with node, null as first_n_q, null as last_n_q
-    where
-      not ()-[:CLAIMS]->(node)
-      and not ()-[:WAS_ONCE]->(node)
-      
-      
-      and node.age_decade in [\\"20-29\\"]
-      
-      
-    with node, first_n_q, last_n_q
     match (a:Ambassador {id: \\"123\\"})
-    with
-      node, a.location as a_location,
-      
+    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
+    match (node:Tripler) where node.zip starts with left(\\"12345\\", 3)
+      where
+        not ()-[:CLAIMS]->(node)
+        and not ()-[:WAS_ONCE]->(node)
+        
+        
+        
+        and node.age_decade in [\\"20-29\\"]
+        
+        
+      with a_location, node, null as first_n_q, null as last_n_q
+      with a_location, node, first_n_q, last_n_q,
+        
     0 as score1, 0 as score2, 0 as score3
   
-    with
-      node, (score1 + score2 + score3) / 3 as avg_score,
-      distance(a_location, node.location) / 10000 as distance
-    with
-      node, avg_score + (1 / distance) * 0 as final_score 
-    return node, final_score
-    order by final_score desc, node.last_name asc, node.first_name asc
-    limit 100
+      with
+        node, (score1 + score2 + score3) / 3 as avg_score,
+        distance(a_location, node.location) / 10000 as distance
+      with
+        node, avg_score + (1 / distance) * 0 as final_score
+      return node, final_score
+      order by final_score desc, node.last_name asc, node.first_name asc
+      limit 100
   "
 `;
 
 exports[`triplers search query with everything 1`] = `
 "
-    CALL db.index.fulltext.queryNodes(\\"triplerFullNameIndex\\", \\"*foo* *bar*\\") YIELD node
-    with node, \\"foo\\" as first_n_q, \\"bar\\" as last_n_q
-    where
-      not ()-[:CLAIMS]->(node)
-      and not ()-[:WAS_ONCE]->(node)
-      and node.phone in [\\"15551212\\"]
-      and node.gender in [\\"F\\", \\"U\\"]
-      and node.age_decade in [\\"20-29\\"]
-      and node.msa in [\\"Jacksonville, FL area\\"]
-      and node.zip starts with left(\\"12345\\", 3)
-    with node, first_n_q, last_n_q
     match (a:Ambassador {id: \\"123\\"})
-    with
-      node, a.location as a_location,
-      
+    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
+    CALL db.index.fulltext.queryNodes(\\"triplerFullNameIndex\\", \\"*foo* *bar*\\") YIELD node
+      where
+        not ()-[:CLAIMS]->(node)
+        and not ()-[:WAS_ONCE]->(node)
+        
+        and node.phone in [\\"15551212\\"]
+        and node.gender in [\\"F\\", \\"U\\"]
+        and node.age_decade in [\\"20-29\\"]
+        and node.msa in [\\"Jacksonville, FL area\\"]
+        and node.zip starts with left(\\"12345\\", 3)
+      with a_location, node, \\"foo\\" as first_n_q, \\"bar\\" as last_n_q
+      with a_location, node, first_n_q, last_n_q,
+        
     apoc.text.levenshteinSimilarity(replace(replace(toLower(node.full_name), '-', ''), \\"'\\", ''), first_n_q + ' ' + last_n_q) as score1,
     apoc.text.jaroWinklerDistance(replace(replace(toLower(node.full_name), '-', ''), \\"'\\", ''), first_n_q + ' ' + last_n_q) as score2,
     apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.full_name), '-', ''), \\"'\\", ''), first_n_q + ' ' + last_n_q) as score3
   
-    with
-      node, (score1 + score2 + score3) / 3 as avg_score,
-      distance(a_location, node.location) / 10000 as distance
-    with
-      node, avg_score + (1 / distance) * 0.5 as final_score 
-    return node, final_score
-    order by final_score desc, node.last_name asc, node.first_name asc
-    limit 100
+      with
+        node, (score1 + score2 + score3) / 3 as avg_score,
+        distance(a_location, node.location) / 10000 as distance
+      with
+        node, avg_score + (1 / distance) * 0.5 as final_score
+      return node, final_score
+      order by final_score desc, node.last_name asc, node.first_name asc
+      limit 100
   "
 `;
 
 exports[`triplers search query with firstName only 1`] = `
 "
-    CALL db.index.fulltext.queryNodes(\\"triplerFirstNameIndex\\", \\"*foo*\\") YIELD node
-    with node, \\"foo\\" as first_n_q, null as last_n_q
-    where
-      not ()-[:CLAIMS]->(node)
-      and not ()-[:WAS_ONCE]->(node)
-      
-      
-      
-      
-      and node.zip starts with left(\\"12345\\", 3)
-    with node, first_n_q, last_n_q
     match (a:Ambassador {id: \\"123\\"})
-    with
-      node, a.location as a_location,
-      
+    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
+    CALL db.index.fulltext.queryNodes(\\"triplerFirstNameIndex\\", \\"*foo*\\") YIELD node
+      where
+        not ()-[:CLAIMS]->(node)
+        and not ()-[:WAS_ONCE]->(node)
+        
+        
+        
+        
+        
+        and node.zip starts with left(\\"12345\\", 3)
+      with a_location, node, \\"foo\\" as first_n_q, null as last_n_q
+      with a_location, node, first_n_q, last_n_q,
+        
     apoc.text.levenshteinSimilarity(replace(replace(toLower(node.first_name), '-', ''), \\"'\\", ''), first_n_q) as score1,
     apoc.text.jaroWinklerDistance(replace(replace(toLower(node.first_name), '-', ''), \\"'\\", ''), first_n_q) as score2,
     apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.first_name), '-', ''), \\"'\\", ''), first_n_q) as score3
   
-    with
-      node, (score1 + score2 + score3) / 3 as avg_score,
-      distance(a_location, node.location) / 10000 as distance
-    with
-      node, avg_score + (1 / distance) * 0 as final_score 
-    return node, final_score
-    order by final_score desc, node.last_name asc, node.first_name asc
-    limit 100
+      with
+        node, (score1 + score2 + score3) / 3 as avg_score,
+        distance(a_location, node.location) / 10000 as distance
+      with
+        node, avg_score + (1 / distance) * 0 as final_score
+      return node, final_score
+      order by final_score desc, node.last_name asc, node.first_name asc
+      limit 100
   "
 `;
 
 exports[`triplers search query with fullName only 1`] = `
 "
-    CALL db.index.fulltext.queryNodes(\\"triplerFullNameIndex\\", \\"*foo* *bar*\\") YIELD node
-    with node, \\"foo\\" as first_n_q, \\"bar\\" as last_n_q
-    where
-      not ()-[:CLAIMS]->(node)
-      and not ()-[:WAS_ONCE]->(node)
-      
-      
-      
-      
-      and node.zip starts with left(\\"12345\\", 3)
-    with node, first_n_q, last_n_q
     match (a:Ambassador {id: \\"123\\"})
-    with
-      node, a.location as a_location,
-      
+    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
+    CALL db.index.fulltext.queryNodes(\\"triplerFullNameIndex\\", \\"*foo* *bar*\\") YIELD node
+      where
+        not ()-[:CLAIMS]->(node)
+        and not ()-[:WAS_ONCE]->(node)
+        
+        
+        
+        
+        
+        and node.zip starts with left(\\"12345\\", 3)
+      with a_location, node, \\"foo\\" as first_n_q, \\"bar\\" as last_n_q
+      with a_location, node, first_n_q, last_n_q,
+        
     apoc.text.levenshteinSimilarity(replace(replace(toLower(node.full_name), '-', ''), \\"'\\", ''), first_n_q + ' ' + last_n_q) as score1,
     apoc.text.jaroWinklerDistance(replace(replace(toLower(node.full_name), '-', ''), \\"'\\", ''), first_n_q + ' ' + last_n_q) as score2,
     apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.full_name), '-', ''), \\"'\\", ''), first_n_q + ' ' + last_n_q) as score3
   
-    with
-      node, (score1 + score2 + score3) / 3 as avg_score,
-      distance(a_location, node.location) / 10000 as distance
-    with
-      node, avg_score + (1 / distance) * 0 as final_score 
-    return node, final_score
-    order by final_score desc, node.last_name asc, node.first_name asc
-    limit 100
+      with
+        node, (score1 + score2 + score3) / 3 as avg_score,
+        distance(a_location, node.location) / 10000 as distance
+      with
+        node, avg_score + (1 / distance) * 0 as final_score
+      return node, final_score
+      order by final_score desc, node.last_name asc, node.first_name asc
+      limit 100
   "
 `;
 
 exports[`triplers search query with lastName only 1`] = `
 "
-    CALL db.index.fulltext.queryNodes(\\"triplerLastNameIndex\\", \\"*bar*\\") YIELD node
-    with node, null as first_n_q, \\"bar\\" as last_n_q
-    where
-      not ()-[:CLAIMS]->(node)
-      and not ()-[:WAS_ONCE]->(node)
-      
-      
-      
-      
-      and node.zip starts with left(\\"12345\\", 3)
-    with node, first_n_q, last_n_q
     match (a:Ambassador {id: \\"123\\"})
-    with
-      node, a.location as a_location,
-      
+    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
+    CALL db.index.fulltext.queryNodes(\\"triplerLastNameIndex\\", \\"*bar*\\") YIELD node
+      where
+        not ()-[:CLAIMS]->(node)
+        and not ()-[:WAS_ONCE]->(node)
+        
+        
+        
+        
+        
+        and node.zip starts with left(\\"12345\\", 3)
+      with a_location, node, null as first_n_q, \\"bar\\" as last_n_q
+      with a_location, node, first_n_q, last_n_q,
+        
     apoc.text.levenshteinSimilarity(replace(replace(toLower(node.last_name), '-', ''), \\"'\\", ''), last_n_q) as score1,
     apoc.text.jaroWinklerDistance(replace(replace(toLower(node.last_name), '-', ''), \\"'\\", ''), last_n_q) as score2,
     apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.last_name), '-', ''), \\"'\\", ''), last_n_q) as score3
   
-    with
-      node, (score1 + score2 + score3) / 3 as avg_score,
-      distance(a_location, node.location) / 10000 as distance
-    with
-      node, avg_score + (1 / distance) * 0 as final_score 
-    return node, final_score
-    order by final_score desc, node.last_name asc, node.first_name asc
-    limit 100
+      with
+        node, (score1 + score2 + score3) / 3 as avg_score,
+        distance(a_location, node.location) / 10000 as distance
+      with
+        node, avg_score + (1 / distance) * 0 as final_score
+      return node, final_score
+      order by final_score desc, node.last_name asc, node.first_name asc
+      limit 100
   "
 `;
 
 exports[`triplers search query without any parameters 1`] = `
 "
-    match (node:Tripler) where node.zip starts with left(\\"12345\\", 3)
-    with node, null as first_n_q, null as last_n_q
-    where
-      not ()-[:CLAIMS]->(node)
-      and not ()-[:WAS_ONCE]->(node)
-      
-      
-      
-      
-      
-    with node, first_n_q, last_n_q
     match (a:Ambassador {id: \\"123\\"})
-    with
-      node, a.location as a_location,
-      
+    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
+    match (node:Tripler) where node.zip starts with left(\\"12345\\", 3)
+      where
+        not ()-[:CLAIMS]->(node)
+        and not ()-[:WAS_ONCE]->(node)
+         and node.zip starts with left(toString(address.zip), 3)
+        
+        
+        
+        
+        
+      with a_location, node, null as first_n_q, null as last_n_q
+      with a_location, node, first_n_q, last_n_q,
+        
     0 as score1, 0 as score2, 0 as score3
   
-    with
-      node, (score1 + score2 + score3) / 3 as avg_score,
-      distance(a_location, node.location) / 10000 as distance
-    with
-      node, avg_score + (1 / distance) * 0 as final_score 
-    return node, final_score
-    order by final_score desc, node.last_name asc, node.first_name asc
-    limit 100
+      with
+        node, (score1 + score2 + score3) / 3 as avg_score,
+        distance(a_location, node.location) / 10000 as distance
+      with
+        node, avg_score + (1 / distance) * 0 as final_score
+      return node, final_score
+      order by final_score desc, node.last_name asc, node.first_name asc
+      limit 100
   "
 `;
