@@ -281,7 +281,9 @@ function buildTriplerSearchQuery(req) {
   // 0 means "Doesn't matter".
   const distanceValue = distance == null ? 0 : parseFloat(distance);
 
-  const optionalZip = phoneFilter + genderFilter + ageFilter + msaFilter + secondZipFilter === '' && (!firstNameNorm || !lastNameNorm) ? ` and node.zip starts with left(toString(address.zip), 3)` : '';
+  const optionalZip = phoneFilter || genderFilter || ageFilter || msaFilter || secondZipFilter || (firstNameNorm && lastNameNorm)
+    ? ''
+    : ` and node.zip starts with left(toString(address.zip), 3)`;
 
   // TODO: Use parameter isolation for security.
   return `
