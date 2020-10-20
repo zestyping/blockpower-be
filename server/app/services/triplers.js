@@ -281,31 +281,34 @@ function buildTriplerSearchQuery(req) {
   // 0 means "Doesn't matter".
   const distanceValue = distance == null ? 0 : parseFloat(distance);
 
+  const optionalZip = phoneFilter + genderFilter + ageFilter + msaFilter + secondZipFilter === '' && (!firstNameNorm || !lastNameNorm) ? ` and node.zip starts with left(toString(address.zip), 3)` : '';
+
   // TODO: Use parameter isolation for security.
   return `
-    ${triplerQuery}
-    with node, ${firstNameNorm ? `"${firstNameNorm}"` : null} as first_n_q, ${lastNameNorm ? `"${lastNameNorm}"` : null} as last_n_q
-    where
-      not ()-[:CLAIMS]->(node)
-      and not ()-[:WAS_ONCE]->(node)
-      ${phoneFilter}
-      ${genderFilter}
-      ${ageFilter}
-      ${msaFilter}
-      ${secondZipFilter}
-    with node, first_n_q, last_n_q
+
     match (a:Ambassador {id: "${req.user.get('id')}"})
-    with
-      node, a.location as a_location,
-      ${stringDistScores}
-    with
-      node, (score1 + score2 + score3) / 3 as avg_score,
-      distance(a_location, node.location) / 10000 as distance
-    with
-      node, avg_score + (1 / distance) * ${distanceValue} as final_score 
-    return node, final_score
-    order by final_score desc, node.last_name asc, node.first_name asc
-    limit 100
+    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
+    ${triplerQuery}
+      where
+        not ()-[:CLAIMS]->(node)
+        and not ()-[:WAS_ONCE]->(node)
+        ${optionalZip}
+        ${phoneFilter}
+        ${genderFilter}
+        ${ageFilter}
+        ${msaFilter}
+        ${secondZipFilter}
+      with a_location, node, ${firstNameNorm ? `"${firstNameNorm}"` : null} as first_n_q, ${lastNameNorm ? `"${lastNameNorm}"` : null} as last_n_q
+      with a_location, node, first_n_q, last_n_q,
+        ${stringDistScores}
+      with
+        node, (score1 + score2 + score3) / 3 as avg_score,
+        distance(a_location, node.location) / 10000 as distance
+      with
+        node, avg_score + (1 / distance) * ${distanceValue} as final_score
+      return node, final_score
+      order by final_score desc, node.last_name asc, node.first_name asc
+      limit 100
   `;
 }
 
