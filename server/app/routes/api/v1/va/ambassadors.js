@@ -285,32 +285,23 @@ async function claimTriplers(req, res) {
     return error(400, res, 'Invalid request, empty list of triplers');
   }
 
-  // The triplers specified by this ambassador
-  let requested_triplers = [];
-  let all_triplers = [];
-  for (let entry of req.body.triplers) {
-    let model = await req.neode.first('Tripler', 'id', entry);
-    if (!model) {
-      return error(404, res, 'Tripler not found, invalid id');
-    }
-    requested_triplers.push(model);
-    all_triplers.push(model);
-  }
+  let query = `
+  match(a:Ambassador{id: req.user.get('id')})-[:CLAIMS]->(ct:Tripler)
+  with a, count(distinct ct) as already_claimed_count
+  match(t:Tripler)
+  where t.id in "${req.body.triplers}" //Pass in array of selected tripler uuids
+  with already_claimed_count, a, t, "${ov_config.claim_tripler_limit}" - already_claimed_count as limit_claim
+  optional match (t)<-[r:CLAIMS]-(:Ambassador)
+  with limit_claim, a, collect(t.id)[0..limit_claim] as unclaimed_id, type(r) as rel
+  where rel is null
+  match(a), (t:Tripler)
+  where t.id in unclaimed_id
+  merge(a)-[r:CLAIMS]->(t)
+  on create set r.since = datetime()
+  return t.id
+  `;
 
-  // Add all existing triplers
-  let current_claims_num = 0;
-  ambassador.get('claims').forEach((entry) => {
-    all_triplers.push(entry.otherNode());
-    current_claims_num++;
-  });
-  all_triplers = [... new Set(all_triplers)]; // eliminate duplicates
-  if (all_triplers.length > parseInt(ov_config.claim_tripler_limit)) {
-    return _400(res, `You may select up to ${ov_config.claim_tripler_limit} possible Vote Triplers. Please select up to ${ov_config.claim_tripler_limit - current_claims_num} more to continue.`);
-  }
-
-  for(let entry of requested_triplers) {
-    await ambassador.relateTo(entry, 'claims');
-  }
+  let collection = await neode.cypher(query);
 
   return _204(res);
 }
