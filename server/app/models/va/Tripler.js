@@ -68,5 +68,9 @@ module.exports = {
   },
   verification: 'string',
   carrier_info: 'string',
-  blocked_carrier_info: 'string'
+  blocked_carrier_info: 'string',
+  gender: 'string',
+  full_name: 'string',
+  age_decade: 'string',
+  msa: 'string'
 };
