@@ -8,21 +8,23 @@ import addresses from './seed_data/addresses.json';
 import { normalizePhone } from '../app/lib/normalizers';
 import yargs from 'yargs';
 
-const argv = yargs
+let argv = null;
+
+yargs
   .scriptName("seed_db.js")
   .usage('$0 <cmd> [options]')
-  .command('seedall', 'seed with random Ambassadors and Triplers, optionally delete all first', async function (argv) {
+  .command('seedall', 'seed with random Ambassadors and Triplers, optionally delete all first', async function (args) {
     try {
-      await seed(argv.argv);
+      await seed(args.argv);
       process.exit(0);
     } catch (err) {
       console.log(err);
       process.exit(1);
     }
   })
-  .command('index', 'only add DB indexes without seeding', async function (argv) {
+  .command('index', 'only add DB indexes without seeding', async function (args) {
     try {
-      await addIndexes(argv.argv);
+      await addIndexes(args.argv);
       process.exit(0);
     } catch (err) {
       console.log(err);
@@ -162,7 +164,8 @@ async function createAdmin() {
   return createAmbassador({ admin: true });
 }
 
-async function seed(argv) {
+async function seed(args) {
+  argv = args;
   const randomSeed = argv.seed || 2020;
   console.log(`starting seed_db with seed: ${randomSeed}`);
 
