@@ -290,6 +290,7 @@ function buildTriplerSearchQuery(req) {
     match (a:Ambassador {id: "${req.user.get('id')}"})
     with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
     ${triplerQuery}
+      with a_location, address, node
       where
         not ()-[:CLAIMS]->(node)
         and not ()-[:WAS_ONCE]->(node)
