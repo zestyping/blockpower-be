@@ -72,5 +72,6 @@ module.exports = {
   gender: 'string',
   full_name: 'string',
   age_decade: 'string',
-  msa: 'string'
+  msa: 'string',
+  birthdate_mm_yy: 'string'
 };
