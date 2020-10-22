@@ -367,6 +367,12 @@ async function updateTriplerCarrier(tripler, carrier) {
   });
 }
 
+async function updateTriplerBirthdate(tripler, birthdate) {
+  await tripler.update({
+    birthdate_mm_yy: birthdate
+  });
+}
+
 async function startTriplerConfirmation(
   ambassador,
   tripler,
