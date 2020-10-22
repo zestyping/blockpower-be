@@ -96,10 +96,11 @@ async function emptyDatabase() {
 }
 
 async function baseUserData() {
+  // Added more real addresses and their lat/longs. location as an attribute of address
   const address = addresses[faker.random.number({ min: 0, max: addresses.length - 1 })];
-  const coordinates = argv['real-geocodes'] ? await geoCode(address) : {
-    latitude: faker.address.latitude(),
-    longitude: faker.address.longitude(),
+  const coordinates = {
+    latitude: address.location.latitude,
+    longitude: address.location.longitude
   };
   const user = {
     id: uuidv4(),
