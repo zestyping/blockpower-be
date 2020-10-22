@@ -289,7 +289,7 @@ async function claimTriplers(req, res) {
   match(a:Ambassador{id: "${req.user.get('id')}})-[:CLAIMS]->(ct:Tripler)
   with a, count(distinct ct) as already_claimed_count
   match(t:Tripler)
-  where t.id in [${req.body.triplers.map(t=>'"' + t + '"')}] //Pass in array of selected tripler uuids
+  where t.id in [${req.body.triplers.map(t=>'"' + t + '"')}]
   with already_claimed_count, a, t, ${ov_config.claim_tripler_limit} - already_claimed_count as limit_claim
   optional match (t)<-[r:CLAIMS]-(:Ambassador)
   with limit_claim, a, collect(t.id)[0..limit_claim] as unclaimed_id, type(r) as rel
