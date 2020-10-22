@@ -286,7 +286,7 @@ async function claimTriplers(req, res) {
   }
 
   let query = `
-  match(a:Ambassador{id: req.user.get('id')})-[:CLAIMS]->(ct:Tripler)
+  match(a:Ambassador{id: "${req.user.get('id')}})-[:CLAIMS]->(ct:Tripler)
   with a, count(distinct ct) as already_claimed_count
   match(t:Tripler)
   where t.id in [${req.body.triplers.map(t=>'"' + t + '"')}] //Pass in array of selected tripler uuids
