@@ -73,5 +73,6 @@ module.exports = {
   full_name: 'string',
   age_decade: 'string',
   msa: 'string',
-  birthdate_mm_yy: 'string'
+  birthdate_mm_yy: 'string',
+  zip: 'string'
 };
