@@ -111,7 +111,7 @@ async function baseUserData() {
     age_decade: faker.random.arrayElement(["20-29", "30-39", "40-49"]),
     email: faker.internet.email(),
     address: JSON.stringify(address),
-    zip: address.zip,
+    zip: `${address.zip}`,
     msa: `${address.state} other`,
     location: {
       latitude: parseFloat(coordinates.latitude),
