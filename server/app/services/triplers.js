@@ -420,5 +420,6 @@ module.exports = {
   adminSearchTriplers: adminSearchTriplers,
   startTriplerConfirmation: startTriplerConfirmation,
   updateTriplerCarrier: updateTriplerCarrier,
-  updateTriplerBlockedCarrier: updateTriplerBlockedCarrier
+  updateTriplerBlockedCarrier: updateTriplerBlockedCarrier,
+  updateTriplerBirthdate: updateTriplerBirthdate
 };
