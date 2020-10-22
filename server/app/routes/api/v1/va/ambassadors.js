@@ -301,7 +301,7 @@ async function claimTriplers(req, res) {
   return t.id
   `;
 
-  let collection = await neode.cypher(query);
+  let collection = await req.neode.cypher(query);
 
   return _204(res);
 }
