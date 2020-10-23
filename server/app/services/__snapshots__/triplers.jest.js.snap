@@ -13,7 +13,7 @@ exports[`triplers search query with age only 1`] = `
       
       and node.age_decade in [\\"20-29\\"]
       
-      
+      and node.zip starts with left(\\"12345\\", 3)
     with a_location, node, null as first_n_q, null as last_n_q
     with a_location, node, first_n_q, last_n_q,
       

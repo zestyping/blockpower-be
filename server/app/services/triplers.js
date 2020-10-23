@@ -237,11 +237,28 @@ function normalizeName(name) {
   return (name || "").replace(/-'/g, "").toLowerCase();
 }
 
+/**
+ * Weight search params by roughly how significantly they narrow the search results.
+ * Mainly used for performance reasons.
+ */
+function calculateQueryPoints(query) {
+  const points = {
+    firstName: 1, lastName: 1, phone: 2, distance: 0, age: 1, gender: 1, msa: 2,
+  }
+  const queryPoints = [
+    'firstName', 'lastName', 'phone', 'distance', 'age', 'gender', 'msa',
+  ]
+    .map((key) => query[key] ? points[key] : 0)
+    .reduce((a, b) => a + b, 0);
+  return queryPoints;
+}
+
 function buildTriplerSearchQuery(req) {
   const { firstName, lastName, phone, distance, age, gender, msa } = req.query;
 
+  const queryPoints = calculateQueryPoints(req.query);
   // Guess whether this query will probably return too many results.
-  const isBroadQuery = !((firstName && lastName) || phone || age || gender || msa);
+  const isBroadQuery = queryPoints < 2;
 
   // Add an optional constraint for performance.
   const { zip } = JSON.parse(req.user.get('address'));
