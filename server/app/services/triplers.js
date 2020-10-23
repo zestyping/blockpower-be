@@ -240,8 +240,12 @@ function normalizeName(name) {
 function buildTriplerSearchQuery(req) {
   const { firstName, lastName, phone, distance, age, gender, msa } = req.query;
 
+  // Guess whether this query will probably return too many results.
+  const isBroadQuery = !((firstName && lastName) || phone || age || gender || msa);
+
+  // Add an optional constraint for performance.
   const { zip } = JSON.parse(req.user.get('address'));
-  const zipFilter = `node.zip starts with left("${zip}", 3)`;
+  const zipFilter = isBroadQuery ? `and node.zip starts with left("${zip}", 3)` : '';
 
   const firstNameNorm = normalizeName(firstName);
   const lastNameNorm = normalizeName(lastName);
@@ -259,8 +263,7 @@ function buildTriplerSearchQuery(req) {
     nameType = 'last';
     nameToCompare = `last_n_q`;
   } else {
-    // Limit to triplers in the ambassador's broad area.
-    triplerQuery = `match (node:Tripler) where ${zipFilter}`;
+    triplerQuery = `match (node:Tripler)`;
   }
   const nodeName = `replace(replace(toLower(node.${nameType}_name), '-', ''), "'", '')`;
   const stringDistScores = firstName || lastName ? `
@@ -275,31 +278,24 @@ function buildTriplerSearchQuery(req) {
   const genderFilter = gender ? `and node.gender in ["${normalizeGender(gender)}", "U"]` : '';
   const ageFilter = age ? `and node.age_decade in ["${age}"]` : '';
   const msaFilter = msa ? `and node.msa in ["${msa}"]` : '';
-  // This will have already been included above if there's no name specified.
-  const secondZipFilter = firstName || lastName ? `and ${zipFilter}` : '';
 
   // 0 means "Doesn't matter".
   const distanceValue = distance == null ? 0 : parseFloat(distance);
 
-  const optionalZip = phoneFilter || genderFilter || ageFilter || msaFilter || secondZipFilter || (firstNameNorm && lastNameNorm)
-    ? ''
-    : ` and node.zip starts with left(toString(address.zip), 3)`;
-
   // TODO: Use parameter isolation for security.
   return `
     match (a:Ambassador {id: "${req.user.get('id')}"})
-    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
+    with a.location as a_location
     ${triplerQuery}
-    with a_location, address, node
+    with a_location, node
     where
       not ()-[:CLAIMS]->(node)
       and not ()-[:WAS_ONCE]->(node)
-      ${optionalZip}
       ${phoneFilter}
       ${genderFilter}
       ${ageFilter}
       ${msaFilter}
-      ${secondZipFilter}
+      ${zipFilter}
     with a_location, node, ${firstNameNorm ? `"${firstNameNorm}"` : null} as first_n_q, ${lastNameNorm ? `"${lastNameNorm}"` : null} as last_n_q
     with a_location, node, first_n_q, last_n_q,
       ${stringDistScores}
