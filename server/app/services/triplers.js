@@ -233,6 +233,7 @@ function buildSearchTriplerQuery(query) {
   return neo4jquery
 }
 
+/** Specifically for cypher matching. */
 function normalizeName(name) {
   return (name || "").replace(/-'/g, "").toLowerCase();
 }
@@ -256,12 +257,10 @@ function calculateQueryPoints(query) {
 function buildTriplerSearchQuery(req) {
   const { firstName, lastName, phone, distance, age, gender, msa } = req.query;
 
-  const queryPoints = calculateQueryPoints(req.query);
-  // Guess whether this query will probably return too many results.
-  const isBroadQuery = queryPoints < 2;
-
   // Add an optional constraint for performance.
   const { zip } = JSON.parse(req.user.get('address'));
+  // Guess whether this query will probably return too many results.
+  const isBroadQuery = calculateQueryPoints(req.query) < 2;
   const zipFilter = isBroadQuery ? `and node.zip starts with left("${zip}", 3)` : '';
 
   const firstNameNorm = normalizeName(firstName);
