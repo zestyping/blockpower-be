@@ -290,27 +290,27 @@ function buildTriplerSearchQuery(req) {
     match (a:Ambassador {id: "${req.user.get('id')}"})
     with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
     ${triplerQuery}
-      with a_location, address, node
-      where
-        not ()-[:CLAIMS]->(node)
-        and not ()-[:WAS_ONCE]->(node)
-        ${optionalZip}
-        ${phoneFilter}
-        ${genderFilter}
-        ${ageFilter}
-        ${msaFilter}
-        ${secondZipFilter}
-      with a_location, node, ${firstNameNorm ? `"${firstNameNorm}"` : null} as first_n_q, ${lastNameNorm ? `"${lastNameNorm}"` : null} as last_n_q
-      with a_location, node, first_n_q, last_n_q,
-        ${stringDistScores}
-      with
-        node, (score1 + score2 + score3) / 3 as avg_score,
-        distance(a_location, node.location) / 10000 as distance
-      with
-        node, avg_score + (1 / distance) * ${distanceValue} as final_score
-      return node, final_score
-      order by final_score desc, node.last_name asc, node.first_name asc
-      limit 100
+    with a_location, address, node
+    where
+      not ()-[:CLAIMS]->(node)
+      and not ()-[:WAS_ONCE]->(node)
+      ${optionalZip}
+      ${phoneFilter}
+      ${genderFilter}
+      ${ageFilter}
+      ${msaFilter}
+      ${secondZipFilter}
+    with a_location, node, ${firstNameNorm ? `"${firstNameNorm}"` : null} as first_n_q, ${lastNameNorm ? `"${lastNameNorm}"` : null} as last_n_q
+    with a_location, node, first_n_q, last_n_q,
+      ${stringDistScores}
+    with
+      node, (score1 + score2 + score3) / 3 as avg_score,
+      distance(a_location, node.location) / 10000 as distance
+    with
+      node, avg_score + (1 / distance) * ${distanceValue} as final_score
+    return node, final_score
+    order by final_score desc, node.last_name asc, node.first_name asc
+    limit 100
   `;
 }
 
