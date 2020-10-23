@@ -1,27 +1,25 @@
 import stringFormat from "string-format";
 
-import logger from "logops";
 import neo4j from "neo4j-driver";
 import neode from "../lib/neode";
 import { serializeName } from "../lib/utils";
-import { normalize } from "../lib/phone";
+import { normalizeGender, normalizePhone } from "../lib/normalizers";
 import mail from "../lib/mail";
 import { ov_config } from "../lib/ov_config";
 import sms from "../lib/sms";
-import stripe from "./stripe";
 import {
   serializeTripler,
   serializeNeo4JTripler,
   serializeTriplee,
-  serializeTripleeForCSV,
 } from "../routes/api/v1/va/serializers";
+import { confirmTriplerEmail } from '../emails/confirmTriplerEmail';
 
 async function findById(triplerId) {
   return await neode.first("Tripler", "id", triplerId);
 }
 
 async function findByPhone(phone) {
-  return await neode.first("Tripler", "phone", normalize(phone));
+  return await neode.first("Tripler", "phone", normalizePhone(phone));
 }
 
 async function findRecentlyConfirmedTriplers() {
@@ -103,17 +101,11 @@ async function confirmTripler(triplerId) {
   }
 
   // send email in the background
-  let tripler_name = serializeName(
-    tripler.get("first_name"),
-    tripler.get("last_name")
-  );
-  let tripler_phone = tripler.get("phone");
-  let ambassador_name = serializeName(
-    ambassador.get("first_name"),
-    ambassador.get("last_name")
-  );
-
   setTimeout(async () => {
+    let ambassador_name = serializeName(
+      ambassador.get("first_name"),
+      ambassador.get("last_name")
+    );
     let relationships = ambassador.get("claims");
     let date_claimed = null;
     let relationship = null;
@@ -128,91 +120,8 @@ async function confirmTripler(triplerId) {
         date_claimed = relationship.get("since");
       }
     }
-    let verification = JSON.parse(tripler.get("verification"));
     let address = JSON.parse(tripler.get("address"));
-    let body = `
-    Organization Name:
-    <br>
-    ${ov_config.organization_name}
-    <br>
-    <br>
-    LALVOTERID:
-    <br>
-    ${tripler.get("voter_id")}
-    <br>
-    <br>
-    First Name:
-    <br>
-    ${tripler.get("first_name")}
-    <br>
-    <br>
-    Last Name:
-    <br>
-    ${tripler.get("last_name")}
-    <br>
-    <br>
-    Street Address:
-    <br>
-    ${address.address1}
-    <br>
-    <br>
-    Zip:
-    <br>
-    ${address.zip}
-    <br>
-    <br>
-    Date Claimed:
-    <br>
-    ${new Date(relationship.get("since"))}
-    <br>
-    <br>
-    Date Confirmed:
-    <br>
-    ${new Date(confirmed_at)}
-    <br>
-    <br>
-    Ambassador:
-    <br>
-    ${ambassador_name}
-    <br>
-    <br>
-    Phone Number:
-    <br>
-    ${tripler.get("phone")}
-    <br>
-    <br>
-    Triplee 1:
-    <br>
-    ${serializeTripleeForCSV(triplees[0])}
-    <br>
-    <br>
-    Triplee 2:
-    <br>
-    ${serializeTripleeForCSV(triplees[1])}
-    <br>
-    <br>
-    Triplee 3:
-    <br>
-    ${serializeTripleeForCSV(triplees[2])}
-    <br>
-    <br>
-    Verification:
-    <br>
-    ${tripler.get('verification')}
-    <br>
-    <br>
-    Carrier Info:
-    <br>
-    ${tripler.get('carrier_info')}
-    <br>
-    <br>
-    Blocked Carrier Info:
-    <br>
-    ${tripler.get('blocked_carrier_info')}
-    <br>
-    <br>
-
-    `;
+    let body = confirmTriplerEmail(tripler, address, relationship, confirmed_at, ambassador_name, triplees);
     let subject = stringFormat(ov_config.tripler_confirm_admin_email_subject, {
       organization_name: ov_config.organization_name,
     });
@@ -288,7 +197,7 @@ async function upgradeNotification(triplerId) {
 async function adminSearchTriplers(req) {
   let query = {};
 
-  if (req.query.phone) query.phone = normalize(req.query.phone);
+  if (req.query.phone) query.phone = normalizePhone(req.query.phone);
   if (req.query.email) query.email = req.query.email;
   if (req.query.firstName) query.first_name = req.query.firstName;
   if (req.query.lastName) query.last_name = req.query.lastName;
@@ -324,90 +233,104 @@ function buildSearchTriplerQuery(query) {
   return neo4jquery
 }
 
+/** Specifically for cypher matching. */
+function normalizeName(name) {
+  return (name || "").replace(/-'/g, "").toLowerCase();
+}
+
+/**
+ * Weight search params by roughly how significantly they narrow the search results.
+ * Mainly used for performance reasons.
+ */
+function calculateQueryPoints(query) {
+  const points = {
+    firstName: 1, lastName: 1, phone: 2, distance: 0, age: 1, gender: 1, msa: 2,
+  }
+  const queryPoints = [
+    'firstName', 'lastName', 'phone', 'distance', 'age', 'gender', 'msa',
+  ]
+    .map((key) => query[key] ? points[key] : 0)
+    .reduce((a, b) => a + b, 0);
+  return queryPoints;
+}
+
+function buildTriplerSearchQuery(req) {
+  const { firstName, lastName, phone, distance, age, gender, msa } = req.query;
+
+  // Add an optional constraint for performance.
+  const { zip } = JSON.parse(req.user.get('address'));
+  // Guess whether this query will probably return too many results.
+  const isBroadQuery = calculateQueryPoints(req.query) < 2;
+  const zipFilter = isBroadQuery ? `and node.zip starts with left("${zip}", 3)` : '';
+
+  const firstNameNorm = normalizeName(firstName);
+  const lastNameNorm = normalizeName(lastName);
+  let triplerQuery, nameType, nameToCompare;
+  if (firstNameNorm && lastNameNorm) {
+    triplerQuery = `CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "*${firstNameNorm}* *${lastNameNorm}*") YIELD node`;
+    nameType = 'full';
+    nameToCompare = `first_n_q + ' ' + last_n_q`;
+  } else if (firstNameNorm) {
+    triplerQuery = `CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "*${firstNameNorm}*") YIELD node`;
+    nameType = 'first';
+    nameToCompare = `first_n_q`;
+  } else if (lastNameNorm) {
+    triplerQuery = `CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "*${lastNameNorm}*") YIELD node`;
+    nameType = 'last';
+    nameToCompare = `last_n_q`;
+  } else {
+    triplerQuery = `match (node:Tripler)`;
+  }
+  const nodeName = `replace(replace(toLower(node.${nameType}_name), '-', ''), "'", '')`;
+  const stringDistScores = firstName || lastName ? `
+    apoc.text.levenshteinSimilarity(${nodeName}, ${nameToCompare}) as score1,
+    apoc.text.jaroWinklerDistance(${nodeName}, ${nameToCompare}) as score2,
+    apoc.text.sorensenDiceSimilarity(${nodeName}, ${nameToCompare}) as score3
+  ` : `
+    0 as score1, 0 as score2, 0 as score3
+  `;
+
+  const phoneFilter = phone ? `and node.phone in ["${normalizePhone(phone)}"]` : '';
+  const genderFilter = gender ? `and node.gender in ["${normalizeGender(gender)}", "U"]` : '';
+  const ageFilter = age ? `and node.age_decade in ["${age}"]` : '';
+  const msaFilter = msa ? `and node.msa in ["${msa}"]` : '';
+
+  // 0 means "Doesn't matter".
+  const distanceValue = distance == null ? 0 : parseFloat(distance);
+
+  // TODO: Use parameter isolation for security.
+  return `
+    match (a:Ambassador {id: "${req.user.get('id')}"})
+    with a.location as a_location
+    ${triplerQuery}
+    with a_location, node
+    where
+      not ()-[:CLAIMS]->(node)
+      and not ()-[:WAS_ONCE]->(node)
+      ${phoneFilter}
+      ${genderFilter}
+      ${ageFilter}
+      ${msaFilter}
+      ${zipFilter}
+    with a_location, node, ${firstNameNorm ? `"${firstNameNorm}"` : null} as first_n_q, ${lastNameNorm ? `"${lastNameNorm}"` : null} as last_n_q
+    with a_location, node, first_n_q, last_n_q,
+      ${stringDistScores}
+    with
+      node, (score1 + score2 + score3) / 3 as avg_score,
+      distance(a_location, node.location) / 10000 as distance
+    with
+      node, avg_score + (1 / distance) * ${distanceValue} as final_score
+    return node, final_score
+    order by final_score desc, node.last_name asc, node.first_name asc
+    limit 100
+  `;
+}
+
 async function searchTriplersAmbassador(req) {
-
-  /*
-  let neo4jquery = buildSearchTriplerQuery(req.query);
-  let exclude_except = '';
-  if (ov_config.exclude_unreg_except_in) {
-    exclude_except += ov_config.exclude_unreg_except_in.split(",").map((state) => {
-      return `AND NOT t.address CONTAINS '\"state\": \"${state}\"' `
-    }).join(' ')
-  }
-  let q = await neode
-    .query()
-    .match("a", "Ambassador")
-    .where("a.id", req.user.get("id"))
-    .whereRaw("NOT ()-[:CLAIMS]->(t)")
-    .whereRaw("NOT ()-[:WAS_ONCE]->(t)")
-    // .whereRaw(`NOT t.voter_id CONTAINS "Unreg" ${exclude_except}`)
-    .whereRaw(`distance(t.location, a.location) <= ${ov_config.search_tripler_max_distance}`) // distance in meters (see .env)
-    .with("a, t, distance(t.location, a.location) AS distance")
-    .orderBy("distance")
-    .return("t, distance")
-    .limit(ov_config.suggest_tripler_limit)
-    .build();
-
-  q.query = neo4jquery + q.query
-  q.query = q.query.replace('$where_a_id', '"' + req.user.get("id") + '"')
-
-  let collection = await neode.cypher(q.query);
-  */
-
-  let firstNameQuery = req.query.firstName;
-  let lastNameQuery = req.query.lastName;
-  let q = '';
-
-  if (req.query.firstName && req.query.lastName) {
-    q = `
-    match(a:Ambassador{id:"${req.user.get('id')}"})
-    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
-    CALL db.index.fulltext.queryNodes("triplerFullNameIndex", "${'*' + firstNameQuery + '* *' + lastNameQuery + '*'}") YIELD node
-    where NOT ()-[:CLAIMS]->(node)
-    and NOT ()-[:WAS_ONCE]->(node)
-    and node.zip starts with left(toString(address.zip), 3)
-    with a_location, node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
-    with a_location, first_n_q, last_n_q, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.full_name),'-',''),"'",''), first_n_q + ' ' + last_n_q) as score3
-    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
-    with node, avg_score / distance as final_score
-    return node
-    order by final_score desc limit 100
-    `
-  } else if (req.query.firstName) {
-    q = `
-    match(a:Ambassador{id:"${req.user.get('id')}"})
-    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
-    CALL db.index.fulltext.queryNodes("triplerFirstNameIndex", "${'*' + firstNameQuery.replace('-', ' ') + '*'}") YIELD node
-    where NOT ()-[:CLAIMS]->(node)
-    and NOT ()-[:WAS_ONCE]->(node)
-    and node.zip starts with left(toString(address.zip), 3)
-    with a_location, node, replace(replace(toLower("${firstNameQuery}"),'-',''),"'",'') as first_n_q
-    with a_location, first_n_q, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.first_name),'-',''),"'",''), first_n_q) as score3
-    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
-    with node, avg_score / distance as final_score
-    return node
-    order by final_score desc, node.last_name limit 100
-    `;
-  } else if (req.query.lastName) {
-    q = `
-    match(a:Ambassador{id:"${req.user.get('id')}"})
-    with a.location as a_location, apoc.convert.fromJsonMap(a.address) as address
-    CALL db.index.fulltext.queryNodes("triplerLastNameIndex", "${'*' + lastNameQuery.replace('-', ' ') + '*'}") YIELD node
-    where NOT ()-[:CLAIMS]->(node)
-    and NOT ()-[:WAS_ONCE]->(node)
-    and node.zip starts with left(toString(address.zip), 3)
-    with a_location, node, replace(replace(toLower("${lastNameQuery}"),'-',''),"'",'') as last_n_q
-    with a_location, last_n_q, node, apoc.text.levenshteinSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score1, apoc.text.jaroWinklerDistance(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score2, apoc.text.sorensenDiceSimilarity(replace(replace(toLower(node.last_name),'-',''),"'",''), last_n_q) as score3
-    with node, (score1 + score2 + score3) / 3 as avg_score, distance(a_location, node.location)/10000 as distance
-    with node, avg_score / distance as final_score
-    return node
-    order by final_score desc, node.first_name limit 100
-    `;
-  }
-
-  let collection = await neode.cypher(q);
+  const query = buildTriplerSearchQuery(req);
+  let collection = await neode.cypher(query);
   let models = [];
-  for (var index = 0; index < collection.records.length; index++) {
+  for (let index = 0; index < collection.records.length; index++) {
     let entry = collection.records[index]._fields[0].properties;
     models.push(serializeNeo4JTripler(entry));
   }
@@ -415,13 +338,14 @@ async function searchTriplersAmbassador(req) {
   return models;
 }
 
-//
-// searchTriplersAdmin
-//
 // searching as admin removes constraint of requiring no claims relationship
 // as well as removing constraint of requiring no upgraded status
-//
 async function searchTriplersAdmin(req) {
+  const { firstName, lastName } = req.query;
+  if (!firstName && !lastName) {
+    return [];
+  }
+
   let neo4jquery = buildSearchTriplerQuery(req.query);
   let q = await neode
     .query()
@@ -452,6 +376,12 @@ async function updateTriplerBlockedCarrier(tripler, carrier) {
 async function updateTriplerCarrier(tripler, carrier) {
   await tripler.update({
     carrier_info: tripler.get('carrier_info') ? tripler.get('carrier_info') + JSON.stringify(carrier, null, 2) : JSON.stringify(carrier, null, 2)
+  });
+}
+
+async function updateTriplerBirthdate(tripler, birthdate) {
+  await tripler.update({
+    birthdate_mm_yy: birthdate
   });
 }
 
@@ -496,10 +426,12 @@ module.exports = {
   detachTripler: detachTripler,
   reconfirmTripler: reconfirmTripler,
   findRecentlyConfirmedTriplers: findRecentlyConfirmedTriplers,
+  buildTriplerSearchQuery: buildTriplerSearchQuery,
   searchTriplersAmbassador: searchTriplersAmbassador,
   searchTriplersAdmin: searchTriplersAdmin,
   adminSearchTriplers: adminSearchTriplers,
   startTriplerConfirmation: startTriplerConfirmation,
   updateTriplerCarrier: updateTriplerCarrier,
-  updateTriplerBlockedCarrier: updateTriplerBlockedCarrier
+  updateTriplerBlockedCarrier: updateTriplerBlockedCarrier,
+  updateTriplerBirthdate: updateTriplerBirthdate
 };

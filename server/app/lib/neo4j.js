@@ -1,6 +1,7 @@
 
 import neo4j from 'neo4j-driver';
 import BoltAdapter from 'node-neo4j-bolt-adapter';
+import { ov_config } from './ov_config';
 
 export default class db {
 
@@ -9,7 +10,7 @@ export default class db {
 
     // async'ify neo4j
     const authToken = neo4j.auth.basic(this.config.neo4j_user, this.config.neo4j_password);
-    this.db = new BoltAdapter(neo4j.driver('bolt://'+this.config.neo4j_host+':'+this.config.neo4j_port, authToken), neo4j);
+    this.db = new BoltAdapter(neo4j.driver(`${ov_config.neo4j_protocol}://`+this.config.neo4j_host+':'+this.config.neo4j_port, authToken), neo4j);
   }
 
   async dbwrap() {

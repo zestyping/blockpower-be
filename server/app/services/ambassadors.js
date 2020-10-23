@@ -1,20 +1,20 @@
 import { v4 as uuidv4 } from 'uuid';
 import stringFormat from 'string-format';
 
-import logger from 'logops';
 import neode from '../lib/neode';
 
 import {
-  validateEmpty, validatePhone, validateEmail
+  validateEmpty,
+  validateUnique,
+  assertUserPhoneAndEmail,
 } from '../lib/validations';
 
 import { ValidationError } from '../lib/errors';
-import { trimFields, geoCode, serializeName, zipToLatLon } from '../lib/utils';
-import { normalize } from '../lib/phone';
+import { trimFields } from '../lib/utils';
+import { getValidCoordinates, normalizePhone } from '../lib/normalizers';
 import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
-
-import models from '../models/va';
+import { signupEmail } from '../emails/signupEmail';
 
 async function findByExternalId(externalId) {
   return await neode.first('Ambassador', 'external_id', externalId);
@@ -31,56 +31,19 @@ async function signup(json, verification, carrierLookup) {
     throw new ValidationError("Invalid payload, ambassador cannot be created");
   }
 
-  if (!validatePhone(json.phone)) {
-    throw new ValidationError("Our system doesn’t recognize that phone number. Please try again.");
+  await assertUserPhoneAndEmail('Ambassador', json.phone, json.email);
+
+  if (!await validateUnique('Ambassador', { external_id: json.externalId })) {
+    throw new ValidationError("If you have already signed up as an Ambassador using Facebook or Google, you cannot sign up again.");
   }
 
-  // Ensure that address.state is always uppercase
-  let address = json.address;
-  address.state = address.state.toUpperCase();
-  address.zip = address.zip.toString().split(' ').join('');
-
-  let allowed_states = ov_config.allowed_states.toUpperCase().split(',');
-  if (allowed_states.indexOf(address.state) === -1) {
-    throw new ValidationError("Sorry, but state employment laws don't allow us to pay Voting Ambassadors in your state.", { ambassador: json, verification: verification });
-  }
-
-  if (models.Ambassador.phone.unique) {
-    let existing_ambassador = await neode.first('Ambassador', 'phone', normalize(json.phone));
-    if (existing_ambassador) {
-      throw new ValidationError("You already have an account. Email support@blockpower.vote for help. E5", { ambassador: json, verification: verification });
-    }
-  }
-
-  if (models.Ambassador.external_id.unique && !ov_config.stress) {
-    let existing_ambassador = await neode.first('Ambassador', 'external_id', json.externalId);
-    if (existing_ambassador) {
-      throw new ValidationError("If you have already signed up as an Ambassador using Facebook or Google, you cannot sign up again.");
-    }
-  }
-
-  if (json.email) {
-    if (!validateEmail(json.email)) throw "Invalid email";
-
-    if (models.Ambassador.email.unique &&
-      await neode.first('Ambassador', 'email', json.email)) {
-      throw new ValidationError("You already have an account. Email support@blockpower.vote for help. E6");
-    }
-  }
-
-  let coordinates = await geoCode(address);
-  if (coordinates === null) {
-    coordinates = await zipToLatLon(address.zip);
-  }
-  if (coordinates === null) {
-    throw new ValidationError("Our system doesn’t recognize that zip code. Please try again.");
-  }
+  const [coordinates, address] = await getValidCoordinates(json.address);
 
   let new_ambassador = await neode.create('Ambassador', {
     id: uuidv4(),
     first_name: json.first_name,
     last_name: json.last_name || null,
-    phone: normalize(json.phone),
+    phone: normalizePhone(json.phone),
     email: json.email || null,
     date_of_birth: json.date_of_birth || null,
     address: JSON.stringify(address, null, 2),
@@ -90,8 +53,8 @@ async function signup(json, verification, carrierLookup) {
     signup_completed: true,
     onboarding_completed: true,
     location: {
-      latitude: parseFloat(coordinates.latitude, 10),
-      longitude: parseFloat(coordinates.longitude, 10)
+      latitude: parseFloat(coordinates.latitude),
+      longitude: parseFloat(coordinates.longitude)
     },
     external_id: ov_config.stress ? json.externalId + Math.random() : json.externalId,
     verification: JSON.stringify(verification, null, 2),
@@ -99,7 +62,7 @@ async function signup(json, verification, carrierLookup) {
   });
 
   let existing_tripler = await neode.first('Tripler', {
-    phone: normalize(json.phone)
+    phone: normalizePhone(json.phone)
   });
 
   if (existing_tripler) {
@@ -107,74 +70,13 @@ async function signup(json, verification, carrierLookup) {
   }
 
   // send email in the background
-  let ambassador_name = serializeName(new_ambassador.get('first_name'), new_ambassador.get('last_name'))
   setTimeout(async () => {
     let address = JSON.parse(new_ambassador.get('address'));
-    let body = `
-    Organization Name:
-    <br>
-    ${ov_config.organization_name}
-    <br>
-    <br>
-    Google/FB ID:
-    <br>
-    ${new_ambassador.get('external_id')}
-    <br>
-    <br>
-    First Name:
-    <br>
-    ${new_ambassador.get('first_name')}
-    <br>
-    <br>
-    Last Name:
-    <br>
-    ${new_ambassador.get('last_name')}
-    <br>
-    <br>
-    Date of Birth:
-    <br>
-    ${new_ambassador.get('date_of_birth')}
-    <br>
-    <br>
-    Street Address:
-    <br>
-    ${address.address1}
-    <br>
-    <br>
-    Zip:
-    <br>
-    ${address.zip}
-    <br>
-    <br>
-    Email:
-    <br>
-    ${new_ambassador.get('email')}
-    <br>
-    <br>
-    Phone Number:
-    <br>
-    ${new_ambassador.get('phone')}
-    <br>
-    <br>
-    Verification:
-    <br>
-    ${new_ambassador.get('verification')}
-    <br>
-    <br>
-    Carrier:
-    <br>
-    ${new_ambassador.get('carrier_info')}
-    <br>
-    <br>
-    `;
-
-    let subject = stringFormat(ov_config.new_ambassador_signup_admin_email_subject,
-      {
-        organization_name: ov_config.organization_name
-      });
-    await mail(ov_config.admin_emails, null, null,
-      subject,
-      body);
+    let body = signupEmail(new_ambassador, address);
+    let subject = stringFormat(ov_config.new_ambassador_signup_admin_email_subject, {
+      organization_name: ov_config.organization_name
+    });
+    await mail(ov_config.admin_emails, null, null, subject, body);
   }, 100);
 
   return new_ambassador;
