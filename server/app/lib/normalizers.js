@@ -8,6 +8,10 @@ const WGS_84_2D = 4326;
 
 const ALLOWED_ATTRS = ['first_name', 'last_name', 'date_of_birth', 'email', 'status'];
 
+export function normalizeGender(gender) {
+  return (gender || "U").replace("Female", "F").replace("Male", "M");
+}
+
 export function normalizeAddress(address) {
   return {
     ...address,
