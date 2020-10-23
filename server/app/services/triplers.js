@@ -3,7 +3,7 @@ import stringFormat from "string-format";
 import neo4j from "neo4j-driver";
 import neode from "../lib/neode";
 import { serializeName } from "../lib/utils";
-import { normalizePhone } from "../lib/normalizers";
+import { normalizeGender, normalizePhone } from "../lib/normalizers";
 import mail from "../lib/mail";
 import { ov_config } from "../lib/ov_config";
 import sms from "../lib/sms";
@@ -272,7 +272,7 @@ function buildTriplerSearchQuery(req) {
   `;
 
   const phoneFilter = phone ? `and node.phone in ["${normalizePhone(phone)}"]` : '';
-  const genderFilter = gender ? `and node.gender in ["${gender}", "U"]` : '';
+  const genderFilter = gender ? `and node.gender in ["${normalizeGender(gender)}", "U"]` : '';
   const ageFilter = age ? `and node.age_decade in ["${age}"]` : '';
   const msaFilter = msa ? `and node.msa in ["${msa}"]` : '';
   // This will have already been included above if there's no name specified.
