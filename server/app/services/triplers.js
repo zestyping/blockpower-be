@@ -291,7 +291,7 @@ function buildTriplerSearchQuery(req) {
   `;
 
   const phoneFilter = phone ? `and node.phone in ["${normalizePhone(phone)}"]` : '';
-  const genderFilter = gender ? `and node.gender in ["${normalizeGender(gender)}", "U"]` : '';
+  const genderFilter = gender ? `and node.gender in ["${normalizeGender(gender)}"]` : '';
   const ageFilter = age ? `and node.age_decade in ["${age}"]` : '';
   const msaFilter = msa ? `and node.msa in ["${msa}"]` : '';
 
