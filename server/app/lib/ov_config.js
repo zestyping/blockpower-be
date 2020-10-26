@@ -164,5 +164,7 @@ export const ov_config = {
   search_tripler_max_distance: getConfig("search_tripler_max_distance", false, 150000),
   payout_batch_size: getConfig("payout_batch_size", false, 100),
   payout_cron_string: getConfig("payout_cron_string", false, "*/60 * * * *"),
-  upgrade_sms_cron_string: getConfig("upgrade_sms_cron_string", false, "*/60 * * * *")
+  upgrade_sms_cron_string: getConfig("upgrade_sms_cron_string", false, "*/60 * * * *"),
+  twilio_msg_svc_sid: getConfig("twilio_msg_svc_sid", false, null),
+  neo4j_encryption: getConfig("neo4j_encryption", false, "ON")
 };

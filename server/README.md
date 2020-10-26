@@ -93,7 +93,10 @@ For this server, configure an `.env` file. The following is a complete list of v
     EXCLUDE_UNREG_EXCEPT_IN=
     SEARCH_TRIPLER_MAX_DISTANCE=
     PAYOUT_BATCH_SIZE=
-    CRON_STRING=
+    PAYOUT_CRON_STRING=
+    UPGRADE_SMS_CRON_STRING=
+    TWILIO_MSG_SVC_SID=
+    NEO4J_ENCRYPTION=ON
 
 The meaning of each config item is as follows:
 
@@ -188,4 +191,6 @@ The meaning of each config item is as follows:
 * `PAYOUT_BATCH_SIZE`: How many payouts to attempt per job
 * `PAYOUT_CRON_STRING`: Define the payout cron job
 * `UPGRADE_SMS_CRON_STRING`: Define the upgrade sms cron job
+* `TWILIO_MSG_SVC_SID`: The SID for the Twilio messaging service
+* `NEO4J_ENCRYPTION`: Whether or not the neo4j encryption is enabled
 

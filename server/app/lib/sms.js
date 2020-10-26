@@ -14,8 +14,8 @@ module.exports = (to, message) => {
   }
 
   return client.messages.create({
-    from: ov_config.twilio_from,
     to: internationalNumber(to),
+    messagingServiceSid: ov_config.twilio_msg_svc_sid,
     body: message,
   });
 };

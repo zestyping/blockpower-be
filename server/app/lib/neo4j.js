@@ -10,7 +10,7 @@ export default class db {
 
     // async'ify neo4j
     const authToken = neo4j.auth.basic(this.config.neo4j_user, this.config.neo4j_password);
-    this.db = new BoltAdapter(neo4j.driver(`${ov_config.neo4j_protocol}://`+this.config.neo4j_host+':'+this.config.neo4j_port, authToken), neo4j);
+    this.db = new BoltAdapter(neo4j.driver(`${ov_config.neo4j_protocol}://`+this.config.neo4j_host+':'+this.config.neo4j_port, authToken), neo4j, { encrypted: 'ENCRYPTION_' + ov_config.neo4j_encryption });
   }
 
   async dbwrap() {
