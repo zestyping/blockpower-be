@@ -194,45 +194,6 @@ async function upgradeNotification(triplerId) {
   }
 }
 
-async function adminSearchTriplers(req) {
-  let query = {};
-
-  if (req.query.phone) query.phone = normalizePhone(req.query.phone);
-  if (req.query.email) query.email = req.query.email;
-  if (req.query.firstName) query.first_name = req.query.firstName;
-  if (req.query.lastName) query.last_name = req.query.lastName;
-  if (req.query.voterId) query.voter_id = req.query.voterId;
-  if (req.query.status) query.status = req.query.status;
-  if (req.query.isAmbassadorAndHasConfirmed)
-    query.is_ambassador_and_has_confirmed =
-      req.query.isAmbassadorAndHasConfirmed;
-
-  const collection = await req.neode.model("Tripler").all(query);
-  let models = [];
-  for (var index = 0; index < collection.length; index++) {
-    let entry = collection.get(index);
-    models.push(serializeTripler(entry));
-  }
-  return models;
-}
-
-function buildSearchTriplerQuery(query) {
-  let neo4jquery = "";
-  if (query.firstName || query.lastName) {
-    let firstNameQuery = ''
-    let lastNameQuery = ''
-    if (query.firstName) {
-      firstNameQuery = ` first_name:${query.firstName.trim().toLowerCase()}~`;
-    }
-    if (query.lastName) {
-      lastNameQuery = ` last_name:${query.lastName.trim().toLowerCase()}~`;
-    }
-    neo4jquery += ` CALL db.index.fulltext.queryNodes("TriplerNameIndex", "${firstNameQuery + lastNameQuery}") YIELD node AS t `
-  }
-
-  return neo4jquery
-}
-
 /** Specifically for cypher matching. */
 function normalizeName(name) {
   return (name || "").replace(/-'/g, "").toLowerCase();
@@ -338,35 +299,6 @@ async function searchTriplersAmbassador(req) {
   return models;
 }
 
-// searching as admin removes constraint of requiring no claims relationship
-// as well as removing constraint of requiring no upgraded status
-async function searchTriplersAdmin(req) {
-  const { firstName, lastName } = req.query;
-  if (!firstName && !lastName) {
-    return [];
-  }
-
-  let neo4jquery = buildSearchTriplerQuery(req.query);
-  let q = await neode
-    .query()
-    .match("t", "Tripler")
-    .return("t")
-    .limit(ov_config.suggest_tripler_limit)
-    .build();
-
-  q.query = neo4jquery + q.query
-  q.query = q.query.replace('$where_a_id', '"' + req.user.get("id") + '"')
-
-  let collection = await neode.cypher(q.query);
-  let models = [];
-  for (var index = 0; index < collection.records.length; index++) {
-    let entry = collection.records[index]._fields[0].properties;
-    models.push(serializeNeo4JTripler(entry));
-  }
-
-  return models;
-}
-
 async function updateTriplerBlockedCarrier(tripler, carrier) {
   await tripler.update({
     blocked_carrier_info: tripler.get('blocked_carrier_info') ? tripler.get('blocked_carrier_info') + JSON.stringify(carrier, null, 2) : JSON.stringify(carrier, null, 2)
@@ -428,8 +360,6 @@ module.exports = {
   findRecentlyConfirmedTriplers: findRecentlyConfirmedTriplers,
   buildTriplerSearchQuery: buildTriplerSearchQuery,
   searchTriplersAmbassador: searchTriplersAmbassador,
-  searchTriplersAdmin: searchTriplersAdmin,
-  adminSearchTriplers: adminSearchTriplers,
   startTriplerConfirmation: startTriplerConfirmation,
   updateTriplerCarrier: updateTriplerCarrier,
   updateTriplerBlockedCarrier: updateTriplerBlockedCarrier,

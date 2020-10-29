@@ -63,19 +63,8 @@ async function createTripler(req, res) {
   return res.json(serializeTripler(new_tripler));
 }
 
-// useful for QA purposes
-async function adminSearchTriplers(req, res) {
-  let models = await triplersSvc.adminSearchTriplers(req)
-  return res.json(models);
-}
-
 async function searchTriplersAmbassador(req, res) {
   let models = await triplersSvc.searchTriplersAmbassador(req)
-  return res.json(models);
-}
-
-async function searchTriplersAdmin(req, res) {
-  let models = await triplersSvc.searchTriplersAdmin(req)
   return res.json(models);
 }
 
@@ -280,20 +269,11 @@ module.exports = Router({mergeParams: true})
   if (!req.admin) return _403(res, "Permission denied.");;
   return deleteTripler(req, res);
 })
-.get('/admin/triplers', (req, res) => {
-  if (!req.authenticated) return _401(res, 'Permission denied.');
-  if (!req.admin) return _403(res, "Permission denied.");;
-  return adminSearchTriplers(req, res);
-})
 
 
 .get('/triplers', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
-  if (req.admin) {
-    return searchTriplersAdmin(req, res);
-  } else {
-    return searchTriplersAmbassador(req, res);
-  }
+  return searchTriplersAmbassador(req, res);
 })
 .put('/triplers/:triplerId/start-confirm', (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.');
