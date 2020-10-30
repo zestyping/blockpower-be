@@ -10,6 +10,9 @@ import neo4j from './lib/neo4j';
 import queue from './lib/queue';
 import { ip } from './lib/ip';
 
+import tracer from 'dd-trace';
+tracer.init();
+
 const db = new neo4j(ov_config);
 const qq = new queue(db);
 
