@@ -30,7 +30,7 @@ async function sendSMS() {
     let delta = (new Date() - confirmed_at) / 1000;
     if (delta > waiting_period) {
       let ambassador = tripler.get('claimed');
-      fifo.add(sms_task(tripler, ambassador));
+      fifo.add(await sms_task(tripler, ambassador));
     }
   }));
 }

@@ -45,7 +45,7 @@ async function disburse() {
       let ambassador = await ambassadorSvc.findById(ambassador_id);
       let tripler = await triplerSvc.findById(tripler_id);
       if (ambassador && tripler) {
-        fifo.add(disburse_task(ambassador, tripler));
+        fifo.add(await disburse_task(ambassador, tripler));
       }
     }
   }
