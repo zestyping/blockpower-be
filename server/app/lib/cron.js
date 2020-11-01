@@ -10,17 +10,17 @@ function runOnce() {
 
 function schedule() {
   if (!ov_config.disable_auto_payouts) {
-    logger.debug('Scheduling payout cron job: ', ov_config.payout_cron_string);
+    console.log('Scheduling payout cron job: ', ov_config.payout_cron_string);
     cron.schedule(ov_config.payout_cron_string, payouts);
   } else {
-    logger.debug('Disable Auto Payouts is: ', ov_config.disable_auto_payouts)
+    console.log('Disable Auto Payouts is: ', ov_config.disable_auto_payouts)
   }
 
   if (!ov_config.disable_upgrade_sms) {
-    logger.debug('Scheduling upgrade sms cron job: ', ov_config.upgrade_sms_cron_string);
+    console.log('Scheduling upgrade sms cron job: ', ov_config.upgrade_sms_cron_string);
     cron.schedule(ov_config.upgrade_sms_cron_string, upgrade_sms);
   } else {
-    logger.debug('Disable Upgrade SMS is: ', ov_config.disable_upgrade_sms)
+    console.log('Disable Upgrade SMS is: ', ov_config.disable_upgrade_sms)
   }
 }
 
