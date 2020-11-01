@@ -5,6 +5,9 @@ import fs from 'fs';
 import { doStartupTasks } from './lib/startup';
 import { doExpressInit } from './createExpressApp';
 import { ov_config } from './lib/ov_config';
+
+console.log(ov_config)
+
 import neode  from './lib/neode';
 import neo4j from './lib/neo4j';
 import queue from './lib/queue';
