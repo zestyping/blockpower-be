@@ -77,7 +77,7 @@ export async function verifyCallerIdAndReversePhone(phone) {
         name: twilioCallerId
       })
     } catch (err) {
-      logger.error("Could not get verification info for ambassador: %s", err);
+      console.log("Could not get verification info for ambassador: %s", err);
     }
   }
 
@@ -89,7 +89,7 @@ export async function verifyCallerIdAndReversePhone(phone) {
         name: ekataReversePhone.addOns.results.ekata_reverse_phone
       })
     } catch (err) {
-      logger.error("Could not get verification info for ambassador: %s", err);
+      console.log("Could not get verification info for ambassador: %s", err);
     }
   }
 

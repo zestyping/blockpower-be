@@ -4,7 +4,6 @@
  * ref: https://ekata.com/developer/documentation/api-overview/#tag/Reverse-Phone-API
  */
 
-import logger from 'logops';
 import { internationalNumber } from './normalizers';
 import { ov_config } from './ov_config';
 import axios from 'axios';
@@ -17,14 +16,14 @@ module.exports = async (phone) => {
   let apiKey = ov_config.ekata_api_key;
   let addon = ov_config.ekata_addon;
   if(ov_config.twilio_disable) {
-    logger.debug(`[EKATA] Caller info lookup skipped TWILIO_DISABLE is set in env.`);
+    console.log(`[EKATA] Caller info lookup skipped TWILIO_DISABLE is set in env.`);
     let result = new Promise((resolve, reject) => {
       resolve();
     });
     return result;
   }
   if(!apiKey && !addon) {
-    logger.info(`[EKATA] Not querying Ekata for ${internationalNumber(phone)} because EKATA_API_KEY not set and EKATA_ADDON not TRUE.`);
+    console.log(`[EKATA] Not querying Ekata for ${internationalNumber(phone)} because EKATA_API_KEY not set and EKATA_ADDON not TRUE.`);
 
     let result = new Promise((resolve, reject) => {
       resolve();
@@ -32,7 +31,7 @@ module.exports = async (phone) => {
     return result;
   }
 
-  logger.info(`[EKATA] Fetching caller info for ${internationalNumber(phone)}`);
+  console.log(`[EKATA] Fetching caller info for ${internationalNumber(phone)}`);
   try {
     let response;
     if (apiKey) {
@@ -43,7 +42,7 @@ module.exports = async (phone) => {
     }
     return response;
   } catch(err) {
-    logger.error(`[EKATA] Lookup failed with error ${err}`);
+    console.log(`[EKATA] Lookup failed with error ${err}`);
     return null;
   }
 };

@@ -1,4 +1,3 @@
-import logger from 'logops';
 const paypal = require('@paypal/payouts-sdk');
 import neo4j from 'neo4j-driver';
 
@@ -77,7 +76,7 @@ async function disburse(ambassador, tripler) {
   let transfer = null;
 
   try {
-    logger.debug('disbursing to ambassador %s due to tripler %s', ambassador.get('id'), tripler.get('id'));
+    console.log('disbursing to ambassador %s due to tripler %s', ambassador.get('id'), tripler.get('id'));
     let requestBody = {
       "sender_batch_header": {
         "recipient_type": "EMAIL",

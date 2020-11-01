@@ -7,7 +7,6 @@
 
 import nodemailer from 'nodemailer';
 import smtpTransport from 'nodemailer-smtp-transport';
-import logger from 'logops';
 import { ov_config } from './ov_config';
 
 const transportOptions = {
@@ -31,7 +30,7 @@ module.exports = async function(to, cc, bcc, subject, body) {
   };
   
   if (ov_config.disable_emails) {
-    logger.debug('Bypassing sending mail to: %s, cc: %s, bcc: %s, subject: %s', to, cc || '-', bcc || '-', message.subject);    
+    console.log('Bypassing sending mail to: %s, cc: %s, bcc: %s, subject: %s', to, cc || '-', bcc || '-', message.subject);    
   }
   else {
     await transport.sendMail(message);

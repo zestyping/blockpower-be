@@ -1,4 +1,3 @@
-import logger from 'logops';
 import cron from 'node-cron';
 import payouts from '../background/payouts';
 import upgrade_sms from '../background/upgrade_sms';

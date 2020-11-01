@@ -1,4 +1,3 @@
-import logger from 'logops';
 import stripe from 'stripe';
 import neo4j from 'neo4j-driver';
 
@@ -137,7 +136,7 @@ async function disburse(ambassador, tripler) {
   let transfer = null;
 
   try {
-    logger.debug('disbursing to ambassador %s due to tripler %s', ambassador.get('id'), tripler.get('id'));
+    console.log('disbursing to ambassador %s due to tripler %s', ambassador.get('id'), tripler.get('id'));
     transfer = await stripe(ov_config.stripe_secret_key).transfers.create({
       amount: amount,
       currency: 'usd',
@@ -171,7 +170,7 @@ async function settle(ambassador, tripler) {
 
   let stripe_payout = null;
   try {
-    logger.debug('settling ambassador %s due to tripler %s', ambassador.get('id'), tripler.get('id'));
+    console.log('settling ambassador %s due to tripler %s', ambassador.get('id'), tripler.get('id'));
     let account = null;
     let relationships = ambassador.get('owns_account');
     for (var x = 0; x < relationships.length; x++) {

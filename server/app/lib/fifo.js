@@ -1,4 +1,3 @@
-import logger from 'logops';
 import { ov_config } from './ov_config';
 
 var _tasks = [];
@@ -12,11 +11,11 @@ function init() {
     if (typeof task.execute !== 'function') return;
 
     try {
-      logger.debug("Executing task: %s", task.name);
+      console.log("Executing task: %s", task.name);
       await task.execute();
-      logger.debug("Finished executing task: %s", task.name);
+      console.log("Finished executing task: %s", task.name);
     } catch(err) {
-      logger.error('Error executing task: %s', task.name, err);
+      console.log('Error executing task: %s', task.name, err);
     }
   }, ov_config.fifo_wakeup);
 }

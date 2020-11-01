@@ -1,4 +1,3 @@
-import logger from 'logops';
 import format from 'string-format';
 import sms from '../lib/sms';
 import fifo from '../lib/fifo';
@@ -15,14 +14,14 @@ async function sms_task(tripler, ambassador) {
                                        }));
       await tripler.update({upgrade_sms_sent: true});
   } catch (err) {
-    logger.error("Unhandled error sending upgrade SMS: %s", err);
+    console.log("Unhandled error sending upgrade SMS: %s", err);
   }
 }
 
 async function sendSMS() {
   let triplers = await triplerSvc.findRecentlyConfirmedTriplers();
-  logger.debug('Preparing to SMS recently confirmed triplers...');
-  logger.debug('%d triplers to be processed for sending SMS', triplers.length);
+  console.log('Preparing to SMS recently confirmed triplers...');
+  console.log('%d triplers to be processed for sending SMS', triplers.length);
 
   await Promise.all(triplers.map(async(tripler) => {
     let waiting_period = 60 * ov_config.upgrade_sms_waiting_period; // in minutes
@@ -36,13 +35,13 @@ async function sendSMS() {
 }
 
 module.exports = () => {
-  logger.debug('Sending tripler upgrade SMS');
+  console.log('Sending tripler upgrade SMS');
 
   setTimeout(async() => {
     try {
       await sendSMS();
     } catch(err) {
-      logger.error('Error in tripler upgrade SMS background job: %s', err);  
+      console.log('Error in tripler upgrade SMS background job: %s', err);  
     }
   });
 }

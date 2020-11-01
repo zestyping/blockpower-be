@@ -97,7 +97,7 @@ async function confirmTripler(triplerId) {
       })
     );
   } catch (err) {
-    req.logger.error("Could not send ambassador SMS on tripler confirmation: %s", err);
+    console.log("Could not send ambassador SMS on tripler confirmation: %s", err);
   }
 
   // send email in the background

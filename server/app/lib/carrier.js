@@ -11,7 +11,6 @@
  * ref: https://www.twilio.com/docs/lookup/api
  */
 
-import logger from 'logops';
 import { internationalNumber } from './normalizers';
 import { ov_config } from './ov_config';
 import { getTwilioClient } from './twilio';
@@ -20,7 +19,7 @@ const client = getTwilioClient();
 
 module.exports = async (phone) => {
 
-  logger.debug(`[TWILIO] Checking carrier for ${internationalNumber(phone)}`);
+  console.log(`[TWILIO] Checking carrier for ${internationalNumber(phone)}`);
 
   // Exit early and don't perform a lookup if nothing is blocked in config
   // or if Twilio is disabled in config.
@@ -43,7 +42,7 @@ module.exports = async (phone) => {
         "add_ons": null,
         "url": null
       }
-      logger.debug(`[TWILIO] Carrier lookup skipped, either TWILIO_DISABLE is set in env or BLOCKED_CARRIERS env not set or empty.`);
+      console.log(`[TWILIO] Carrier lookup skipped, either TWILIO_DISABLE is set in env or BLOCKED_CARRIERS env not set or empty.`);
       resolve(carrier)
     });
     return result;
@@ -54,14 +53,14 @@ module.exports = async (phone) => {
 
   let blockedCarriers = blockedCarrierString.split('|').map((val) => val.toUpperCase());
   if(lookup.carrier.error_code !== null) {
-    logger.info(`[TWILIO] Carrier lookup failed with error code ${lookup.carrier.error_code}`);
+    console.log(`[TWILIO] Carrier lookup failed with error code ${lookup.carrier.error_code}`);
     lookup.carrier.isBlocked = null;
     return lookup;
   } else {
     let carrierName = lookup.carrier.name.toUpperCase()
     let isBlocked = blockedCarriers.includes(carrierName)
     if(isBlocked) {
-      logger.info(`[TWILIO] Carrier ${carrierName} for ${internationalNumber(phone)} is blocked in config`);
+      console.log(`[TWILIO] Carrier ${carrierName} for ${internationalNumber(phone)} is blocked in config`);
     }
     lookup.carrier.isBlocked = isBlocked;
     return lookup;
