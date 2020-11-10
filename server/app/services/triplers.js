@@ -196,7 +196,7 @@ async function upgradeNotification(triplerId) {
 
 /** Specifically for cypher matching. */
 function normalizeName(name) {
-  return (name || "").trim().replace(/-'/g, "").toLowerCase();
+  return (name || "").replace(/-'/g, "").toLowerCase();
 }
 
 /**
@@ -261,9 +261,8 @@ function buildTriplerSearchQuery(req) {
 
   // TODO: Use parameter isolation for security.
   return `
-    with trim(${firstNameNorm ? `"${firstNameNorm}"` : null}) as firstName, trim(${lastNameNorm ? `"${lastNameNorm}"` : null}) as lastName
     match (a:Ambassador {id: "${req.user.get('id')}"})
-    with firstName, lastName, a.location as a_location
+    with a.location as a_location
     ${triplerQuery}
     with a_location, node
     where
@@ -274,7 +273,7 @@ function buildTriplerSearchQuery(req) {
       ${ageFilter}
       ${msaFilter}
       ${zipFilter}
-    with a_location, node, firstName as first_n_q, lastName as last_n_q
+    with a_location, node, ${firstNameNorm ? `"${firstNameNorm}"` : null} as first_n_q, ${lastNameNorm ? `"${lastNameNorm}"` : null} as last_n_q
     with a_location, node, first_n_q, last_n_q,
       ${stringDistScores}
     with
