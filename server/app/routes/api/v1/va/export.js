@@ -9,6 +9,11 @@ import { ov_config } from '../../../../lib/ov_config';
 import { exportAmbassadorsJSON, exportTriplersJSON, exportAmbassadorsCSV, exportTriplersCSV } from '../../../../services/export';
 
 module.exports = Router({mergeParams: true})
+/*
+ *
+ * These routes just call the associated service functions in /services/export
+ *
+ */
 .get('/json-export/ambassadors', async (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
 

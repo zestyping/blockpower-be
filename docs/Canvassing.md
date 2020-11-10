@@ -1,3 +1,5 @@
+Note: the following documentation relates to the [HelloVoter](https://github.com/OurVoiceUSA/HelloVoter) app, not the BlockPower app, which is built on top of HelloVoter.
+
 # HELLOVOTER CANVASSING TOOL HELP
 
 The HelloVoter canvassing mobile app is a tool for people to collect and track data for their cause. Anyone can use it; political campaigns, community organizers, activists, religious missionaries, students doing research, and salesmen. We hope that this document helps you make the most of your efforts in your activities.

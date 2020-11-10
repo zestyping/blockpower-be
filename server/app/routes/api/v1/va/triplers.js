@@ -25,6 +25,14 @@ import { serializeAmbassador, serializeTripler, serializeNeo4JTripler, serialize
 import sms from '../../../../lib/sms';
 import { getUserJsonFromRequest } from '../../../../lib/normalizers';
 
+/*
+ *
+ * createTripler(req, res)
+ *
+ * This function is an admin function that manually creates a new Tripler in the system. It is somewhat out of date, as Triplers
+ *   now have additional fields that this function does not take into account, such as msa, gender, date_of_birth, etc...
+ *
+ */
 async function createTripler(req, res) {
   let new_tripler = null
   try {
@@ -63,11 +71,25 @@ async function createTripler(req, res) {
   return res.json(serializeTripler(new_tripler));
 }
 
+/*
+ *
+ * searchTriplersAmbassador(req, res)
+ *
+ * This function simply returns the result of the service function for searching Triplers.
+ *
+ */
 async function searchTriplersAmbassador(req, res) {
   let models = await triplersSvc.searchTriplersAmbassador(req)
   return res.json(models);
 }
 
+/*
+ *
+ * fetchTripler(req, res)
+ *
+ * This function returns a given tripler, serialized into JSON.
+ *
+ */
 async function fetchTripler(req, res) {
   let ambassador = req.user;
   let tripler = null;
@@ -83,6 +105,13 @@ async function fetchTripler(req, res) {
   return res.json(serializeTripler(tripler));
 }
 
+/*
+ *
+ * updateTripler(req, res)
+ *
+ * This admin function updates attributes of a Tripler node.
+ *
+ */
 async function updateTripler(req, res) {
   let found = await req.neode.first('Tripler', 'id', req.params.triplerId);
   if (!found) {
@@ -105,6 +134,15 @@ async function updateTripler(req, res) {
   return res.json(serializeTripler(updated));
 }
 
+/*
+ *
+ * startTriplerConfirmation(req, res)
+ *
+ * This function finds the Tripler given by the Ambassador, verifies caller ID, carrier info, and phone uniqueness, then verifies number of triplees.
+ * The function updates a Tripler's birthdate, then begins the confirmation process by calling the service function.
+ * This will send the Tripler the SMS to confirm, and set the Tripler status to 'pending'
+ *
+ */
 async function startTriplerConfirmation(req, res) {
   let ambassador = req.user;
   let tripler = null;
@@ -168,6 +206,15 @@ async function startTriplerConfirmation(req, res) {
   return _204(res);
 }
 
+/*
+ *
+ * remindTripler(req, res)
+ *
+ * This function checks for phone validity then sends a reminder SMS to the Tripler.
+ *
+ * NOTE: Parts of this function probably belong in the /services/tripler module.
+ *
+ */
 async function remindTripler(req, res) {
   let ambassador = req.user;
   let tripler = null;
@@ -213,6 +260,14 @@ async function remindTripler(req, res) {
   return _204(res);
 }
 
+/*
+ *
+ * confirmTripler(req, res)
+ *
+ * This admin function manually confirms a tripler. In the normal course of functioning, when a Tripler confirms the SMS, Twilio will hit the '/sms/receive' API endpoint.
+ * That will then execute the service confirmTripler function. This function calls it manually by an admin for QA / testing purposes.
+ *
+ */
 async function confirmTripler(req, res) {
   let tripler = await triplersSvc.findById(req.params.triplerId);
 
@@ -233,6 +288,13 @@ async function confirmTripler(req, res) {
   return _204(res);
 }
 
+/*
+ *
+ * deleteTripler(req, res)
+ *
+ * This admin function simply deletes a Tripler
+ *
+ */
 async function deleteTripler(req, res) {
   let tripler = await triplersSvc.findById(req.params.triplerId);
 
@@ -244,6 +306,13 @@ async function deleteTripler(req, res) {
   return _204(res);
 }
 
+/*
+ *
+ * getTriplerLimit(req, res)
+ *
+ * This function is called by the frontend to determine this API instance's CLAIM_TRIPLER_LIMIT env var.
+ *
+ */
 async function getTriplerLimit(req, res) {
   return res.json({limit: ov_config.claim_tripler_limit});
 }

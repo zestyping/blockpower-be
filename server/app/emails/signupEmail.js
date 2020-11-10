@@ -1,5 +1,13 @@
 import { ov_config } from '../lib/ov_config';
 
+/*
+ *
+ * signupEmail(new_ambassador, address)
+ *
+ * This function simply takes arguments and fills out an HTML email template with these values.
+ * It then returns the filled-out template to be mailed to the administrators for their information.
+ *
+ */
 export const signupEmail = (new_ambassador, address) => `
 Organization Name:
 <br>

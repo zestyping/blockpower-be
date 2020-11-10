@@ -1,5 +1,13 @@
 import { ov_config } from '../lib/ov_config';
 
+/*
+ *
+ * makeAdminEmail(ambassador, address)
+ *
+ * This function simply takes in arguments and fills out the email template and returns it
+ * This email is meant for administrative information and can be turned on or off via an env var.
+ *
+ */
 export const makeAdminEmail = (ambassador, address) => `
 Organization Name:
 <br>

@@ -12,7 +12,7 @@ This software enables a "Voting Ambassador" workflow for get-out-the-vote campai
 
 ## History
 
-This software was built with the assumption that it would eventually be merged back into the OurVoiceUSA [HelloVoter](https://github.com/OurVoiceUSA/HelloVoter) app. While this will hopefully happen at some point in the future, this software has diverged from HelloVoter in numerous ways. However, due to the historical nature of building this software on top of HelloVoter, you will find a large portion of the codebase remains HelloVoter specific. The software is intended to be used with the [hello-voter](https://github.com/colab-coop/hello-voter) React front-end, which calls the specific API endpoints of this software, rather than the endpoints that the now-deleted `/client` folder used.
+This software was built with the assumption that it would eventually be merged back into the OurVoiceUSA [HelloVoter](https://github.com/OurVoiceUSA/HelloVoter) app. While this will hopefully happen at some point in the future, this software has diverged from HelloVoter in numerous ways. However, due to the historical nature of building this software on top of HelloVoter, you will find a large portion of the codebase remains HelloVoter specific. The software is intended to be used with the [hello-voter](https://github.com/colab-coop/hello-voter) React front-end, which calls the specific API endpoints of this software, rather than the endpoints that the now-deleted `/client` folder used. Where applicable, comments have been added to HelloVoter-specific code to attempt to help with clarification.
 
 ### Neode
 

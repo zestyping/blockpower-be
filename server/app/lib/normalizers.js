@@ -8,6 +8,13 @@ const WGS_84_2D = 4326;
 
 const ALLOWED_ATTRS = ['first_name', 'last_name', 'date_of_birth', 'email', 'status'];
 
+/*
+ *
+ * normalizeGender(gender)
+ *
+ * This function converts the gender string as passed by the frontend into the single character that the db tracks in neo4j.
+ *
+ */
 export function normalizeGender(gender) {
   return (gender || "U").trim().replace(/Female/i, "F").replace(/Male/i, "M");
 }
@@ -20,14 +27,37 @@ export function normalizeAddress(address) {
   };
 }
 
+/*
+ *
+ * internationalNumber(phone)
+ *
+ * This function simply formats a given phone argument into a standardized string.
+ *
+ */
 export function internationalNumber(phone) {
   return (new PhoneNumber(phone, 'US')).getNumber('international');
 }
 
+/*
+ *
+ * normalizePhone(phone)
+ *
+ * This function simply strips given phone arguments of thier non-numeric and non-extention related characters
+ *
+ */
 export function normalizePhone(phone) {
   return internationalNumber(phone).replace(/[^0-9xX]/g, '')
 }
 
+/*
+ *
+ * getValidCoordinates(address)
+ *
+ * This function either determines an address's latitude and longitude by way of the geoCode function (census.gov),
+ *   or determines the latitude and longitude of the given zip code by way of the zipToLatLon function.
+ * This function gets called when an Ambassador signs up with the system.
+ *
+ */
 export async function getValidCoordinates(address) {
   const addressNorm = normalizeAddress(address);
 

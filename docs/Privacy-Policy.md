@@ -1,3 +1,5 @@
+Note: the following documentation relates to the [HelloVoter](https://github.com/OurVoiceUSA/HelloVoter) app, not the BlockPower app, which is built on top of HelloVoter.
+
 Privacy Statement
 Effective Date: 2019-11-20
 

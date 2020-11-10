@@ -7,6 +7,17 @@ import { ov_config } from './ov_config';
 
 export var min_neo4j_version = 3.5;
 
+/*
+ *
+ * trimFields(obj)
+ *
+ * This function recursively looks through an object's fields and trims any string fields it or its
+ *   nested object fields may have.
+ * This is mainly used when a user's input has been passed from the frontend as an object to the backend.
+ * Two places in particular this happens in when an Ambassador signs up, and when an Ambassador
+ *   begins the Tripler confirmation process.
+ *
+ */
 export function trimFields(obj) {
   let newObj = {};
   let keys = Object.keys(obj);
@@ -24,16 +35,31 @@ export function trimFields(obj) {
   return newObj;
 }
 
+/*
+ *
+ * serializeName(first_name, last_name)
+ *
+ * This function simply concatenates the given first and last names into a single fullname string
+ *
+ */
 export function serializeName(first_name, last_name) {
   if (!last_name) return first_name;
   return [first_name, last_name].join(" ");
 }
 
+/*
+ * This function does not appear to be used anywhere
+ *
+ */
 export function getClientIP(req) {
   if (ov_config.ip_header) return req.header(ov_config.ip_header);
   else return req.connection.remoteAddress;
 }
 
+/*
+ * This function is called by the individual _4XX and _5XX error functions found below
+ *
+ */
 function sendError(res, code, msg) {
   let obj = { code: code, error: true, msg: msg };
   console.warn('Returning http ' + code + ' error with msg: ' + msg);
@@ -58,6 +84,11 @@ export async function cqdo(req, res, q, p, a) {
   return res.status(200).json({ msg: "OK", data: [ref] });
 }
 
+/*
+ *
+ * This function is only used in the context of the HelloVoter app, not in the Blockpower app.
+ *
+ */
 export async function onMyTurf(req, ida, idb) {
   if (ida === idb) return true;
   if (await sameTeam(req, ida, idb)) return true;
@@ -72,6 +103,11 @@ export async function onMyTurf(req, ida, idb) {
   return false;
 }
 
+/*
+ *
+ * This function is only used in the context of the HelloVoter app, not in the Blockpower app.
+ *
+ */
 export async function sameTeam(req, ida, idb) {
   try {
     let ref = await req.db.query('match (a:Ambassador {id:{ida}})-[:MEMBERS]-(:Team)-[:MEMBERS]-(b:Ambassador {id:{idb}}) return b', { ida: ida, idb: idb });
@@ -83,6 +119,11 @@ export async function sameTeam(req, ida, idb) {
   return false;
 }
 
+/*
+ *
+ * This function is only used in the context of the HelloVoter app, not in the Blockpower app.
+ *
+ */
 export async function volunteerCanSee(req, ida, idb) {
   if (ida === idb) return true;
   if (await sameTeam(req, ida, idb)) return true;
@@ -90,6 +131,11 @@ export async function volunteerCanSee(req, ida, idb) {
   return false;
 }
 
+/*
+ *
+ * This function is only used in the context of the HelloVoter app, not in the Blockpower app.
+ *
+ */
 export async function volunteerAssignments(req, type, vol) {
   let obj = {
     ready: false,
@@ -123,6 +169,11 @@ export async function volunteerAssignments(req, type, vol) {
 
 // get the volunteers from the given query, and populate relationships
 
+/*
+ *
+ * This function is only used in the context of the HelloVoter app, not in the Blockpower app.
+ *
+ */
 export async function _volunteersFromCypher(req, query, args) {
   let volunteers = [];
 
@@ -136,6 +187,11 @@ export async function _volunteersFromCypher(req, query, args) {
   return volunteers;
 }
 
+/*
+ *
+ * This function is only used in the context of the HelloVoter app, not in the Blockpower app.
+ *
+ */
 export function generateToken({ stringBase = 'base64', byteLength = 48 } = {}) {
   return new Promise((resolve, reject) => {
     crypto.randomBytes(byteLength, (err, buffer) => {
@@ -148,6 +204,12 @@ export function generateToken({ stringBase = 'base64', byteLength = 48 } = {}) {
   });
 }
 
+
+/*
+ *
+ * This function is only used in the context of the HelloVoter app, not in the Blockpower app.
+ *
+ */
 export function base64edit(str) {
   return str
     .replace(/=/g, '_')
@@ -155,6 +217,11 @@ export function base64edit(str) {
     .replace(/\//g, '-');
 }
 
+/*
+ *
+ * NOTE: the following response functions call the sendError function which can be found above.
+ *
+ */
 export function _204(res) {
   return res.status(204).send();
 }
@@ -199,6 +266,14 @@ export function valid(str) {
   return true;
 }
 
+/*
+ *
+ * geoCode(address)
+ *
+ * This function takes an address object, and calls the census.gov api for obtaining lat/lon information
+ *   for a particular address. This function is mainly used when an Ambassador signs up with the system.
+ *
+ */
 export async function geoCode(address) {
   let file = "1," + address.address1 + "," +
     address.city + "," + address.state + "," + address.zip;
@@ -231,6 +306,14 @@ export async function geoCode(address) {
   };
 }
 
+/*
+ *
+ * zipToLatLon(zip)
+ *
+ * This function is called when an address requested by geoCode() above does not resolve. As a backup, the zip
+ *   provided with the address is given to attempt to find lat/lon information by way of opendatasoft.com
+ *
+ */
 export async function zipToLatLon(zip) {
   let res = null;
 

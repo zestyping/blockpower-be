@@ -4,6 +4,15 @@ import {
   _400, _204
 } from '../../../../lib/utils';
 
+/*
+ *
+ * createPaypalAccount(req, res)
+ *
+ * This function creates a new Account neo4j node and attaches it to the current Ambassador.
+ *
+ * NOTE: This function really belongs in /services/paypal
+ *
+ */
 async function createPaypalAccount(req, res) {
   try {
     const account = await req.neode.create('Account', {

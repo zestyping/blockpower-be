@@ -1,3 +1,5 @@
+Note: the following documentation relates to the [HelloVoter](https://github.com/OurVoiceUSA/HelloVoter) app, not the BlockPower app, which is built on top of HelloVoter.
+
 Terms of Service for Our Voice USA
 
 Last updated: 2019-11-20

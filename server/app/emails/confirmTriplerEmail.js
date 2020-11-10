@@ -1,6 +1,14 @@
 import { ov_config } from '../lib/ov_config';
 import { serializeTripleeForCSV } from '../routes/api/v1/va/serializers';
 
+/*
+ *
+ * confirmTriplerEmail(tripler, address, relationship, confirmed_at, ambassador_name, triplees)
+ *
+ * This function simply returns an html template with the passed-in arguments filled in.
+ * The email is meant for administrative information and is turned on or off via an env var.
+ *
+ */
 export const confirmTriplerEmail = (tripler, address, relationship, confirmed_at, ambassador_name, triplees) => `
 Organization Name:
 <br>

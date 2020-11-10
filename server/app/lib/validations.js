@@ -15,6 +15,13 @@ const ALLOWED_STATES = ov_config.allowed_states
   .split(',')
   .map((state) => state.trim());
 
+/*
+ *
+ * _isEmpty(obj)
+ *
+ * This helper function is used by validateEmpty to determine if a field is empty or not
+ *
+ */
 function _isEmpty(obj) {
   if (!obj) return true;
   if (typeof obj === 'object') return Object.keys(obj).length === 0;
@@ -22,6 +29,13 @@ function _isEmpty(obj) {
   return false;
 }
 
+/*
+ *
+ * validateEmpty(obj, keys)
+ *
+ * This function determines if an object and its fields is empty or not
+ *
+ */
 export function validateEmpty(obj, keys) {
   if (_isEmpty(obj)) return false;
   for (var i = 0; i < keys.length; i++) {
@@ -30,14 +44,37 @@ export function validateEmpty(obj, keys) {
   return true;
 }
 
+/*
+ *
+ * validatePhone(phone)
+ *
+ * This function simply uses the `awesome-phonenumber` package to determine if a phone number
+ *   string is a valid US phone number.
+ *
+ */
 export function validatePhone(phone) {
   return (new PhoneNumber(phone, 'US')).isValid();
 }
 
+/*
+ *
+ * validateEmail(email)
+ *
+ * This function simply uses the `email-validator` package to determin if an email
+ *   string is valid or not.
+ *
+ */
 export function validateEmail(email) {
   return EmailValidator.validate(email);
 }
 
+/*
+ *
+ * validateUniquePhone(modelName, phone, existingId)
+ *
+ * This function calls validateUnique to determine if the phone number is unique
+ *
+ */
 export async function validateUniquePhone(modelName, phone, existingId = null) {
   return validateUnique(modelName, { phone: normalizePhone(phone) }, existingId);
 }
@@ -57,10 +94,27 @@ export async function validateUnique(modelName, properties, existingId = null) {
   return all.first().get('id') === existingId;
 }
 
+/*
+ *
+ * validateState(state)
+ *
+ * This function takes the ALLOWED_STATES env var and matches it against the provided state.
+ *   If the state is not allowed, the Ambassador will not be allowed to sign up.
+ *
+ */
 export function validateState(state) {
   return ALLOWED_STATES.indexOf(state) >= 0;
 }
 
+/*
+ *
+ * validateCarrier(phone)
+ * 
+ * This function checks the provided phone number with Twilio to determine the carrier.
+ * If the carrier matches one of the carriers in the BLOCKED_CARRIERS env var, the Ambassador will not
+ *   be able to signup, and the Tripler will not begin confirmation process.
+ *
+ */
 export async function validateCarrier(phone) {
   return await carrier(normalizePhone(phone));
 }

@@ -1,3 +1,5 @@
+Note: the following documentation relates to the [HelloVoter](https://github.com/OurVoiceUSA/HelloVoter) app, not the BlockPower app, which is built on top of HelloVoter.
+
 ## Weekly Product Meeting
 
 Every Saturday at 9pm ET (6pm PT | 7pm MT | 8pm CT) we will be hosting a meeting to discuss the HelloVoter mobile app and its accompanying web-app(s). We do this meeting via [Zoom](https://zoom.us/j/540037352) video chat; https://zoom.us/j/540037352

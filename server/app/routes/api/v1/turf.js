@@ -1,3 +1,4 @@
+// Note: the following file relates to the [HelloVoter](https://github.com/OurVoiceUSA/HelloVoter) app, not the BlockPower app, which is built on top of HelloVoter.
 
 import wkx from 'wkx';
 import { asyncForEach, deepCopy, sleep } from '../../../lib/common';

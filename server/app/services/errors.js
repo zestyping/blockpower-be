@@ -2,6 +2,14 @@ import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
 import { _400, _404, _500 } from '../lib/utils';
 
+/*
+ *
+ * error(code, res, err, details)
+ *
+ * This function is called in many places in the codebase. It is given the error code and 
+ *   error details (and res and err). This function then emails the admins with this
+ *   error, then handles the error as per normal.
+ */
 async function error(code, res, err, details) {
   try {
     const subject = `Error ${code}: ${err}`;

@@ -16,14 +16,40 @@ import mail from '../lib/mail';
 import { ov_config } from '../lib/ov_config';
 import { signupEmail } from '../emails/signupEmail';
 
+/*
+ *
+ * findByExternalId(externalId)
+ *
+ * Simply returns the neode object that corresponds to the given external ID (from Facebook / Google)
+ *
+ */
 async function findByExternalId(externalId) {
   return await neode.first('Ambassador', 'external_id', externalId);
 }
 
+/*
+ *
+ * findById(id)
+ *
+ * Simply returns the neode object that corresponds to the given ID
+ *
+ */
 async function findById(id) {
   return await neode.first('Ambassador', 'id', id);
 }
 
+/*
+ *
+ * signup(json, verification, carrierLookup)
+ *
+ * This is the main service function for Ambassador signup.
+ *
+ * It validates a variety of data and if all is valid, creates the neode Ambassador object.
+ *   If the given Ambassador was once a Tripler, a :WAS_ONCE relationship is created between them
+ *
+ * This function then sends an admin email informing admins of the ambassador creation.
+ *
+ */
 async function signup(json, verification, carrierLookup) {
   json = trimFields(json)
 
@@ -82,6 +108,19 @@ async function signup(json, verification, carrierLookup) {
   return new_ambassador;
 }
 
+/*
+ *
+ * getPrimaryAccount(ambassador)
+ *
+ * This function returns the primary Account node for a given Ambassador
+ *
+ * NOTE: there was originally no is_primary attribute on Ambassador nodes.
+ *   The update that added this attribute did not do so via a migration.
+ *   Therefore in the database, there existed (exists) legacy nodes without
+ *   this attribute. This function checks if none of the Account nodes are
+ *   is_primary:true and if none exist, it sets the first one to be primary.
+ *
+ */
 async function getPrimaryAccount(ambassador) {
   let relationships = ambassador.get('owns_account');
   let primaryAccount = null;
@@ -106,6 +145,14 @@ async function getPrimaryAccount(ambassador) {
   return primaryAccount;
 }
 
+/*
+ *
+ * unclaimTriplers(req)
+ *
+ * This function simply removes the :CLAIMS relationship between the current
+ *   Ambassador and the given Tripler.
+ *
+ */
 async function unclaimTriplers(req) {
   let ambassador = req.user;
 

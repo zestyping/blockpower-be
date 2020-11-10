@@ -4,6 +4,16 @@ import fifo from '../lib/fifo';
 import triplerSvc from '../services/triplers';
 import { ov_config } from '../lib/ov_config';
 
+/*
+ *
+ * sms_task(tripler, ambassador)
+ *
+ * This function expects tripler and ambassador neode objects as parameters
+ * It attempts to send an sms to a tripler that has confirmed, informing them of the opportunity to become an ambassador
+ *   themselves, then sets the flag on the tripler that this sms has been sent
+ * This function is called by the fifo buffer so that we throttle the Twilio sms sends.
+ *
+ */
 async function sms_task(tripler, ambassador) {
   try {
       await sms(tripler.get('phone'), format(ov_config.tripler_upgrade_message,
@@ -18,6 +28,16 @@ async function sms_task(tripler, ambassador) {
   }
 }
 
+/*
+ *
+ * sendSMS
+ *
+ * This function is called by the /lib/cron.js module on a schedule determined by env vars.
+ * It collects all triplers that are confirmed but not yet sent the upgrade sms that informs them of the opportunity to
+ *   become an ambassador themselves. Then if the tripler has exceeded a waiting period as determined by an env var,
+ *   this function adds them to a list for the fifo buffer to process, sending an sms to each of them.
+ *
+ */
 async function sendSMS() {
   let triplers = await triplerSvc.findRecentlyConfirmedTriplers();
   console.log('Preparing to SMS recently confirmed triplers...');

@@ -1,3 +1,5 @@
+Note: the following documentation relates to the [HelloVoter](https://github.com/OurVoiceUSA/HelloVoter) app, not the BlockPower app, which is built on top of HelloVoter.
+
 # CANVASSING APP CANVASSING TOOL GUIDELINES
 
 ## Your 1st Amendment Rights to Canvass

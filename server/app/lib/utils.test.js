@@ -1,4 +1,10 @@
 
+/*
+ *
+ * This file is only used in the context of the HelloVoter app, not in the Blockpower app.
+ *
+ */
+
 import { expect } from 'chai';
 import { deepCopy } from './common';
 

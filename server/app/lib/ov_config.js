@@ -1,4 +1,14 @@
 
+/*
+ *
+ * This const object is built from the .env file, using the getConfig function, which takes the env var name
+ *   as the first argument, then whether or not the var is required, then the default value if the env var
+ *   is missing from the .env file
+ *
+ * NOTE: if you add an env var to the .env file, you MUST provide it here if it is to be used via ov_config,
+ *   as is the standard on this project.
+ *
+ */
 import dotenv from 'dotenv';
 import { getConfig } from './common';
 

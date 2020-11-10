@@ -14,15 +14,36 @@ import { ov_config } from '../../../../lib/ov_config';
 import stripe from './stripe';
 import paypal from './paypal';
 
+/*
+ *
+ * stripePayout(req)
+ *
+ * This function simply determines whether or not the user is requesting Stripe as the payout account type
+ *
+ */
 function stripePayout(req) {
   return req.query.stripe && req.query.stripe.toLowerCase() === 'true' && ov_config.payout_stripe;
 }
 
+/*
+ *
+ * paypalPayout(req)
+ *
+ * This function simply determines whether or not the user is requesting PayPal as the payout account type
+ *
+ */
 function paypalPayout(req) {
   return req.query.paypal && req.query.paypal.toLowerCase() === 'true' && ov_config.payout_paypal;
 }
 
 module.exports = Router({mergeParams: true})
+/*
+ *
+ * This route determines what type of account the user wishes to connect, then calls the appropriate function
+ *   NOTE: the "appropriate function" here lives in a module here in the routes directory. These functions
+ *   really should be in the /services/stripe and /services/paypal modules.
+ *
+ */
 .post('/payouts/account', async (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   
@@ -36,6 +57,11 @@ module.exports = Router({mergeParams: true})
     return error(400, res, 'Payouts not supported.');
   }  
 })
+/*
+ *
+ * This route is an admin route meant for creating test (sandbox) payout accounts for QA
+ *
+ */
 .post('/payouts/test-account', async (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.admin) return _403(res, "Permission denied.");
@@ -50,6 +76,14 @@ module.exports = Router({mergeParams: true})
     return error(400, res, 'Payouts not supported.');
   } 
 })
+/*
+ *
+ * This route is an admin route meant for QA / testing purposes
+ *
+ * It finds the Ambassador / Tripler combo given, and manually executes the disburse function.
+ *   This is usually performed automatically on a schedule by the /lib/cron module.
+ *
+ */
 .put('/payouts/disburse', async (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.admin) return _403(res, "Permission denied.");
@@ -93,6 +127,11 @@ module.exports = Router({mergeParams: true})
   }
   return _204(res);
 })
+/*
+ *
+ * This route is obsolete. It was originally used to manually settle a payout for testing / QA purposes, before settling was determined to be the incorrect way to do things.
+ *
+ */
 .put('/payouts/settle', async (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.admin) return _403(res, "Permission denied.");

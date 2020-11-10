@@ -1,6 +1,13 @@
 import { serializeAmbassadorForAdmin, serializeAmbassador, serializeTriplerForCSV, serializeTripler, serializePayout, serializeName, serializeTripleeForCSV } from '../routes/api/v1/va/serializers';
 import { ov_config } from '../lib/ov_config';
 
+/*
+ *
+ * exportAmbassadorsJSON(neode)
+ *
+ * This function exports all Ambassadors in JSON format. This function is used by the admin panel.
+ *
+ */
 async function exportAmbassadorsJSON(neode) {
   let collection = await neode.model('Ambassador').all();
   let ambassadors = [];
@@ -67,6 +74,12 @@ async function exportAmbassadorsJSON(neode) {
   return ambassadors;
 }
 
+/*
+ *
+ * exportTriplersJSON(neode)
+ *
+ * This function exports all Triplers in JSON format. This function is used by the admin panel.
+ */
 async function exportTriplersJSON(neode) {
   let collection = await neode.model('Ambassador').all();
   let triplers = [];
@@ -111,8 +124,12 @@ async function exportTriplersJSON(neode) {
   return triplers;
 }
 
-
-
+/*
+ *
+ * exportAmbassadorsCSV(neode)
+ *
+ * This function exports all Ambassadors in CSV format. This function is used by the admin panel.
+ */
 async function exportAmbassadorsCSV(neode) {
   let collection = await neode.model('Ambassador').all();
   let text = '';
@@ -206,6 +223,12 @@ async function exportAmbassadorsCSV(neode) {
   return text;
 }
 
+/*
+ *
+ * exportTriplersCSV(neode)
+ *
+ * This function exports all Triplers in CSV format. This function is used by the admin panel.
+ */
 async function exportTriplersCSV(neode) {
   let collection = await neode.model('Ambassador').all();
   let text = '';

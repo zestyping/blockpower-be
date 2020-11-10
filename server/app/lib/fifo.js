@@ -2,6 +2,15 @@ import { ov_config } from './ov_config';
 
 var _tasks = [];
 
+/*
+ *
+ * init()
+ *
+ * This is a homebrew FIFO buffer for throttling external API calls. Specifically Stripe, PayPal, and Twilio.
+ * The FIFO wakeup is determined by an env var.
+ * The tasks this buffer expects, in its internal _tasks array, are expected to have a name and an execute() function
+ *
+ */
 function init() {
   setInterval(async () => {
     if (_tasks.length === 0) return;

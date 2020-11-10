@@ -3,6 +3,11 @@ import neo4j from 'neo4j-driver';
 import BoltAdapter from 'node-neo4j-bolt-adapter';
 import { ov_config } from './ov_config';
 
+/*
+ *
+ * This class determines the neo4j database, by way of the neo4j-driver, which is used in very few places relating to BlockPower, but is used throughout in HelloVoter
+ *
+ */
 export default class db {
 
   constructor(config) {

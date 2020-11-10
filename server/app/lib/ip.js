@@ -1,5 +1,12 @@
 import axios from 'axios';
 
+/*
+ *
+ * findMyIp()
+ *
+ * This function makes a call to ipify.org and obtains a public IP address for the server this code is running on.
+ * 
+ */
 async function findMyIp() {
   try {
     let res = await axios.get('https://api.ipify.org');

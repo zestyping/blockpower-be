@@ -7,6 +7,16 @@ function runOnce() {
 
 }
 
+/*
+ *
+ * schedule()
+ *
+ * This function is called on startup. It sets the node-cron schedule based on .env vars
+ * The relevant env vars control whether or not the cron schedule is disabled, and
+ *   what the firing schedule is, if not disabled.
+ * The functions passed to node-cron are the background modules found in /background
+ *
+ */
 function schedule() {
   if (!ov_config.disable_auto_payouts) {
     console.log('Scheduling payout cron job: ', ov_config.payout_cron_string);

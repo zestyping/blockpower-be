@@ -15,6 +15,13 @@ if (ov_config.paypal_environment) {
   client = new paypal.core.PayPalHttpClient(environment);
 }
 
+/*
+ *
+ * validateForPayment(ambassador, tripler)
+ *
+ * This function validates the given Ambassador and Tripler
+ *   
+ */
 function validateForPayment(ambassador, tripler) {
   if (!ambassador.get('approved')) {
     throw 'Ambassador not approved, cannot pay';
@@ -35,6 +42,13 @@ function validateForPayment(ambassador, tripler) {
   }
 }
 
+/*
+ *
+ * getPaypalAccount(ambassador)
+ *
+ * This function retrieves the primary PayPal Account for the given Ambassador
+ *
+ */
 function getPaypalAccount(ambassador) {
   let payout_account = null;
 
@@ -48,6 +62,16 @@ function getPaypalAccount(ambassador) {
   throw 'Paypal account not set for ambassador, cannot pay';
 }
 
+/*
+ *
+ * disburse(ambassdaor, tripler)
+ *
+ * This function disburses Payouts to a given Ambassador caused by the given Tripler.
+ *
+ * This function is most often called by the /lib/cron payout job on a schedule determined
+ *   by the relevant .env vars.
+ *
+ */
 async function disburse(ambassador, tripler) {
   // pending => disbursed => settled
 

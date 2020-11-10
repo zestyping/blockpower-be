@@ -1,3 +1,12 @@
+//
+// Note: the following file relates both to the [HelloVoter](https://github.com/OurVoiceUSA/HelloVoter) app, and the BlockPower app, which is built on top of HelloVoter.
+//
+// In particular, BlockPower has added the fifo.init() and cron.schedule() to the doStartupTasks() function.
+// The indexes have been commented out which only apply to HelloVoter.
+//
+// NOTE: there are several indexes that need to be manually applied to your neo4j database in production. See /services/tripler.js search tripler function for the indexes.
+//
+//
 
 import { asyncForEach, sleep } from './common';
 

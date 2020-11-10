@@ -8,6 +8,14 @@ import stripeSvc from '../../../../services/stripe';
 import plaidSvc from '../../../../services/plaid';
 import { error } from '../../../../services/errors';
 
+/*
+ *
+ * createStripeAccount(req, res)
+ *
+ * This function calls Plaid and Stripe service functions to create a Stripe Connected Account and attach a bank account to it.
+ *
+ * NOTE: This function probably belongs in the /services/stripe module.
+ */
 async function createStripeAccount(req, res) {
   if (!req.body.token) return error(400, res, "Invalid value to parameter 'token'.");
   if (!req.body.account_id) return error(400, res, "Invalid value to parameter 'account_id'.");
@@ -37,6 +45,13 @@ async function createStripeAccount(req, res) {
   return _204(res);
 }
 
+/*
+ *
+ * createStripeTestAccount(req, res)
+ *
+ * This function does the same thing as createStripeAccount, but does it in 'sandbox' mode.
+ *
+ */
 async function createStripeTestAccount(req, res) {
   try {
     const bankAccountToken = await plaidSvc.createStripeTestBankToken();

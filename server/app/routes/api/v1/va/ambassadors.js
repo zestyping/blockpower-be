@@ -28,6 +28,13 @@ import reverse_phone from '../../../../lib/reverse_phone';
 import { makeAdminEmail } from '../../../../emails/makeAdminEmail';
 import { getUserJsonFromRequest } from '../../../../lib/normalizers';
 
+/*
+ *
+ * createAmbassador(req, res)
+ *
+ * This function is called by an admin for testing purposes only. This function is out of date.
+ *
+ */
 async function createAmbassador(req, res) {
   let new_ambassador = null;
   try {
@@ -67,6 +74,13 @@ async function createAmbassador(req, res) {
   return res.json(serializeAmbassador(new_ambassador));
 }
 
+/*
+ *
+ * countAmbassadors(req, res)
+ *
+ * This function was used by QA for testing purposes. It is out of date.
+ *
+ */
 async function countAmbassadors(req, res) {
   let count = await req.neode.query()
     .match('a', 'Ambassador')
@@ -76,6 +90,13 @@ async function countAmbassadors(req, res) {
   return res.json({ count: count.records[0]._fields[0].low });
 }
 
+/*
+ *
+ * fetchAmbassadors(req, res)
+ *
+ * This function was used by QA for testing purposes. It is out of date.
+ *
+ */
 async function fetchAmbassadors(req, res) {
   let query = {};
 
@@ -96,6 +117,14 @@ async function fetchAmbassadors(req, res) {
   return res.json(models);
 }
 
+
+/*
+ *
+ * fetchAmbassador(req, res)
+ *
+ * This function was used by QA for testing purposes. It is out of date.
+ *
+ */
 async function fetchAmbassador(req, res) {
   let ambassador = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
   if (ambassador) {
@@ -106,11 +135,31 @@ async function fetchAmbassador(req, res) {
   }
 }
 
+/*
+ *
+ * fetchCurrentAmbassador(req, res)
+ *
+ * This function is called by the frontend for authentication purposes. The
+ *   Ambassador data associated with the current account is returned as JSON
+ *
+ */
 async function fetchCurrentAmbassador(req, res) {
   if (!req.user.get) return _404(res, "No current ambassador");
   return res.json(serializeAmbassador(req.user));
 }
 
+/*
+ *
+ * approveAmbassdaor(req, res)
+ *
+ * This function sets an Ambassador to be approved:true and locked:false.
+ *
+ * This used to happen in the context of the admin panel, but now this function is obsolete
+ *   because Ambassadors are auto-approved.
+ *
+ * When this function is called, an approval SMS is sent to the Ambassador.
+ *
+ */
 async function approveAmbassador(req, res) {
   let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
 
@@ -142,6 +191,17 @@ async function approveAmbassador(req, res) {
   return _204(res);
 }
 
+/*
+ *
+ * disapproveAmbassador(req, res)
+ *
+ * This function sets an Ambassador to approved:false and locked:true.
+ *
+ * This function is called from the admin panel when an admin suspects an Ambassador's account to
+ *   be fraudulent. In theory, the above 'approveAmbassador' function might be called at a later
+ *   time, but this has not happened in practice, I believe.
+ *
+ */
 async function disapproveAmbassador(req, res) {
   let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
 
@@ -154,6 +214,16 @@ async function disapproveAmbassador(req, res) {
   return _204(res);
 }
 
+/*
+ *
+ * makeAdmin(req, res)
+ *
+ * This function makes an admin out of an Ambassador. Ambassadors are listed in the admin panel,
+ *   and can be made an admin there.
+ *
+ * When this function is called, an admin email is sent, notifying them of this occurrance.
+ *
+ */
 async function makeAdmin(req, res) {
   let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
 
@@ -175,6 +245,20 @@ async function makeAdmin(req, res) {
   return _204(res);
 }
 
+/*
+ *
+ * signup(req, res)
+ *
+ * This is the main signup endpoint for Ambassadors. Any Ambassador signing up with a phone number
+ *   that is from a blocked carrier will not be able to sign up.
+ *
+ * An external API call is made to determine caller ID information.
+ *
+ * This, and the carrier lookup, and the request body are passed to the Ambassador Service function signup()
+ *
+ * On signup, the Ambassador will receive an SMS
+ *
+ */
 async function signup(req, res) {
   req.body.externalId = req.externalId;
   let new_ambassador = null;
@@ -215,6 +299,13 @@ async function signup(req, res) {
   return res.json(serializeAmbassador(new_ambassador));
 }
 
+/*
+ *
+ * updateAmbassador(req, res)
+ *
+ * This function is used by QA for testing purposes.
+ *
+ */
 async function updateAmbassador(req, res) {
   let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
   if (!found) {
@@ -237,6 +328,14 @@ async function updateAmbassador(req, res) {
   return res.json(serializeAmbassador(updated));
 }
 
+/*
+ *
+ * updateCurrentAmbassador(req, res)
+ *
+ * This function was intended to provide Ambassadors with a method of altering their profile information.
+ *   However, this functionality is not in place on the frontend. It is currently commented out.
+ *
+ */
 async function updateCurrentAmbassador(req, res) {
   let found = req.user;
 
@@ -278,6 +377,14 @@ async function deleteAmbassador(req, res) {
   return _204(res);
 }
 
+/*
+ *
+ * claimTriplers(req, res)
+ *
+ * This cypher query finds how many Triplers this Ambassador already has claimed, limits the claim list to just
+ *   the Triplers that can be claimed and still remain under the CLAIM_TRIPLER_LIMIT env var, then claims them.
+ *
+ */
 async function claimTriplers(req, res) {
   let ambassador = req.user;
 
@@ -308,6 +415,12 @@ async function claimTriplers(req, res) {
   return _204(res);
 }
 
+/*
+ *
+ * unclaimTriplers(req, res)
+ *
+ * Just calls the unclaimTriplers service function, which removes the [:CLAIMS] relationship for the given list of Triplers
+ */
 async function unclaimTriplers(req, res) {
 
   if (!req.body.triplers || req.body.triplers.length === 0) {
@@ -319,6 +432,13 @@ async function unclaimTriplers(req, res) {
   return _204(res);
 }
 
+/*
+ *
+ * completeOnboarding(req, res)
+ *
+ * This function is obsolete. It was used when Ambassadors were vetted, and admins needed to approve Ambassadors.
+ *
+ */
 async function completeOnboarding(req, res) {
   let found = req.user;
   if (!found.get('signup_completed')) {
@@ -334,6 +454,14 @@ async function completeOnboarding(req, res) {
   return res.json(serializeAmbassador(updated));
 }
 
+/*
+ *
+ * ambassadorPayouts(ambassador, neode)
+ *
+ * This function really belongs in the ambassadorsSvc service module. For all Payouts connected to this Ambassador,
+ *   get the serialized neode Payout object with associated Tripler name for the frontend screen.
+ *
+ */
 async function ambassadorPayouts(ambassador, neode) {
   let payouts = [];
 
@@ -355,10 +483,26 @@ async function ambassadorPayouts(ambassador, neode) {
   return payouts;
 }
 
+/*
+ *
+ * fetchCurrentAmbassadorPayouts(req, res)
+ *
+ * Just calls the ambassadorPayouts service, which is just above, but really should be in the ambassadorsSvc module.
+ *
+ */
 async function fetchCurrentAmbassadorPayouts(req, res) {
   return res.json(await ambassadorPayouts(req.user, req.neode));
 }
 
+/*
+ *
+ * fetchAmbassadorPayouts(req, res)
+ *
+ * This function is intended for admins to see Payouts for a particular Ambassador. Also used for QA purposes.
+ *
+ * Calls the same ambassadorPayouts service function as above.
+ *
+ */
 async function fetchAmbassadorPayouts(req, res) {
   let ambassador = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
   if (ambassador) {
@@ -369,6 +513,14 @@ async function fetchAmbassadorPayouts(req, res) {
   }
 }
 
+/*
+ *
+ * claimedTriplers(req, res)
+ *
+ * For the current Ambassador, find all Triplers with the [:CLAIMS] relationship between them and this Ambassador,
+ *   serialize those Triplers, and return as JSON.
+ *
+ */
 function claimedTriplers(req, res) {
   let ambassador = req.user;
 
@@ -378,10 +530,24 @@ function claimedTriplers(req, res) {
   return res.json(Object.values(triplers));
 }
 
+/*
+ *
+ * checkAmbassdaor(req, res)
+ *
+ * Admin / QA function just to determine existence of an Ambassador
+ *
+ */
 function checkAmbassador(req, res) {
   return res.json( { exists: !!req.user.get } );
 }
 
+/*
+ *
+ * callerInfo(req, res)
+ *
+ * Admin / QA function to manually call the callerID and reverse phone lookups from Twilio and Ekata
+ *
+ */
 async function callerInfo(req, res) {
   let ambassador = await req.neode.first('Ambassador', 'id', req.params.ambassadorId);
   let callerId = await caller_id(ambassador.get('phone'));

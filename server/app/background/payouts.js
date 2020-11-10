@@ -6,6 +6,16 @@ import fifo from '../lib/fifo';
 import { ov_config } from '../lib/ov_config';
 import neode from '../lib/neode';
 
+/*
+ *
+ * disburse_task(ambassador, tripler)
+ *
+ * This function expects ambassador and tripler neode objects as arguments
+ * It is is called by the fifo buffer to throttle the Stripe / PayPal payouts
+ * This function is the cron + fifo task that calls the payout service functions (disburse() for the Stripe and Paypal /service modules)
+ * It tries to determine the correct account to pay out to, then calls the appropriate disburse function
+ *
+ */
 async function disburse_task(ambassador, tripler) {
   return {
     name: `Disbursing ambassador: ${ambassador.get('phone')} for tripler: ${tripler.get('phone')}`,
@@ -27,6 +37,16 @@ async function disburse_task(ambassador, tripler) {
   };
 }
 
+/*
+ *
+ *
+ * disburse()
+ *
+ * This function is called by the node-cron job on a schedule determined by the /lib/cron module, determined from env vars
+ * This function attempts to find all ambassadors that are due a payout with this Cypher query, gets the appropriate neode objects
+ *   and then calls the disburse_task function with the those neode objects as arguments
+ *
+ */
 async function disburse() {
   console.log('Disbursing amount to ambassadors...');
 

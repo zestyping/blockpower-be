@@ -1,6 +1,12 @@
 import { formatDate, formatNumber } from '../../../../lib/format';
 import PhoneNumber from 'awesome-phonenumber';
 
+/*
+ *
+ * Just some serialization functions
+ *
+ */
+
 function serializeAddress(address) {
   if (!address) return '';
   let keys = [ 'address1', 'city', 'state', 'zip' ];
