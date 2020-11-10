@@ -196,7 +196,7 @@ async function upgradeNotification(triplerId) {
 
 /** Specifically for cypher matching. */
 function normalizeName(name) {
-  return (name || "").replace(/-'/g, "").toLowerCase();
+  return (name || "").trim().replace(/-'/g, "").toLowerCase();
 }
 
 /**
