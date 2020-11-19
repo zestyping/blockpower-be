@@ -15,16 +15,21 @@ import { ov_config } from '../lib/ov_config';
  *
  */
 async function sms_task(tripler, ambassador) {
-  try {
-      await sms(tripler.get('phone'), format(ov_config.tripler_upgrade_message,
-                                       {
-                                         tripler_first_name: tripler.get('first_name'),
-                                         ambassador_first_name: ambassador.get('first_name'),
-                                         wordpress_landing: ov_config.wordpress_landing
-                                       }));
-      await tripler.update({upgrade_sms_sent: true});
-  } catch (err) {
-    console.log("Unhandled error sending upgrade SMS: %s", err);
+  return {
+    name: `Sending upgrade SMS to tripler ${tripler.get('phone')}`,
+    execute: async () => {
+      try {
+        await sms(tripler.get('phone'), format(ov_config.tripler_upgrade_message,
+                                         {
+                                           tripler_first_name: tripler.get('first_name'),
+                                           ambassador_first_name: ambassador.get('first_name'),
+                                           wordpress_landing: ov_config.wordpress_landing
+                                         }));
+        await tripler.update({upgrade_sms_sent: true});
+      } catch (err) {
+        console.log("Unhandled error sending upgrade SMS: %s", err);
+      }
+    }
   }
 }
 
