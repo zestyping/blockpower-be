@@ -79,7 +79,7 @@ function serializeTripler(tripler) {
   let obj = {};
   let ambassador = tripler.get('is_ambassador');
   let was_once = ambassador ? ambassador.get('was_once') : null;
-  ['id', 'first_name', 'last_name', 'status', 'phone', 'location', 'email'].forEach(x => obj[x] = tripler.get(x));
+  ['id', 'first_name', 'last_name', 'status', 'phone', 'location', 'email', 'age_decade'].forEach(x => obj[x] = tripler.get(x));
   obj['address'] = !!tripler.get('address') ? JSON.parse(tripler.get('address')) : null;
   obj['display_address'] = !!obj['address'] ? serializeAddress(obj['address']) : null;
   obj['display_name'] = serializeName(tripler.get('first_name'), tripler.get('last_name'));
