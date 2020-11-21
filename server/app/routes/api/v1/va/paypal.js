@@ -28,11 +28,11 @@ async function createPaypalAccount(req, res) {
     });
 
     await req.user.relateTo(account, 'owns_account');
-    await req.user.update({payout_provider: 'paypal'});
+    await req.user.update({payout_provider: 'paypal', email: req.body.email});
   } catch (err) {
     return _400(res, err);
   }
-  
+
   return _204(res);
 }
 

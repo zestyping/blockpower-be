@@ -60,12 +60,12 @@ export function validatePhone(phone) {
  *
  * validateEmail(email)
  *
- * This function simply uses the `email-validator` package to determin if an email
+ * This function simply uses the `email-validator` package to determine if an email
  *   string is valid or not.
  *
  */
 export function validateEmail(email) {
-  return EmailValidator.validate(email);
+  return EmailValidator.validate(email || "");
 }
 
 /*
@@ -109,7 +109,7 @@ export function validateState(state) {
 /*
  *
  * validateCarrier(phone)
- * 
+ *
  * This function checks the provided phone number with Twilio to determine the carrier.
  * If the carrier matches one of the carriers in the BLOCKED_CARRIERS env var, the Ambassador will not
  *   be able to signup, and the Tripler will not begin confirmation process.

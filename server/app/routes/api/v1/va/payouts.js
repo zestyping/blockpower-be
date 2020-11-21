@@ -4,9 +4,10 @@ import paypalSvc from '../../../../services/paypal';
 import ambassadorSvc from '../../../../services/ambassadors';
 import triplerSvc from '../../../../services/triplers';
 import { error } from '../../../../services/errors';
+import { validateEmail } from '../../../../lib/validations';
 
 import {
-  _204, _401, _403
+  _204, _400, _401, _403
 } from '../../../../lib/utils';
 
 import { ov_config } from '../../../../lib/ov_config';
@@ -46,16 +47,17 @@ module.exports = Router({mergeParams: true})
  */
 .post('/payouts/account', async (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
-  
+
   if (stripePayout(req)) {
     return stripe.createStripeAccount(req, res);
   }
   else if (paypalPayout(req)) {
+    if (!validateEmail(req.body.email)) return _400(res, 'Invalid email.')
     return paypal.createPaypalAccount(req, res);
   }
   else {
     return error(400, res, 'Payouts not supported.');
-  }  
+  }
 })
 /*
  *
@@ -74,7 +76,7 @@ module.exports = Router({mergeParams: true})
   }
   else {
     return error(400, res, 'Payouts not supported.');
-  } 
+  }
 })
 /*
  *
@@ -87,7 +89,7 @@ module.exports = Router({mergeParams: true})
 .put('/payouts/disburse', async (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.admin) return _403(res, "Permission denied.");
-  
+
   let ambassadorId = req.query['ambassador-id'];
   let triplerId = req.query['tripler-id'];
 
@@ -135,7 +137,7 @@ module.exports = Router({mergeParams: true})
 .put('/payouts/settle', async (req, res) => {
   if (!req.authenticated) return _401(res, 'Permission denied.')
   if (!req.admin) return _403(res, "Permission denied.");
-  
+
   let ambassadorId = req.query['ambassador-id'];
   let triplerId = req.query['tripler-id'];
 
