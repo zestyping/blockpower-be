@@ -27,6 +27,7 @@ The admin panel can be found here: [https://github.com/colab-coop/HelloVoter-adm
 ### Installation
 
 1. Copy `.env.example` to `.env` and modify as needed: `cp server/.env.example server/.env`
+1. If you use nvm, run 'nvm use' to install the right version of node
 1. Install dependencies: `npm install`
 1. Setup the database: `npm run database`
 1. (optional) Seed the database with fake data: `(cd server && npm run seed:fresh)`
