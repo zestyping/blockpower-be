@@ -21,7 +21,7 @@ The admin panel can be found here: [https://github.com/colab-coop/HelloVoter-adm
 
 ### Prerequisites
 
-- Node. We recommend installing via [Node Version Manager](https://github.com/nvm-sh/nvm#installing-and-updating).
+- Node (we are using 12.18.2 in production). We recommend installing via [Node Version Manager](https://github.com/nvm-sh/nvm#installing-and-updating).
 - [Docker](https://docs.docker.com/desktop/) is required to get the database running.
 
 ### Installation
