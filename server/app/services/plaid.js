@@ -1,6 +1,14 @@
 import plaid from 'plaid';
 import { ov_config } from '../lib/ov_config';
 
+/*
+ *
+ * createStripeBankToken(token, accountId)
+ *
+ * This function uses the Plaid client to exchange the public token as given by the client for a Plaid token.
+ *   Then, using that Plaid token, a Stripe Token is created, to retrieve a bank account token.
+ *
+ */
 async function createStripeBankToken(token, accountId) {
   const plaidClient = new plaid.Client(
     ov_config.plaid_client_id,
@@ -17,6 +25,13 @@ async function createStripeBankToken(token, accountId) {
   return stripeTokenRes.stripe_bank_account_token;
 }
 
+/*
+ *
+ * createStripeTestBankToken()
+ *
+ * This function does the same as above, but for the Stripe sandbox.
+ * 
+ */
 async function createStripeTestBankToken() {
   const plaidClient = new plaid.Client(
     ov_config.plaid_client_id,

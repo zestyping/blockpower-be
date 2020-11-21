@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# // Note: the following file relates to the [HelloVoter](https://github.com/OurVoiceUSA/HelloVoter) app, not the BlockPower app, which is built on top of HelloVoter.
+
 if [ ! -f /data/dbms/auth ]; then
   if [ -f /run/secrets/neo4j_pass ]; then
     NEO4J_PASSWORD=$(cat /run/secrets/neo4j_pass)

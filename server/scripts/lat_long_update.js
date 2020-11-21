@@ -1,5 +1,13 @@
 #!/usr/bin/env node
 
+/*
+ *
+ * Note: this script was used to import additional (at the time) lat/long data from a separate CSV
+ *   as the one that imported Tripler data to begin with. As direct CSV import from Neo4J native
+ *   import functions is now the preferred method, this file should be considered obsolete
+ *
+ */
+
 import neode from '../app/lib/neode.js';
 import neo4j from 'neo4j-driver';
 import yargs from 'yargs';

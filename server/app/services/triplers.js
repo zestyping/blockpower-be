@@ -14,14 +14,40 @@ import {
 } from "../routes/api/v1/va/serializers";
 import { confirmTriplerEmail } from '../emails/confirmTriplerEmail';
 
+/*
+ *
+ * findById(triplerId)
+ *
+ * Simply finds a neode Tripler object by its uuid
+ *
+ */
 async function findById(triplerId) {
   return await neode.first("Tripler", "id", triplerId);
 }
 
+/*
+ *
+ * findByPhone(phone)
+ *
+ * Simply finds a neode Tripler object by its normalized phone number
+ *
+ */
 async function findByPhone(phone) {
   return await neode.first("Tripler", "phone", normalizePhone(phone));
 }
 
+/*
+ *
+ * findRecentlyConfirmedTriplers()
+ *
+ * This function finds Triplers that are confirmed but not yet sent an SMS
+ *   letting them know that they too can be a Voting Ambassador.
+ *
+ * Note, this function is used by the upgrade_sms cron job.
+ * Any Tripler matching this case will be sent an SMS scheduled by the
+ *   appropriate .env vars that configure it.
+ *
+ */
 async function findRecentlyConfirmedTriplers() {
   let confirmed_triplers = await neode
     .model("Tripler")
@@ -39,6 +65,26 @@ async function findRecentlyConfirmedTriplers() {
   return recently_confirmed;
 }
 
+/*
+ *
+ * confirmTripler(triplerId)
+ *
+ * This function is the main service function that handles the data updating required
+ *   when a Tripler replies "yes" to the confirmation SMS.
+ *
+ * The Tripler must have a status of "pending" if it is to be confirmed. If so,
+ *   the status is changed to "confirmed", and a Payout neo4j node is created and
+ *   attached to the Ambassador that has claimed this Tripler.
+ *
+ * If the Ambassador that is given this Payout was themselves a Tripler at one point,
+ *   then the "Parent Ambassador" that claimed the Ambassador back when they were
+ *   still a Tripler gets paid an additional "upgrade bonus", only once, to reward
+ *   them for claiming/confirming a Tripler that went on to become an Ambassador themselves.
+ *
+ * An SMS is sent to the Ambassador that claims this Tripler, and an admin email is sent,
+ *   depending on .env var configuration.
+ *
+ */
 async function confirmTripler(triplerId) {
   let tripler = await neode.first("Tripler", "id", triplerId);
   let ambassador = tripler.get("claimed");
@@ -129,6 +175,17 @@ async function confirmTripler(triplerId) {
   }, 100);
 }
 
+/*
+ *
+ * detachTripler(triplerId)
+ *
+ * This function is called (by routes/api/v1/public/va/twilio.js) when a Tripler
+ *   replies "no" to the confirmation SMS.
+ * It sends the Tripler a "goodbye" SMS, and it sends the Ambassador that claimed
+ *   the Tripler a "rejection" SMS.
+ * The function then removes the Tripler's neo4j node.
+ *
+ */
 async function detachTripler(triplerId) {
   let tripler = await neode.first("Tripler", "id", triplerId);
   if (tripler) {
@@ -147,6 +204,14 @@ async function detachTripler(triplerId) {
   }
 }
 
+/*
+ *
+ * reconfirmTripler(triplerId)
+ *
+ * This function is called (by routes/api/v1/public/va/twilio.js) when a Tripler responds
+ *   to the confirmation SMS with something other than "yes" or "no"
+ *
+ */
 async function reconfirmTripler(triplerId) {
   let tripler = await neode.first("Tripler", "id", triplerId);
   if (tripler) {
@@ -174,6 +239,12 @@ async function reconfirmTripler(triplerId) {
   }
 }
 
+/*
+ *
+ * This function appears to be unused.
+ *
+ *
+ */
 async function upgradeNotification(triplerId) {
   let tripler = await neode.first("Tripler", "id", triplerId);
   if (tripler) {
@@ -215,6 +286,14 @@ function calculateQueryPoints(query) {
   return queryPoints;
 }
 
+/*
+ *
+ * buildTriplerSearchQuery(req)
+ *
+ * The utility function for the search functions to build the cypher query
+ *
+ *
+ */
 function buildTriplerSearchQuery(req) {
   const { firstName, lastName, phone, distance, age, gender, msa } = req.query;
 
@@ -287,6 +366,13 @@ function buildTriplerSearchQuery(req) {
   `;
 }
 
+/*
+ *
+ * searchTriplersAmbassador(req)
+ *
+ * The function for an Ambassador searching for Triplers.
+ *
+ */
 async function searchTriplersAmbassador(req) {
   const query = buildTriplerSearchQuery(req);
   let collection = await neode.cypher(query);
@@ -299,24 +385,65 @@ async function searchTriplersAmbassador(req) {
   return models;
 }
 
+/*
+ *
+ * updateTriplerBlockedCarrier(tripler, carrier)
+ *
+ * This function simply updates the "blocked_carrier_info" attribute of a Tripler.
+ *
+ * This function is called when a Tripler's phone number is identified to come
+ *   from a carrier that is blocked as defined by the .env var.
+ *
+ */
 async function updateTriplerBlockedCarrier(tripler, carrier) {
   await tripler.update({
     blocked_carrier_info: tripler.get('blocked_carrier_info') ? tripler.get('blocked_carrier_info') + JSON.stringify(carrier, null, 2) : JSON.stringify(carrier, null, 2)
   });
 }
 
+/*
+ *
+ * updateTriplerCarrier(tripler, carrier)
+ *
+ * This function simply updates a Tripler's "carrier_info" attribute.
+ *
+ * This function is called when a Tripler's phone number is identified
+ *   NOT to come from a carrier that is blocked by the .env var.
+ *
+ */
 async function updateTriplerCarrier(tripler, carrier) {
   await tripler.update({
     carrier_info: tripler.get('carrier_info') ? tripler.get('carrier_info') + JSON.stringify(carrier, null, 2) : JSON.stringify(carrier, null, 2)
   });
 }
 
+/*
+ *
+ * updateTriplerBirthname(tripler, birthdate)
+ *
+ * This function simply updates a Tripler's "birthdate_mm_yy" attribute.
+ *
+ */
 async function updateTriplerBirthdate(tripler, birthdate) {
   await tripler.update({
     birthdate_mm_yy: birthdate
   });
 }
 
+/*
+ *
+ * startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees, verification)
+ *
+ * This function sends the Tripler an SMS asking them to confirm to vote and get their
+ *   3 triplees to vote as well.
+ *
+ * The function updates the Tripler to "pending" status
+ *
+ * Note the Ambassador that has claimed this Tripler can and often does update the Tripler's
+ *   phone number at this time. The /routes side of this will do verification on the Tripler's
+ *   phone number before calling this function.
+ *
+ */
 async function startTriplerConfirmation(
   ambassador,
   tripler,

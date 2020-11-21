@@ -1,3 +1,5 @@
+// Note: the following file relates to the [HelloVoter](https://github.com/OurVoiceUSA/HelloVoter) app, not the BlockPower app, which is built on top of HelloVoter.
+//
 var http = require("http");
 
 var ip_header = (process.env.CLIENT_IP_HEADER?process.env.CLIENT_IP_HEADER:"x-client-ip");

@@ -1,5 +1,14 @@
 #!/usr/bin/env node
 
+/*
+ *
+ * This file provides a method of importing CSV data into the Neo4J database.
+ *
+ * However, as of late, direct import using the built-in Neo4J CSV import functions is the
+ *   preferred method. Consider this file obsolete.
+ *
+ */
+
 import neode from '../../app/lib/neode.js';
 import yargs from 'yargs';
 import parse from 'csv-parse';

@@ -1,5 +1,14 @@
 #!/usr/bin/env node
 
+/*
+ *
+ * Note: this is a utility to seed a database with random data in order to test and develop locally.
+ *
+ * It is believed to be up to date with the latest data the api expects to exist in a Tripler node,
+ *   but there are no tests to confirm this.
+ *
+ */
+
 import faker from 'faker';
 import { geoCode } from '../app/lib/utils.js';
 import { v4 as uuidv4 } from 'uuid';

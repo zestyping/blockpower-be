@@ -1,4 +1,12 @@
-
+/*
+ *
+ * This is the entrypoint to a lot of the setup and configuration of the API.
+ *
+ * Note that much of this comes from the [HelloVoter](https://github.com/OurVoiceUSA/HelloVoter) app, not the BlockPower app, which is built on top of HelloVoter.
+ *
+ * As such, some of the code here does not concern the BlockPower app. Specifically, the 'invite' route and related code.
+ *
+ */
 import express from 'express';
 import 'express-async-errors';
 import expressLogging from 'express-logging';

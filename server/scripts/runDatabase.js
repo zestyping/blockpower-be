@@ -1,3 +1,8 @@
+/*
+ *
+ * Note: this is used when developing on a local neo4j database
+ *
+ */
 
 import { runDatabase } from './lib/utils';
 

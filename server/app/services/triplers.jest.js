@@ -1,3 +1,9 @@
+/*
+ *
+ * This file is for testing purposes
+ *
+ *
+ */
 import { buildTriplerSearchQuery } from './triplers';
 
 const mockUser = {

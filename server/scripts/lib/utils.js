@@ -3,6 +3,9 @@ import { Docker, Options } from 'docker-cli-js';
 
 import { ov_config } from '../../app/lib/ov_config';
 
+//
+// Note, this is called when developing locally
+//
 export async function runDatabase(sandbox, {pagecache_size, heap_size_init, heap_size_max}) {
   let docker = new Docker(new Options());
   let ni = 'ourvoiceusa/neo4j-hv';

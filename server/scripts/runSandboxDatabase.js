@@ -1,3 +1,8 @@
+/*
+ *
+ * Note: this file is used when a neo4j database is running locally
+ *
+ */
 
 import { runDatabase } from './lib/utils';
 
