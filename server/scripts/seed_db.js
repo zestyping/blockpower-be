@@ -170,6 +170,20 @@ async function createAmbassador(opts) {
   return new_ambassador;
 }
 
+async function createSocialMatchNodes() {
+  let query =   ["MATCH (a:Tripler)",
+            "MATCH (b:Tripler)",
+            "WHERE a <> b",
+            "WITH  a, b, rand() as r",
+            "ORDER BY r",
+            "LIMIT 100",
+            "WITH  a, b",
+            "WHERE a <> b",
+            "MERGE (a)-[:HAS_SOCIAL_MATCH]->(s:SocialMatch)-[:HAS_SOCIAL_MATCH]->(b)",
+            "SET s.similarity_metric=rand()"].join("\n")
+  return neode.cypher(query,{})
+}
+
 async function createAdmin() {
   return createAmbassador({ admin: true });
 }
@@ -222,6 +236,9 @@ async function seed(args) {
     console.log(`Creating ${status} tripler ${index + 1} of ${max} ...`);
     await createTripler({ status });
   }
+
+  console.log("Creating sparse SocialMatch nodes...");
+  let socialMatchNodes = await createSocialMatchNodes();
 
   await addIndexes();
 }
