@@ -201,10 +201,16 @@ async function approveAmbassador(req, res) {
  *
  */
 async function updateW9Ambassdor(req, res) {
+  //first, search for the Ambassador
   let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId)
+  let w9found = await req.neode.first('Ambassador', 'has_w9', req.params.has_w9)
 
   if (!found) {
     return error(404, res, 'Ambassador not found')
+  }
+
+  if (!w9found) {
+    req.neode.cypher('MATCH (a:Ambassador {id: $id}) SET a.has_w9=toBoolean($has_w9)', {id:req.params.ambassadorId,has_w9: req.params.has_w9})
   }
 
   let json = {...{has_w9: req.params.has_w9}}
