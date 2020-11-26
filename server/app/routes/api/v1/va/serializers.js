@@ -62,7 +62,14 @@ function serializeAmbassador(ambassador) {
 
   let account = ambassador.get('owns_account').first()
   obj['account'] = !!account ? serializeAccount(account.otherNode()) : null
-  console.log(obj)
+
+  let claimees = ambassador.get('claims')
+  let array = []
+  for (let index = 0; index < claimees.length; index++) {
+    array.push(serializeTripler(claimees.get(index).otherNode()))
+  }
+
+  obj['claimees'] = array
   return obj
 }
 
