@@ -130,8 +130,6 @@ function serializeTriplerForCSV(tripler) {
 
 function serializeTripler(tripler) {
   let obj = {}
-  console.log('in serialize tripler')
-  console.log(tripler.get('Tripler'))
   let ambassador = tripler.get('is_ambassador')
   let was_once = ambassador ? ambassador.get('was_once') : null
   ;['id', 'first_name', 'last_name', 'status', 'phone', 'location', 'email', 'age_decade'].forEach(
