@@ -73,6 +73,8 @@ export async function getValidCoordinates(address) {
     throw new ValidationError("Our system doesn't recognize that zip code. Please try again.");
   }
 
+  addressNorm.location = { latitude: coordinates.latitude, longitude: coordinates.longitude };
+
   return [coordinates, addressNorm];
 }
 

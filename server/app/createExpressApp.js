@@ -37,12 +37,17 @@ export function doExpressInit(log, db, qq, neode) {
 
   // Initialize http server
   const app = express();
+  const corsConfig = { exposedHeaders: ['x-sm-oauth-url'] };
+  // If running in dev, allow cross-origin requests from other ports on localhost
+  if (process.env['NODE_ENV'] === 'development') {
+    corsConfig['origin'] = /^https?:\/\/localhost(:\d+)?/;
+  }
 
   app.disable('x-powered-by');
   app.disable('etag');
   app.use(bodyParser.json({limit: '5mb'}));
   app.use(bodyParser.urlencoded({ extended: false }));
-  app.use(cors({exposedHeaders: ['x-sm-oauth-url']}));
+  app.use(cors(corsConfig));
   app.use(helmet());
 
   if (log) {
@@ -143,8 +148,15 @@ export function doExpressInit(log, db, qq, neode) {
       */
 
       req.externalId = u.id;
-
+      
       let user = await ambassadorSvc.findByExternalId(u.id);
+
+      /*
+        Are you developing locally and having trouble linking your account to your test database?
+        Find a Ambassador you'd like to authenticate as and set the node's externalID parameter to 
+        the req.externalId produced here.
+      */
+
       if (user && user.get('locked')) {
         return _403(res, "Your account is locked.");
       }
