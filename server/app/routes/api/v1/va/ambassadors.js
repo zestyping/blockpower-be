@@ -196,11 +196,11 @@ async function approveAmbassador(req, res) {
 
 /*
  *
- * updateW9Ambassdaor(req, res)
+ * updateW9Ambassadaor(req, res)
  *
  *
  */
-async function updateW9Ambassdor(req, res) {
+async function updateW9Ambassador(req, res) {
   let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId)
 
   if (!found) {
@@ -212,6 +212,25 @@ async function updateW9Ambassdor(req, res) {
   return _204(res)
 }
 
+/*
+ *
+ * updatePayPalApprovedAmbassdaor(req, res)
+ *
+ *
+ */
+async function updatePayPalApprovedAmbassador(req, res) {
+  let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId)
+
+  if (!found) {
+    return error(404, res, 'Ambassador not found')
+  }
+
+  req.neode.cypher(
+    'MATCH (a:Ambassador {id: $id}) SET a.paypal_approved=toBoolean($paypal_approved)',
+    {id: req.params.ambassadorId, paypal_approved: req.params.paypal_approved},
+  )
+  return _204(res)
+}
 /*
  *
  * disapproveAmbassador(req, res)
@@ -669,7 +688,12 @@ module.exports = Router({mergeParams: true})
   .put('/ambassadors/:ambassadorId/has_w9/:has_w9', (req, res) => {
     if (!req.authenticated) return _401(res, 'Permission denied.')
     if (!req.admin) return _403(res, 'Permission denied.')
-    return updateW9Ambassdor(req, res)
+    return updateW9Ambassador(req, res)
+  })
+  .put('/ambassadors/:ambassadorId/paypal_approved/:paypal_approved', (req, res) => {
+    if (!req.authenticated) return _401(res, 'Permission denied.')
+    if (!req.admin) return _403(res, 'Permission denied.')
+    return updatePayPalApprovedAmbassador(req, res)
   })
   .put('/ambassadors/:ambassadorId/disapprove', (req, res) => {
     if (!req.authenticated) return _401(res, 'Permission denied.')
