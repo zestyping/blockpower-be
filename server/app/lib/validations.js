@@ -151,7 +151,7 @@ export async function verifyCallerIdAndReversePhone(phone) {
 }
 
 /** Throws if phone or email is invalid or duplicate. */
-export async function assertUserPhoneAndEmail(modelName, phone, email, id = null) {
+export async function assertUserPhoneAndEmail(modelName, phone, email, id = null, requireEmail = false) {
   if (phone) {
     if (!validatePhone(phone)) {
       throw new ValidationError("Our system doesn't understand that phone number. Please try again.");
@@ -162,9 +162,10 @@ export async function assertUserPhoneAndEmail(modelName, phone, email, id = null
     }
   }
 
-  if (email) {
+  if (email || requireEmail) {
     if (!validateEmail(email)) {
-      throw new ValidationError("Invalid email. Please try again.");
+      throw new ValidationError('Our records suggest that this email address may not be valid. ' +
+        'Email support@blockpower.vote for help. (E7)');
     }
 
     if (!await validateUnique(modelName, { email }, id)) {
