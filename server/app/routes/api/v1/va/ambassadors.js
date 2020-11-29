@@ -207,8 +207,9 @@ async function updateW9Ambassador(req, res) {
     return error(404, res, 'Ambassador not found')
   }
 
-  let json = {...{has_w9: req.params.has_w9}}
-  let updated = await found.update(json)
+  req.neode.cypher('MATCH (a:Ambassador {id: $id}) SET a.has_w9=toBoolean($has_w9)', 
+    {id:req.params.ambassadorId,has_w9: req.params.has_w9})
+  
   return _204(res)
 }
 
