@@ -50,6 +50,7 @@ function serializeAmbassador(ambassador) {
     'payout_additional_data',
     'admin',
     'has_w9',
+    'paypal_approved',
   ].forEach((x) => (obj[x] = ambassador.get(x)))
   obj['address'] = !!ambassador.get('address')
     ? JSON.parse(ambassador.get('address').replace('#', 'no.'))

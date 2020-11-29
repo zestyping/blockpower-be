@@ -92,12 +92,16 @@ module.exports = {
     type: 'boolean',
     default: false,
   },
-  // This relationship connects an Ambassador to a Payout. An Ambassador can have many
-  //   Payouts. NOTE the tripler_id property of this relationship.
   has_w9: {
     type: 'boolean',
     default: false,
   },
+  paypal_approved: {
+    type: 'boolean',
+    default: false,
+  },
+  // This relationship connects an Ambassador to a Payout. An Ambassador can have many
+  //   Payouts. NOTE the tripler_id property of this relationship.
   gets_paid: {
     type: 'relationships',
     relationship: 'GETS_PAID',
