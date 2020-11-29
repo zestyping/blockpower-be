@@ -57,7 +57,7 @@ async function signup(json, verification, carrierLookup) {
     throw new ValidationError("Invalid payload, ambassador cannot be created");
   }
 
-  await assertUserPhoneAndEmail('Ambassador', json.phone, json.email);
+  await assertUserPhoneAndEmail('Ambassador', json.phone, json.email, null, true);
 
   if (!await validateUnique('Ambassador', { external_id: json.externalId })) {
     throw new ValidationError("If you have already signed up as an Ambassador using Facebook or Google, you cannot sign up again.");
