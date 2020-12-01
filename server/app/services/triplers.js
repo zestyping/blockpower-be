@@ -103,16 +103,16 @@ async function confirmTripler(triplerId) {
 
     // If this ambassador was once a tripler, then reward the ambassador that
     // initially claimed the then-tripler, only once per upgraded ambassador
+    let allowBonus = ov_config.first_reward_payout > 0;
     let was_once = ambassador.get("was_once");
-
-    // Disable the bonus payouts, at least for now.
-    let ALLOW_BONUS = false;
-
-    if (ALLOW_BONUS && was_once && !was_once.get("rewarded_previous_claimer")) {
+    if (allowBonus && was_once && !was_once.get("rewarded_previous_claimer")) {
       let was_tripler = was_once.otherNode();
       if (was_tripler.get("status") === "confirmed") {
         await was_once.update({ rewarded_previous_claimer: true });
+
+        // TODO: Should this really be dependent on the payout? It doesn't seem to be used anywhere.
         await was_tripler.update({ is_ambassador_and_has_confirmed: true });
+
         was_tripler = await neode.first("Tripler", "id", was_tripler.get("id"));
         // This must be done because 'eager' only goes so deep
         let claimer = was_tripler.get("claimed");
