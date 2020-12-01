@@ -103,10 +103,12 @@ async function confirmTripler(triplerId) {
 
     // If this ambassador was once a tripler, then reward the ambassador that
     // initially claimed the then-tripler, only once per upgraded ambassador
-
     let was_once = ambassador.get("was_once");
 
-    if (was_once && !was_once.get("rewarded_previous_claimer")) {
+    // Disable the bonus payouts, at least for now.
+    let ALLOW_BONUS = false;
+
+    if (ALLOW_BONUS && was_once && !was_once.get("rewarded_previous_claimer")) {
       let was_tripler = was_once.otherNode();
       if (was_tripler.get("status") === "confirmed") {
         await was_once.update({ rewarded_previous_claimer: true });
