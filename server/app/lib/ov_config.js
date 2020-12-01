@@ -64,6 +64,7 @@ export const ov_config = {
   payout_stripe: getConfig("payout_stripe", false, false),
   payout_paypal: getConfig("payout_paypal", false, false),
   payout_per_tripler: getConfig("payout_per_tripler", true, 0),
+  first_reward_payout: getConfig("first_reward_payout", true, 0),
   plaid_client_id: getConfig("plaid_client_id", true, null),
   plaid_secret: getConfig("plaid_secret", true, null),
   plaid_public_key: getConfig("plaid_public_key", true, null),
@@ -164,7 +165,6 @@ export const ov_config = {
     true,
     null
   ),
-  first_reward_payout: getConfig("first_reward_payout", true, 0),
   // This should be a pipe delimited list of strings
   blocked_carriers: getConfig("blocked_carriers", false, ""),
   ekata_api_key: getConfig("ekata_api_key", false, null),
