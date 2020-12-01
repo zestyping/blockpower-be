@@ -54,8 +54,8 @@ function serializeAmbassador(ambassador) {
   ].forEach((x) => (obj[x] = ambassador.get(x)))
   obj['address'] = !!ambassador.get('address')
     ? JSON.parse(ambassador.get('address').replace('#', 'no.'))
-    : null
-  obj['display_address'] = !!obj['address'] ? serializeAddress(obj['address']) : null
+    : ""
+  obj['display_address'] = !!obj['address'] ? serializeAddress(obj['address']) : ""
   obj['display_name'] = serializeName(ambassador.get('first_name'), ambassador.get('last_name'))
   obj['quiz_results'] = !!ambassador.get('quiz_results')
     ? JSON.parse(ambassador.get('quiz_results'))
