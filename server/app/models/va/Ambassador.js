@@ -5,36 +5,36 @@
 module.exports = {
   // This is the BlockPower internal ID (uuidv4)
   id: {
-    type: 'uuid',
+    type: "uuid",
     primary: true,
   },
   // This is the ID given by Facebook or Google
   external_id: {
-    type: 'string',
+    type: "string",
   },
   first_name: {
-    type: 'string',
+    type: "string",
     required: true,
   },
   last_name: {
-    type: 'string',
+    type: "string",
     required: true,
   },
-  date_of_birth: 'string',
+  date_of_birth: "string",
   phone: {
-    type: 'string',
+    type: "string",
     required: true,
   },
   email: {
-    type: 'string',
+    type: "string",
   },
   address: {
-    type: 'string',
+    type: "string",
     required: true,
   },
   // This is the lat/lon data obtained either through address or zip
   location: {
-    type: 'point',
+    type: "point",
     required: true,
   },
   // This Neo4J relationship says that this Ambassador has "claimed" this Tripler.
@@ -42,38 +42,35 @@ module.exports = {
   // When one Ambassador claims a Tripler, that Tripler is not to be claimed by
   //   any other Ambassador.
   claims: {
-    type: 'relationships',
-    relationship: 'CLAIMS',
-    direction: 'out',
-    target: 'Tripler',
+    type: "relationships",
+    relationship: "CLAIMS",
+    direction: "out",
+    target: "Tripler",
     properties: {
       since: {
-        type: 'localdatetime',
+        type: "localdatetime",
         default: () => new Date(),
       },
     },
     eager: true,
   },
   signup_completed: {
-    type: 'boolean',
+    type: "boolean",
     default: false,
   },
   // This is obsolete. It was used when "onboarding" an Ambassador was done.
   onboarding_completed: {
-    type: 'boolean',
+    type: "boolean",
     default: false,
   },
-  // If approved (automatically set to true on signup) the Ambassador is able
-  //   to perform all Ambassador functions. If disapproved (by way of the admin panel)
-  //   then that Ambassador is not able to perform most functions.
   approved: {
-    type: 'boolean',
+    type: "boolean",
     default: false,
   },
   // This is obsolete. It was used when "onboarding" an Ambassador was done.
-  quiz_results: 'string',
+  quiz_results: "string",
   created_at: {
-    type: 'localdatetime',
+    type: "localdatetime",
     default: () => new Date(),
   },
   // This is a carry-over from the HelloVoter "Volunteer" model. It was used there
@@ -82,65 +79,65 @@ module.exports = {
   //   approved:false then locked:true must be true. This should be assured in the
   //   approval/disapproval ambassador admin functions.
   locked: {
-    type: 'boolean',
+    type: "boolean",
     default: false,
   },
   // This is obsolete. It was used prior to separate Account models being implemented.
-  payout_provider: 'string',
+  payout_provider: "string",
   // Determines if the user is an Admin or not.
   admin: {
-    type: 'boolean',
+    type: "boolean",
     default: false,
   },
   has_w9: {
-    type: 'boolean',
+    type: "boolean",
     default: false,
   },
   paypal_approved: {
-    type: 'boolean',
+    type: "boolean",
     default: false,
   },
   // This relationship connects an Ambassador to a Payout. An Ambassador can have many
   //   Payouts. NOTE the tripler_id property of this relationship.
   gets_paid: {
-    type: 'relationships',
-    relationship: 'GETS_PAID',
-    direction: 'out',
-    target: 'Payout',
+    type: "relationships",
+    relationship: "GETS_PAID",
+    direction: "out",
+    target: "Payout",
     properties: {
       since: {
-        type: 'localdatetime',
+        type: "localdatetime",
         default: () => new Date(),
       },
-      tripler_id: 'uuid',
+      tripler_id: "uuid",
     },
     eager: true,
   },
   // This relationship is obsolete and unused.
   first_reward: {
-    type: 'relationships',
-    relationship: 'FIRST_REWARD',
-    direction: 'out',
-    target: 'Payout',
+    type: "relationships",
+    relationship: "FIRST_REWARD",
+    direction: "out",
+    target: "Payout",
     properties: {
       since: {
-        type: 'localdatetime',
+        type: "localdatetime",
         default: () => new Date(),
       },
-      tripler_id: 'uuid',
+      tripler_id: "uuid",
     },
     eager: true,
   },
   // This relationship connects an Ambassador to an Account. An Ambassador can have many
   //   different Accounts.
   owns_account: {
-    type: 'relationships',
-    relationship: 'OWNS_ACCOUNT',
-    direction: 'out',
-    target: 'Account',
+    type: "relationships",
+    relationship: "OWNS_ACCOUNT",
+    direction: "out",
+    target: "Account",
     properties: {
       since: {
-        type: 'localdatetime',
+        type: "localdatetime",
         default: () => new Date(),
       },
     },
@@ -152,22 +149,27 @@ module.exports = {
   //   indicates that the now-Ambassador has confirmed a Tripler, which rewards the original
   //   Ambassador that confirmed the tripler that became this Ambassador.
   was_once: {
-    type: 'relationship',
-    relationship: 'WAS_ONCE',
-    direction: 'out',
-    target: 'Tripler',
+    type: "relationship",
+    relationship: "WAS_ONCE",
+    direction: "out",
+    target: "Tripler",
     properties: {
-      rewarded_previous_claimer: 'boolean',
+      rewarded_previous_claimer: "boolean",
       since: {
-        type: 'localdatetime',
+        type: "localdatetime",
         default: () => new Date(),
       },
     },
     eager: true,
   },
   // This contains the stringified JSON response from Twilio and Ekata's caller ID services
-  verification: 'string',
+  verification: "string",
   // This contains the stringified JSON response from Twilio on the carrier data for this
   //   Ambassador's phone number
-  carrier_info: 'string',
+  carrier_info: "string",
+
+  alloy_person_id: {
+    type: "integer",
+    default: null,
+  },
 }
