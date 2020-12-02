@@ -103,7 +103,7 @@ async function signup(json, verification, carrierLookup) {
     date_of_birth: json.date_of_birth || null,
     address: JSON.stringify(address, null, 2),
     quiz_results: JSON.stringify(json.quiz_results, null, 2) || null,
-    approved: false,
+    approved: true,
     locked: false,
     signup_completed: true,
     onboarding_completed: true,
@@ -135,7 +135,7 @@ async function signup(json, verification, carrierLookup) {
       new_ambassador: new_ambassador.get("id"),
     })
     existing_ambassador.delete()
-    new_ambassador.update({alloy_person_id: alloy_person_id, approved: approved})
+    new_ambassador.update({alloy_person_id: alloy_person_id, approved: approved, locked:!approved})
   }
 
   // send email in the background
