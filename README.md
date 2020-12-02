@@ -180,4 +180,4 @@ The meaning of each config item is as follows:
 * `UPGRADE_SMS_CRON_STRING`: Define the upgrade sms cron job
 * `TWILIO_MSG_SVC_SID`: The SID for the Twilio messaging service
 * `NEO4J_ENCRYPTION`: Whether or not the neo4j encryption is enabled
-
+* `HUBSPOT_API_KEY`: The API key for HubSpot
