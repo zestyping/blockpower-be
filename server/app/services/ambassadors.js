@@ -86,9 +86,13 @@ async function signup(json, verification, carrierLookup) {
     json.address.zip,
     birth_date,
   )
-  let existing_ambassador = await neode.first("Ambassador", {
-    alloy_person_id: alloy_response.data.alloy_person_id,
-  })
+  let existing_ambassador = null
+
+  if (alloy_response) {
+    existing_ambassador = await neode.first("Ambassador", {
+      alloy_person_id: alloy_response.data.alloy_person_id,
+    })
+  }
 
   let new_ambassador = await neode.create("Ambassador", {
     id: uuidv4(),
