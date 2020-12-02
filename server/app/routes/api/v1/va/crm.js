@@ -36,6 +36,9 @@ async function generateToken(req, res) {
   try {
     const tokenResponse = await fetch(url, options);
     const tokenJson = await tokenResponse.json();
+    if (tokenJson.status === 'error') {
+      throw new Error(tokenJson.message);
+    }
     return res.json(tokenJson);
   } catch (e) {
     return error(500, res, `Error retrieving token: ${e.message}`);
