@@ -362,7 +362,6 @@ async function signup(req, res) {
 
 async function updateAmbassador(req, res) {
   let found = await req.neode.first('Ambassador', 'id', req.params.ambassadorId)
-  console.log(req.params.ambassadorId)
   if (!found) {
     return error(404, res, 'Ambassador not found')
   }

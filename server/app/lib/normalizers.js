@@ -6,7 +6,7 @@ import { ValidationError } from './errors';
 
 const WGS_84_2D = 4326;
 
-const ALLOWED_ATTRS = ['first_name', 'last_name', 'date_of_birth', 'email', 'status'];
+const ALLOWED_ATTRS = ['first_name', 'last_name', 'date_of_birth', 'email', 'status', 'quiz_completed', 'onboarding_completed'];
 
 /*
  *
@@ -22,8 +22,8 @@ export function normalizeGender(gender) {
 export function normalizeAddress(address) {
   return {
     ...address,
-    state: address.state.toUpperCase(),
-    zip: address.zip.toString().replace(/ /g, ''),
+    state: (address?.state || '').toUpperCase(),
+    zip: ((address?.zip || '') + '').replace(/ /g, ''),
   };
 }
 
