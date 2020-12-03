@@ -54,36 +54,30 @@ module.exports = {
     },
     eager: true,
   },
-  signup_completed: {
+  signup_completed: {  // Has this voter completed the signup form?
     type: "boolean",
     default: false,
   },
-  // This is obsolete. It was used when "onboarding" an Ambassador was done.
-  onboarding_completed: {
+  approved: {  // Has this voter passed Alloy checks?
     type: "boolean",
     default: false,
   },
-  approved: {
+  quiz_completed: {  // Has this voter completed the WordPress quiz?
     type: "boolean",
     default: false,
   },
-  // This is obsolete. It was used when "onboarding" an Ambassador was done.
-  quiz_results: "string",
+  onboarding_completed: {  // Has this voter completed all onboarding steps?
+    type: "boolean",
+    default: false,
+  },
   created_at: {
     type: "localdatetime",
     default: () => new Date(),
   },
-  // This is a carry-over from the HelloVoter "Volunteer" model. It was used there
-  //   to prevent an account from logging in. It is similarly used in the same way
-  //   for BlockPower. NOTE: If approved:true, then locked:false must be true. If
-  //   approved:false then locked:true must be true. This should be assured in the
-  //   approval/disapproval ambassador admin functions.
-  locked: {
+  locked: {  // Has this voter been flagged for fraud?
     type: "boolean",
     default: false,
   },
-  // This is obsolete. It was used prior to separate Account models being implemented.
-  payout_provider: "string",
   // Determines if the user is an Admin or not.
   admin: {
     type: "boolean",
@@ -93,7 +87,7 @@ module.exports = {
     type: "boolean",
     default: false,
   },
-  paypal_approved: {
+  paypal_approved: {  // Is this voter allowed to set up payouts via PayPal?
     type: "boolean",
     default: false,
   },

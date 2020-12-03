@@ -43,8 +43,9 @@ function serializeAmbassador(ambassador) {
     'email',
     'location',
     'signup_completed',
-    'onboarding_completed',
     'approved',
+    'quiz_completed',
+    'onboarding_completed',
     'locked',
     'payout_provider',
     'payout_additional_data',
@@ -57,9 +58,6 @@ function serializeAmbassador(ambassador) {
     : ""
   obj['display_address'] = !!obj['address'] ? serializeAddress(obj['address']) : ""
   obj['display_name'] = serializeName(ambassador.get('first_name'), ambassador.get('last_name'))
-  obj['quiz_results'] = !!ambassador.get('quiz_results')
-    ? JSON.parse(ambassador.get('quiz_results'))
-    : null
 
   let account = ambassador.get('owns_account').first()
   obj['account'] = !!account ? serializeAccount(account.otherNode()) : null
