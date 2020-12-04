@@ -78,8 +78,7 @@ module.exports = {
     type: "boolean",
     default: false,
   },
-  // Determines if the user is an Admin or not.
-  admin: {
+  admin: {  // Does this voter have admin privileges?
     type: "boolean",
     default: false,
   },
@@ -90,6 +89,9 @@ module.exports = {
   paypal_approved: {  // Is this voter allowed to set up payouts via PayPal?
     type: "boolean",
     default: false,
+  },
+  payout_provider: {  // "stripe" or "paypal"
+    type: "string",
   },
   // This relationship connects an Ambassador to a Payout. An Ambassador can have many
   //   Payouts. NOTE the tripler_id property of this relationship.
