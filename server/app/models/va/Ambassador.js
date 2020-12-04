@@ -70,6 +70,10 @@ module.exports = {
     type: "boolean",
     default: false,
   },
+  giftcard_completed: {  // Have we sent this voter a gift card for finishing onboarding?
+    type: "boolean",
+    default: false,
+  },
   created_at: {
     type: "localdatetime",
     default: () => new Date(),
