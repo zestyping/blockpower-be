@@ -344,7 +344,7 @@ function buildTriplerSearchQuery(req) {
   return `
     match (a:Ambassador {id: "${req.user.get('id')}"})
     optional match (a)-[:WAS_ONCE]->(ambassadorsTripler:Tripler)
-    with ambassadorsTripler,a.location as a_location
+    with ambassadorsTripler,a.location as a_location,a
     ${triplerQuery}
     where
       not (:Ambassador)-[:CLAIMS]->(node)
@@ -353,9 +353,9 @@ function buildTriplerSearchQuery(req) {
       ${genderFilter}
       ${ageFilter}
       ${msaFilter}
-    with ambassadorsTripler,a_location, node
+    with ambassadorsTripler,a_location, node,a
     // find potential triplers that I have a social match with
-    optional match (ambassadorsTripler)-[:HAS_SOCIAL_MATCH]-(s:SocialMatch)-[:HAS_SOCIAL_MATCH]-(node)
+    optional match (a)-[:HAS_SOCIAL_MATCH]-(s:SocialMatch)-[:HAS_SOCIAL_MATCH]-(node)
     // prioritize closing trianges
     // increase score if potential tripler also knows another ambassador
     optional match (node)-[:HAS_SOCIAL_MATCH]-(s2:SocialMatch)-[:HAS_SOCIAL_MATCH]-(otherAmbassadorTripler:Tripler)<-[]-(:Ambassador)
