@@ -333,20 +333,24 @@ async function signup(req, res) {
     }
   }
 
-  try {
-    await sms(
-      new_ambassador.get('phone'),
-      format(ov_config.ambassador_signup_message, {
-        ambassador_first_name: new_ambassador.get('first_name'),
-        ambassador_last_name: new_ambassador.get('last_name') || '',
-        ambassador_city: JSON.parse(new_ambassador.get('address')).city,
-        organization_name: ov_config.organization_name,
-        ambassador_landing_page: ov_config.ambassador_landing_page,
-      }),
-    )
-  } catch (err) {
-    req.logger.error('Unhandled error in %s: %s', req.url, err)
-    req.logger.error('Error sending signup sms to the ambassador')
+  if (new_ambassador.approved) {
+    try {
+      await sms(
+        new_ambassador.get('phone'),
+        format(ov_config.ambassador_signup_message, {
+          ambassador_first_name: new_ambassador.get('first_name'),
+          ambassador_last_name: new_ambassador.get('last_name') || '',
+          ambassador_city: JSON.parse(new_ambassador.get('address')).city,
+          organization_name: ov_config.organization_name,
+          ambassador_landing_page: ov_config.ambassador_landing_page,
+        }),
+      )
+    } catch (err) {
+      req.logger.error('Unhandled error in %s: %s', req.url, err)
+      req.logger.error('Error sending signup sms to the ambassador')
+    }
+  } else {
+    req.logger.warn('Ambassador not approved; not sending intro SMS')
   }
 
   return res.json(serializeAmbassador(new_ambassador))
