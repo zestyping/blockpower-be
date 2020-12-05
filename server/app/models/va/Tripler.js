@@ -107,6 +107,7 @@ module.exports = {
   // This is imported from the voter data CSV, and indicates the metro area they live in
   //   for example, 'GA Atlanta' would indicate this Tripler lives in the Atlanta metro region
   msa: 'string',
-  birthdate_mm_yy: 'string',
-  zip: 'string'
+  zip: 'string',
+  // The birth month (1-12) of this Tripler, according to the Ambassador.
+  claimed_birth_month: 'integer',
 };

@@ -191,9 +191,9 @@ async function startTriplerConfirmation(req, res) {
     return error(400, res, 'Insufficient triplees, cannot start confirmation')
   }
 
-  let birthdate = req.body.birthdate_mm_yy;
-  if (birthdate) {
-    await triplersSvc.updateTriplerBirthdate(tripler, birthdate);
+  let month = +req.body.tripler_birth_month;
+  if (month) {
+    await triplersSvc.updateClaimedBirthMonth(tripler, month);
   }
 
   try {

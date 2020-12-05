@@ -424,14 +424,14 @@ async function updateTriplerCarrier(tripler, carrier) {
 
 /*
  *
- * updateTriplerBirthname(tripler, birthdate)
+ * updateClaimedBirthMonth(tripler, month)
  *
- * This function simply updates a Tripler's "birthdate_mm_yy" attribute.
+ * This function simply updates a Tripler's "claimed_birth_month" attribute.
  *
  */
-async function updateTriplerBirthdate(tripler, birthdate) {
+async function updateClaimedBirthMonth(tripler, month) {
   await tripler.update({
-    birthdate_mm_yy: birthdate
+    claimed_birth_month: month
   });
 }
 
@@ -495,5 +495,5 @@ module.exports = {
   startTriplerConfirmation: startTriplerConfirmation,
   updateTriplerCarrier: updateTriplerCarrier,
   updateTriplerBlockedCarrier: updateTriplerBlockedCarrier,
-  updateTriplerBirthdate: updateTriplerBirthdate
+  updateClaimedBirthMonth: updateClaimedBirthMonth
 };
