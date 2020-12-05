@@ -212,7 +212,6 @@ async function unclaimTriplers(req) {
       .relationship("CLAIMS", "out", "r")
       .to("t", "Tripler")
       .where("t.id", req.body.triplers[x])
-      .update({"claimed_birth_month": null, "triplees": null})
       .detachDelete("r")
       .execute()
   }
