@@ -351,7 +351,6 @@ function buildTriplerSearchQuery(req) {
   // TODO: Use parameter isolation for security.
   return `
     match (a:Ambassador {id: "${req.user.get("id")}"})
-    with a.location as a_location,a
     ${triplerQuery}
     where
       not (:Ambassador)-[:CLAIMS]->(node)
@@ -360,7 +359,7 @@ function buildTriplerSearchQuery(req) {
       ${genderFilter}
       ${ageFilter}
       ${msaFilter}
-    with a_location, node,a, distance(a.location, node.location) as distance_filter
+    with a.location as a_location, node,a, distance(a.location, node.location) as distance_filter
     order by distance_filter asc
     limit 500
     // optional match (s:SocialMatch {source_id: "${req.user.get("id")}"})-[:HAS_SOCIAL_MATCH]-(node)
