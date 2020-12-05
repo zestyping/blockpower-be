@@ -359,9 +359,8 @@ function buildTriplerSearchQuery(req) {
       ${genderFilter}
       ${ageFilter}
       ${msaFilter}
-    with a.location as a_location, node,a, distance(a.location, node.location) as distance_filter
-    order by distance_filter asc
-    limit 400
+    with a.location as a_location, node,a
+    limit 500
     with a, a_location, node, ${firstNameNorm ? `"${firstNameNorm}"` : null} as first_n_q, ${
     lastNameNorm ? `"${lastNameNorm}"` : null
   } as last_n_q
