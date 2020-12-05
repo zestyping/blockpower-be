@@ -1,8 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  _204
-} from '../../../../lib/utils';
+import { _204, _404 } from '../../../../lib/utils';
 
 import stripeSvc from '../../../../services/stripe';
 import plaidSvc from '../../../../services/plaid';
@@ -45,6 +43,21 @@ async function createStripeAccount(req, res) {
   return _204(res);
 }
 
+// Marks an Account as no longer primary, to indicate that the user no
+// longer wants payouts to go to this Account.
+async function demoteStripeAccount(req, res) {
+  if (!req.body.id) return error(400, res, "Parameter 'id' should be an Account node id.");
+  const edges = req.user.get('owns_account');
+  for (let e = 0; e < edges.length; e++) {
+    const account = edges?.get(e)?.otherNode();
+    if (account?.get('id') === req.body.id) {
+      account.update({'is_primary': false});
+      return _204(res);
+    }
+  }
+  return _404(res, 'Account not found');
+}
+
 /*
  *
  * createStripeTestAccount(req, res)
@@ -68,11 +81,11 @@ async function createStripeTestAccount(req, res) {
   } catch (err) {
     return error(400, res, err);
   }
-  
   return _204(res);
 }
 
 module.exports = {
   createStripeAccount: createStripeAccount,
-  createStripeTestAccount: createStripeTestAccount
+  createStripeTestAccount: createStripeTestAccount,
+  demoteStripeAccount: demoteStripeAccount
 };

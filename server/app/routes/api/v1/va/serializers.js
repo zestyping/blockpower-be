@@ -1,3 +1,10 @@
+import {Router} from "express"
+import format from "string-format"
+import {v4 as uuidv4} from "uuid"
+
+import {getValidCoordinates, normalizePhone} from "../../../../lib/normalizers"
+import {ValidationError} from "../../../../lib/errors"
+
 import {formatDate, formatNumber} from "../../../../lib/format"
 import PhoneNumber from "awesome-phonenumber"
 
@@ -22,7 +29,17 @@ function serializeName(first_name, last_name) {
   return [first_name, last_name].join(" ")
 }
 
+function getPrimaryAccount(ambassador) {
+  const edges = ambassador.get("owns_account") || [];
+  for (let e = 0; e < edges.length; e++) {
+    const other = edges.get(e)?.otherNode();
+    if (other?.get("is_primary")) return other;
+  }
+  return null;
+}
+
 function serializeAccount(account) {
+  if (!account) return null;
   let obj = {}
   ;["id", "account_id", "account_type"].forEach((x) => (obj[x] = account.get(x)))
   obj["account_data"] = !!account.get("account_data")
@@ -52,6 +69,7 @@ function serializeAmbassador(ambassador) {
     "admin",
     "has_w9",
     "paypal_approved",
+    "hs_id",
   ].forEach((x) => (obj[x] = ambassador.get(x)))
   obj["address"] = !!ambassador.get("address")
     ? JSON.parse(ambassador.get("address").replace("#", "no."))
@@ -59,10 +77,15 @@ function serializeAmbassador(ambassador) {
   obj["display_address"] = !!obj["address"] ? serializeAddress(obj["address"]) : ""
   obj["display_name"] = serializeName(ambassador.get("first_name"), ambassador.get("last_name"))
 
-  let account = ambassador.get("owns_account").first()
-  obj["account"] = !!account ? serializeAccount(account.otherNode()) : null
-  obj["hs_id"] = ambassador.get("hs_id") ? ambassador.get("hs_id").toString() : ""
+  const acct = getPrimaryAccount(ambassador);
+  obj['account'] = serializeAccount(acct);
 
+  let claimees = ambassador.get('claims')
+  let array = []
+  for (let index = 0; index < claimees.length; index++) {
+    array.push(serializeTripler(claimees.get(index).otherNode()))
+  }
+  obj['claimees'] = array
   return obj
 }
 
