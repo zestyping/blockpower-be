@@ -326,7 +326,7 @@ function buildTriplerSearchQuery(req) {
     nameType = "last"
     nameToCompare = `last_n_q`
   } else {
-    triplerQuery = `match (node:Tripler)`
+    triplerQuery = `match (node:Tripler {status:"unconfirmed"})`
   }
   const nodeName = `replace(replace(toLower(node.${nameType}_name), '-', ''), "'", '')`
   const stringDistScores =
@@ -353,7 +353,7 @@ function buildTriplerSearchQuery(req) {
     match (a:Ambassador {id: "${req.user.get("id")}"})
     ${triplerQuery}
     where
-      not (:Ambassador)-[:CLAIMS]->(node)
+      node.status = "unconfirmed"
       and not (:Ambassador)-[:WAS_ONCE]->(node)
       ${phoneFilter}
       ${genderFilter}
@@ -361,8 +361,7 @@ function buildTriplerSearchQuery(req) {
       ${msaFilter}
     with a.location as a_location, node,a, distance(a.location, node.location) as distance_filter
     order by distance_filter asc
-    limit 500
-    // optional match (s:SocialMatch {source_id: "${req.user.get("id")}"})-[:HAS_SOCIAL_MATCH]-(node)
+    limit 400
     with a, a_location, node, ${firstNameNorm ? `"${firstNameNorm}"` : null} as first_n_q, ${
     lastNameNorm ? `"${lastNameNorm}"` : null
   } as last_n_q
@@ -386,6 +385,7 @@ function buildTriplerSearchQuery(req) {
  */
 async function searchTriplersAmbassador(req) {
   const query = buildTriplerSearchQuery(req)
+  console.log(query)
   let collection = await neode.cypher(query)
   let models = []
   for (let index = 0; index < collection.records.length; index++) {
