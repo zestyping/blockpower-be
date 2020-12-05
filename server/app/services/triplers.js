@@ -351,8 +351,6 @@ function buildTriplerSearchQuery(req) {
   // TODO: Use parameter isolation for security.
   return `
     match (a:Ambassador {id: "${req.user.get("id")}"})
-    optional match (a)-[:WAS_ONCE]->(ambassadorsTripler:Tripler)
-    with ambassadorsTripler,a.location as a_location,a
     ${triplerQuery}
     where
       not (:Ambassador)-[:CLAIMS]->(node)
@@ -361,22 +359,20 @@ function buildTriplerSearchQuery(req) {
       ${genderFilter}
       ${ageFilter}
       ${msaFilter}
-    with ambassadorsTripler,a_location, node,a
-    // find potential triplers that I have a social match with
-    optional match (a)-[:HAS_SOCIAL_MATCH]-(s:SocialMatch)-[:HAS_SOCIAL_MATCH]-(node)
-    // prioritize closing trianges
-    // increase score if potential tripler also knows another ambassador
-    optional match (node)-[:HAS_SOCIAL_MATCH]-(s2:SocialMatch)-[:HAS_SOCIAL_MATCH]-(otherAmbassadorTripler:Tripler)<-[]-(:Ambassador)
-    with s,s2, a_location, node, ${firstNameNorm ? `"${firstNameNorm}"` : null} as first_n_q, ${
+    with a.location as a_location, node,a, distance(a.location, node.location) as distance_filter
+    order by distance_filter asc
+    limit 500
+    // optional match (s:SocialMatch {source_id: "${req.user.get("id")}"})-[:HAS_SOCIAL_MATCH]-(node)
+    with a, a_location, node, ${firstNameNorm ? `"${firstNameNorm}"` : null} as first_n_q, ${
     lastNameNorm ? `"${lastNameNorm}"` : null
   } as last_n_q
-    with a_location, node, first_n_q, last_n_q,
-      ${stringDistScores},
-    CASE s.similarity_metric WHEN null THEN 0 ELSE s.similarity_metric*(1+count(s2)) END AS similarity
+    with a, a_location, node, first_n_q, last_n_q,
+      ${stringDistScores}
     with
-      node, similarity + avg(score1 + score2 + score3) + (10000 /  distance(a_location, node.location)) * ${distanceValue} as final_score, distance(a_location, node.location) as distance
-    return node, final_score
-    order by final_score desc,distance asc, node.last_name asc, node.first_name asc
+      a, node,  avg(score1 + score2 + score3) + (10000 /  distance(a_location, node.location)) * ${distanceValue} as final_score, distance(a_location, node.location) as distance
+    optional match (s:SocialMatch {source_id: "${req.user.get("id")}"})-[:HAS_SOCIAL_MATCH]-(node)
+    RETURN node, case when s.similarity_metric is null then 0 else s.similarity_metric end as similarity_metric
+    order by similarity_metric desc, final_score desc
     limit 100
   `
 }
