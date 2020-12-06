@@ -100,8 +100,6 @@ async function countAmbassadors(req, res) {
  */
 async function fetchAmbassadors(req, res) {
   let models = await ambassadorsSvc.searchAmbassadors(req)
-  console.log("fetchAmbassadors")
-  console.log(models)
   return res.json(models)
 }
 
