@@ -136,8 +136,7 @@ async function fetchCurrentAmbassador(req, res) {
  *
  * approveAmbassdaor(req, res)
  *
- * This function sets an Ambassador to be approved:true, locked:false, and onboarding_completed:true
- *
+ * This function sets an Ambassador to be approved:true, locked:false
  * When this function is called, an approval SMS is sent to the Ambassador.
  *
  */
@@ -148,7 +147,7 @@ async function approveAmbassador(req, res) {
     return error(404, res, "Ambassador not found")
   }
 
-  let json = {...{approved: true, locked: false, onboarding_completed: true}}
+  let json = {...{approved: true, locked: false}}
   let updated = await found.update(json)
 
   try {
