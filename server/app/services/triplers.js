@@ -353,7 +353,7 @@ function buildTriplerSearchQuery(req) {
     match (a:Ambassador {id: "${req.user.get("id")}"})
     ${triplerQuery}
     where
-      node.status = "unconfirmed"
+      not (node)<-[:CLAIMS]-(:Ambassador)
       and not (:Ambassador)-[:WAS_ONCE]->(node)
       ${phoneFilter}
       ${genderFilter}
