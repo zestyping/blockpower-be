@@ -373,6 +373,7 @@ async function updateAmbassador(req, res) {
  */
 async function updateCurrentAmbassador(req, res) {
   let found = req.user
+  console.log("updating the ambassador, ", found.get("id"))
 
   // Disabled form fields don't get sent from the frontend, so default it if missing.
   if (!req.body.phone) {
@@ -399,6 +400,16 @@ async function updateCurrentAmbassador(req, res) {
     return error(400, res, err.message)
   }
   let updated = await found.update(json)
+
+  //if ambassador doesn't currently have a hubspotID, this will set it
+  if(!req.user.get('hs_id')){
+      await ambassadorsSvc.setAmbassadorHubspotID(updated)
+  }
+  // update tripler info as well
+  if(req.user.get('hs_id')){
+  await ambassadorsSvc.updateAmbassadorTriplerInfoHubspot(updated)
+  }
+
   return res.json(serializeAmbassador(updated))
 }
 
@@ -453,6 +464,7 @@ async function claimTriplers(req, res) {
   `
 
   let collection = await req.neode.cypher(query)
+  await ambassadorsSvc.updateAmbassadorTriplerInfoHubspot(req.user)
 
   return _204(res)
 }

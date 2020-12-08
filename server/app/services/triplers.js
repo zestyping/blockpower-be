@@ -13,6 +13,8 @@ import {
   serializeTriplee,
 } from "../routes/api/v1/va/serializers"
 import {confirmTriplerEmail} from "../emails/confirmTriplerEmail"
+import ambassadorsSvc from "./ambassadors"
+
 
 /*
  *
@@ -86,6 +88,11 @@ async function findRecentlyConfirmedTriplers() {
 async function confirmTripler(triplerId) {
   let tripler = await neode.first("Tripler", "id", triplerId)
   let ambassador = tripler.get("claimed")
+  if(ambassador.get('hs_id'))
+  {
+    await ambassadorsSvc.updateAmbassadorTriplerInfoHubspot(ambassador)
+  }
+
   if (tripler && tripler.get("status") === "pending") {
     let confirmed_at = neo4j.default.types.LocalDateTime.fromStandardDate(new Date())
     await tripler.update({status: "confirmed", confirmed_at: confirmed_at})

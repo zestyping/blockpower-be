@@ -61,6 +61,7 @@ function serializeAmbassador(ambassador) {
 
   let account = ambassador.get("owns_account").first()
   obj["account"] = !!account ? serializeAccount(account.otherNode()) : null
+  obj["hs_id"] = ambassador.get("hs_id") ? ambassador.get("hs_id").toString() : ""
 
   let claimees = ambassador.get("claims")
   let array = []
