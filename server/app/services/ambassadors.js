@@ -185,11 +185,11 @@ async function initialSyncAmbassadorToHubSpot(ambassador) {
     "first_name",
     "last_name",
     "approved",
-    "alloy_person_id",
     "email",
     "phone",
     "external_id",
   ].forEach((x) => (obj[x] = ambassador.get(x)))
+  obj["alloy_person_id"] = ambassador.get("alloy_person_id") ? ambassador.get("alloy_person_id").toString() : null
   if (!ambassador.get("hs_id")) {
     console.log("no hs id, gettig it from hs")
     const hs_response = await getAmbassadorHSID(ambassador.get("email"))
@@ -229,7 +229,6 @@ async function syncAmbassadorToHubSpot(ambassador) {
       "approved",
       "quiz_completed",
       "onboarding_completed",
-      "alloy_person_id",
       "external_id",
       "phone",
       "signup_completed",
@@ -241,6 +240,7 @@ async function syncAmbassadorToHubSpot(ambassador) {
       "payout_provider",
     ].forEach((x) => (obj[x] = ambassador.get(x)))
     obj["hs_id"] = ambassador.get("hs_id").toString()
+    obj["alloy_person_id"] = ambassador.get("alloy_person_id") ? ambassador.get("alloy_person_id").toString() : null
     updateHubspotAmbassador(obj)
   }
   return ambassador.get("hs_id")
