@@ -69,7 +69,31 @@ async function updateHubspotAmbassador(req) {
   }
 }
 
+async function createHubspotContact(req) {
+  let hs_key = ov_config.hubspot_api_key
+  console.log("req", req)
+  console.log(`[HS] Creating Hubspot Contact For Ambassador`)
+  try {
+    let response
+    if (hs_key) {
+      response = await axios.post(
+        `https://api.hubapi.com/crm/v3/objects/contacts?hapikey=${hs_key}`,
+        {
+          properties: {
+            email: req.email
+          },
+        },
+      )
+    }
+    return response
+  } catch (err) {
+    console.log(`[HS] Create failed with error ${err}`)
+    return null
+  }
+}
+
 module.exports = {
   getAmbassadorHSID: getAmbassadorHSID,
   updateHubspotAmbassador: updateHubspotAmbassador,
+  createHubspotContact: createHubspotContact,
 }

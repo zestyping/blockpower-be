@@ -1,7 +1,7 @@
 import {v4 as uuidv4} from "uuid"
 import stringFormat from "string-format"
 import {verifyAlloy} from "../lib/alloy"
-import {getAmbassadorHSID, updateHubspotAmbassador} from "../lib/crm"
+import {getAmbassadorHSID, updateHubspotAmbassador, createHubspotContact} from "../lib/crm"
 
 import neode from "../lib/neode"
 
@@ -172,9 +172,25 @@ async function signup(json, verification, carrierLookup) {
  */
 async function initialSyncAmbassadorToHubSpot(ambassador) {
   //only continue if there's no hs_id
+
+  let obj = {}
+    ;[
+      "first_name",
+      "last_name",
+      "approved",
+      "quiz_completed",
+      "onboarding_completed",
+      "alloy_person_id",
+      "email",
+    ].forEach((x) => (obj[x] = ambassador.get(x)))
   if (!ambassador.get("hs_id")) {
     console.log("no hs id, gettig it from hs")
     const hs_response = await getAmbassadorHSID(ambassador.get("email"))
+    if(!hs_response) {
+      createHubspotContact(obj)
+      const hs_response = await getAmbassadorHSID(ambassador.get("email"))
+    }
+
     let cypher_response = await neode.cypher(
       "MATCH (a:Ambassador {id: $id}) SET a.hs_id=toInteger($hs_id) RETURN a.first_name, a.hs_id",
       {
@@ -184,17 +200,8 @@ async function initialSyncAmbassadorToHubSpot(ambassador) {
     )
 
     // send initial data to hubspot, so you know if it's working
-
-    let obj = {}
-    ;[
-      "first_name",
-      "last_name",
-      "approved",
-      "quiz_completed",
-      "onboarding_completed",
-      "alloy_person_id",
-    ].forEach((x) => (obj[x] = ambassador.get(x)))
     obj["hs_id"] = hs_response
+
     updateHubspotAmbassador(obj)
   }
   return ambassador.get("hs_id")
