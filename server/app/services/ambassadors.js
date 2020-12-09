@@ -231,6 +231,7 @@ async function syncAmbassadorToHubSpot(ambassador) {
       "paypal_approved",
       "giftcard_completed",
       "is_admin",
+      "payout_provider",
     ].forEach((x) => (obj[x] = ambassador.get(x)))
     obj["hs_id"] = ambassador.get("hs_id").toString()
     updateHubspotAmbassador(obj)
