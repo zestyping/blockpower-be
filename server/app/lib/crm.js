@@ -4,11 +4,10 @@ const axios = require("axios")
 async function getAmbassadorHSID(email) {
   let hs_key = ov_config.hubspot_api_key
 
-  if(hs_key) 
-  {
+  if (hs_key) {
     console.log(`[HS] Calling API with: ${email}`)
     try {
-    let response
+      let response
       response = await axios.post(
         `https://api.hubapi.com/crm/v3/objects/contacts/search?hapikey=${hs_key}`,
         {
@@ -25,12 +24,11 @@ async function getAmbassadorHSID(email) {
           ],
         },
       )
-    return response.data.results[0].id
-  } catch (err) {
-    console.log(`[HS] Lookup failed with error ${err}`)
-    return null
-  }
-
+      return response.data.results[0].id
+    } catch (err) {
+      console.log(`[HS] Lookup failed with error ${err}`)
+      return null
+    }
   }
 }
 
@@ -58,6 +56,14 @@ async function updateHubspotAmbassador(req) {
             quiz_completed: req.quiz_completed ? req.quiz_completed : null,
             onboarding_completed: req.onboarding_completed ? req.onboarding_completed : null,
             giftcard_completed: req.giftcard_completed ? req.giftcard_completed : null,
+            google_fb_id: req.external_id ? req.external_id : null,
+            google_fb_id: req.external_id ? req.external_id : null,
+            phone: req.phone ? req.phone : null,
+            is_admin: req.is_admin ? req.is_admin : null,
+            signup_completed: req.signup_completed ? req.signup_completed : null,
+            paypal_approved: req.paypal_approved ? req.paypal_approved : null,
+            locked: req.locked ? req.locked : null,
+            has_w9: req.has_w9 ? req.has_w9 : null,
           },
         },
       )
@@ -93,6 +99,14 @@ async function createHubspotContact(req) {
             quiz_completed: req.quiz_completed ? req.quiz_completed : null,
             onboarding_completed: req.onboarding_completed ? req.onboarding_completed : null,
             giftcard_completed: req.giftcard_completed ? req.giftcard_completed : null,
+            google_fb_id: req.external_id ? req.external_id : null,
+            phone: req.phone ? req.phone : null,
+            is_admin: req.is_admin ? req.is_admin : null,
+            signup_completed: req.signup_completed ? req.signup_completed : null,
+            paypal_approved: req.paypal_approved ? req.paypal_approved : null,
+            locked: req.locked ? req.locked : null,
+            has_w9: req.has_w9 ? req.has_w9 : null,
+            payout_provider: req.payout_provider ? req.payout_provider : null
           },
         },
       )

@@ -181,19 +181,19 @@ async function initialSyncAmbassadorToHubSpot(ambassador) {
   //only continue if there's no hs_id
 
   let obj = {}
-    ;[
-      "first_name",
-      "last_name",
-      "approved",
-      "quiz_completed",
-      "onboarding_completed",
-      "alloy_person_id",
-      "email",
-    ].forEach((x) => (obj[x] = ambassador.get(x)))
+  ;[
+    "first_name",
+    "last_name",
+    "approved",
+    "alloy_person_id",
+    "email",
+    "phone",
+    "external_id",
+  ].forEach((x) => (obj[x] = ambassador.get(x)))
   if (!ambassador.get("hs_id")) {
     console.log("no hs id, gettig it from hs")
     const hs_response = await getAmbassadorHSID(ambassador.get("email"))
-    if(!hs_response) {
+    if (!hs_response) {
       createHubspotContact(obj)
       const hs_response = await getAmbassadorHSID(ambassador.get("email"))
     }
@@ -218,6 +218,7 @@ async function initialSyncAmbassadorToHubSpot(ambassador) {
  * syncAmbassadorToHubSpot(ambassador)
  * syncs Ambassador to Hubspot. Ambassador must have a hs_id
  */
+
 async function syncAmbassadorToHubSpot(ambassador) {
   //only continue if there's no hs_id
   if (ambassador.get("hs_id")) {
@@ -229,6 +230,15 @@ async function syncAmbassadorToHubSpot(ambassador) {
       "quiz_completed",
       "onboarding_completed",
       "alloy_person_id",
+      "external_id",
+      "phone",
+      "signup_completed",
+      "locked",
+      "has_w9",
+      "paypal_approved",
+      "giftcard_completed",
+      "is_admin",
+      "payout_provider",
     ].forEach((x) => (obj[x] = ambassador.get(x)))
     obj["hs_id"] = ambassador.get("hs_id").toString()
     updateHubspotAmbassador(obj)
@@ -264,14 +274,9 @@ async function sendTriplerCountsToHubspot(ambassador) {
       },
     )
     let obj = {}
-    ;[
-      "first_name",
-      "last_name",
-      "approved",
-      "quiz_completed",
-      "onboarding_completed",
-      "alloy_person_id",
-    ].forEach((x) => (obj[x] = ambassador.get(x)))
+    ;["first_name", "last_name", "approved", "external_id"].forEach(
+      (x) => (obj[x] = ambassador.get(x)),
+    )
     obj["hs_id"] = ambassador.get("hs_id").toString()
     obj["num_pending_triplers"] = pending_triplers_result.records.length
     obj["num_unconfirmed_triplers"] = unconfirmed_triplers_result.records.length
