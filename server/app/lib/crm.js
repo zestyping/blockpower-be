@@ -80,7 +80,19 @@ async function createHubspotContact(req) {
         `https://api.hubapi.com/crm/v3/objects/contacts?hapikey=${hs_key}`,
         {
           properties: {
-            email: req.email
+            email: req.email,
+            firstname: req.first_name ? req.first_name : null,
+            lastname: req.last_name ? req.last_name : null,
+            num_unconfirmed_triplers: req.num_unconfirmed_triplers
+              ? req.num_unconfirmed_triplers
+              : 0,
+            num_pending_triplers: req.num_pending_triplers ? req.num_pending_triplers : 0,
+            num_confirmed_triplers: req.num_confirmed_triplers ? req.num_confirmed_triplers : 0,
+            is_denied: req.approved ? "False" : "True",
+            alloy_person_id: req.alloy_person_id ? req.alloy_person_id : null,
+            quiz_completed: req.quiz_completed ? req.quiz_completed : null,
+            onboarding_completed: req.onboarding_completed ? req.onboarding_completed : null,
+            giftcard_completed: req.giftcard_completed ? req.giftcard_completed : null,
           },
         },
       )
