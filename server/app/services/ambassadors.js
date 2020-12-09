@@ -158,19 +158,20 @@ async function signup(json, verification, carrierLookup) {
     new_ambassador.relateTo(existing_tripler, "was_once")
   }
 
-  setAmbassadorHubspotID(new_ambassador)
+  initialSyncAmbassadorToHubSpot(new_ambassador)
 
   return new_ambassador
 }
 
 /*
- * setAmbassadorHubspotID(ambassador)
+ * initialSyncAmbassadorToHubSpot(ambassador)
+ * If the given Ambassador node doesn't already have an `hs_id`:
+ * (a) populates `hs_id` by asking HubSpot for the HubSpot ID associated
+ * with the Ambassador's e-mail address, then
+ * (b) sends the other data fields on the node over to HubSpot.
  */
-async function setAmbassadorHubspotID(ambassador) {
+async function initialSyncAmbassadorToHubSpot(ambassador) {
   //only continue if there's no hs_id
-  console.log("ambassador id:", ambassador.get("id"))
-  console.log("ambassador hs_id:", ambassador.get("hs_id"))
-
   if (!ambassador.get("hs_id")) {
     console.log("no hs id, gettig it from hs")
     const hs_response = await getAmbassadorHSID(ambassador.get("email"))
@@ -182,7 +183,7 @@ async function setAmbassadorHubspotID(ambassador) {
       },
     )
 
-    // send initial update to hubspot
+    // send initial data to hubspot, so you know if it's working
 
     let obj = {}
     ;[
@@ -200,9 +201,9 @@ async function setAmbassadorHubspotID(ambassador) {
 }
 
 /*
- * updateAmbassadorTriplerInfoHubspot(ambassador)
+ * sendTriplerCountsToHubspot(ambassador)
  */
-async function updateAmbassadorTriplerInfoHubspot(ambassador) {
+async function sendTriplerCountsToHubspot(ambassador) {
   //only continue if there's a hs_id
   console.log("ambassador id:", ambassador.get("id"))
   if (ambassador.get("hs_id")) {
@@ -287,7 +288,7 @@ async function getPrimaryAccount(ambassador) {
  * unclaimTriplers(req)
  *
  * This function simply removes the :CLAIMS relationship between the current
- *   Ambassador and the given Tripler.
+ *   Ambassador and the given Tripler, and updates the Hubspot Tripler Counts for the Ambassador
  *
  */
 async function unclaimTriplers(req) {
@@ -304,6 +305,8 @@ async function unclaimTriplers(req) {
       .detachDelete("r")
       .execute()
   }
+
+  await sendTriplerCountsToHubspot(ambassador)
 }
 
 /*
@@ -350,6 +353,6 @@ module.exports = {
   getPrimaryAccount: getPrimaryAccount,
   unclaimTriplers: unclaimTriplers,
   searchAmbassadors: searchAmbassadors,
-  setAmbassadorHubspotID: setAmbassadorHubspotID,
-  updateAmbassadorTriplerInfoHubspot:updateAmbassadorTriplerInfoHubspot,
+  initialSyncAmbassadorToHubSpot: initialSyncAmbassadorToHubSpot,
+  sendTriplerCountsToHubspot:sendTriplerCountsToHubspot,
 }

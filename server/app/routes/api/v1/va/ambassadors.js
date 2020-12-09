@@ -373,7 +373,7 @@ async function updateAmbassador(req, res) {
  */
 async function updateCurrentAmbassador(req, res) {
   let found = req.user
-  console.log("updating the ambassador, ", found.get("id"))
+  console.log("IS THIS FUNCTION ACTUALLY USED?, ", found.get("id"))
 
   // Disabled form fields don't get sent from the frontend, so default it if missing.
   if (!req.body.phone) {
@@ -405,10 +405,6 @@ async function updateCurrentAmbassador(req, res) {
   if(!req.user.get('hs_id')){
       await ambassadorsSvc.setAmbassadorHubspotID(updated)
   }
-  // update tripler info as well
-  if(req.user.get('hs_id')){
-  await ambassadorsSvc.updateAmbassadorTriplerInfoHubspot(updated)
-  }
 
   return res.json(serializeAmbassador(updated))
 }
@@ -435,6 +431,7 @@ async function deleteAmbassador(req, res) {
  * This cypher query finds how many Triplers this Ambassador already has claimed, limits the claim list to just
  *   the Triplers that can be claimed and still remain under the CLAIM_TRIPLER_LIMIT env var, then claims them.
  *
+ * If the Ambassador has a Hubspot ID (hs_id), the Ambassador's tripler numbers are updated in HubSpot. 
  */
 async function claimTriplers(req, res) {
   let ambassador = req.user
@@ -464,7 +461,7 @@ async function claimTriplers(req, res) {
   `
 
   let collection = await req.neode.cypher(query)
-  await ambassadorsSvc.updateAmbassadorTriplerInfoHubspot(req.user)
+  await ambassadorsSvc.sendTriplerCountsToHubspot(req.user)
 
   return _204(res)
 }
