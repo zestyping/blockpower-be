@@ -1,6 +1,8 @@
 import {v4 as uuidv4} from "uuid"
 import stringFormat from "string-format"
 import {verifyAlloy} from "../lib/alloy"
+import {getAmbassadorHSID, updateHubspotAmbassador} from "../lib/crm"
+
 import neode from "../lib/neode"
 
 import {validateEmpty, validateUnique, assertUserPhoneAndEmail} from "../lib/validations"
@@ -113,6 +115,7 @@ async function signup(json, verification, carrierLookup) {
     external_id: ov_config.stress ? json.externalId + Math.random() : json.externalId,
     verification: JSON.stringify(verification, null, 2),
     carrier_info: JSON.stringify(carrierLookup, null, 2),
+    hs_id: null,
   })
 
   if (existing_ambassador && !existing_ambassador.get("external_id")) {
@@ -154,7 +157,115 @@ async function signup(json, verification, carrierLookup) {
   if (existing_tripler) {
     new_ambassador.relateTo(existing_tripler, "was_once")
   }
+
+  initialSyncAmbassadorToHubSpot(new_ambassador)
+
   return new_ambassador
+}
+
+/*
+ * initialSyncAmbassadorToHubSpot(ambassador)
+ * If the given Ambassador node doesn't already have an `hs_id`:
+ * (a) populates `hs_id` by asking HubSpot for the HubSpot ID associated
+ * with the Ambassador's e-mail address, then
+ * (b) sends the other data fields on the node over to HubSpot.
+ */
+async function initialSyncAmbassadorToHubSpot(ambassador) {
+  //only continue if there's no hs_id
+  if (!ambassador.get("hs_id")) {
+    console.log("no hs id, gettig it from hs")
+    const hs_response = await getAmbassadorHSID(ambassador.get("email"))
+    let cypher_response = await neode.cypher(
+      "MATCH (a:Ambassador {id: $id}) SET a.hs_id=toInteger($hs_id) RETURN a.first_name, a.hs_id",
+      {
+        id: ambassador.get("id"),
+        hs_id: hs_response,
+      },
+    )
+
+    // send initial data to hubspot, so you know if it's working
+
+    let obj = {}
+    ;[
+      "first_name",
+      "last_name",
+      "approved",
+      "quiz_completed",
+      "onboarding_completed",
+      "alloy_person_id",
+    ].forEach((x) => (obj[x] = ambassador.get(x)))
+    obj["hs_id"] = hs_response
+    updateHubspotAmbassador(obj)
+  }
+  return ambassador.get("hs_id")
+}
+
+/*
+ * syncAmbassadorToHubSpot(ambassador)
+ * syncs Ambassador to Hubspot. Ambassador must have a hs_id
+ */
+async function syncAmbassadorToHubSpot(ambassador) {
+  //only continue if there's no hs_id
+  if (ambassador.get("hs_id")) {
+    let obj = {}
+    ;[
+      "first_name",
+      "last_name",
+      "approved",
+      "quiz_completed",
+      "onboarding_completed",
+      "alloy_person_id",
+    ].forEach((x) => (obj[x] = ambassador.get(x)))
+    obj["hs_id"] = ambassador.get("hs_id").toString()
+    updateHubspotAmbassador(obj)
+  }
+  return ambassador.get("hs_id")
+}
+
+/*
+ * sendTriplerCountsToHubspot(ambassador)
+ */
+async function sendTriplerCountsToHubspot(ambassador) {
+  //only continue if there's a hs_id
+  console.log("ambassador id:", ambassador.get("id"))
+  if (ambassador.get("hs_id")) {
+    console.log("ambassador hs_id:", ambassador.get("hs_id").toString())
+
+  let pending_triplers_result = await neode.cypher(
+    "MATCH (a:Ambassador {id: $id})-[r:CLAIMS]->(t:Tripler {status:'pending'}) RETURN t",
+    {
+      id: ambassador.get("id"),
+    },
+  )
+  let confirmed_triplers_result = await neode.cypher(
+    "MATCH (a:Ambassador {id: $id})-[r:CLAIMS]->(t:Tripler {status:'confirmed'}) RETURN t",
+    {
+      id: ambassador.get("id"),
+    },
+  )
+  let unconfirmed_triplers_result = await neode.cypher(
+    "MATCH (a:Ambassador {id: $id})-[r:CLAIMS]->(t:Tripler {status:'unconfirmed'}) RETURN t",
+    {
+      id: ambassador.get("id"),
+    },
+  )
+    let obj = {}
+    ;[
+      "first_name",
+      "last_name",
+      "approved",
+      "quiz_completed",
+      "onboarding_completed",
+      "alloy_person_id",
+    ].forEach((x) => (obj[x] = ambassador.get(x)))
+    obj["hs_id"] = ambassador.get("hs_id").toString()
+    obj["num_pending_triplers"] = pending_triplers_result.records.length
+    obj["num_unconfirmed_triplers"] = unconfirmed_triplers_result.records.length
+    obj["num_confirmed_triplers"] = confirmed_triplers_result.records.length
+
+    updateHubspotAmbassador(obj)
+  }
+  return ambassador.get("hs_id")
 }
 
 /*
@@ -199,7 +310,7 @@ async function getPrimaryAccount(ambassador) {
  * unclaimTriplers(req)
  *
  * This function simply removes the :CLAIMS relationship between the current
- *   Ambassador and the given Tripler.
+ *   Ambassador and the given Tripler, and updates the Hubspot Tripler Counts for the Ambassador
  *
  */
 async function unclaimTriplers(req) {
@@ -216,6 +327,8 @@ async function unclaimTriplers(req) {
       .detachDelete("r")
       .execute()
   }
+
+  await sendTriplerCountsToHubspot(ambassador)
 }
 
 /*
@@ -262,4 +375,7 @@ module.exports = {
   getPrimaryAccount: getPrimaryAccount,
   unclaimTriplers: unclaimTriplers,
   searchAmbassadors: searchAmbassadors,
+  initialSyncAmbassadorToHubSpot: initialSyncAmbassadorToHubSpot,
+  sendTriplerCountsToHubspot:sendTriplerCountsToHubspot,
+  syncAmbassadorToHubSpot:syncAmbassadorToHubSpot,
 }
