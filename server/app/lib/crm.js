@@ -64,6 +64,7 @@ async function updateHubspotAmbassador(req) {
             paypal_approved: req.paypal_approved ? req.paypal_approved : null,
             locked: req.locked ? req.locked : null,
             has_w9: req.has_w9 ? req.has_w9 : null,
+            payout_provider: req.payout_provider ? payout_provider : null
           },
         },
       )
