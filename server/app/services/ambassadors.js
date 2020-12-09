@@ -201,6 +201,28 @@ async function initialSyncAmbassadorToHubSpot(ambassador) {
 }
 
 /*
+ * syncAmbassadorToHubSpot(ambassador)
+ * syncs Ambassador to Hubspot. Ambassador must have a hs_id
+ */
+async function syncAmbassadorToHubSpot(ambassador) {
+  //only continue if there's no hs_id
+  if (ambassador.get("hs_id")) {
+    let obj = {}
+    ;[
+      "first_name",
+      "last_name",
+      "approved",
+      "quiz_completed",
+      "onboarding_completed",
+      "alloy_person_id",
+    ].forEach((x) => (obj[x] = ambassador.get(x)))
+    obj["hs_id"] = ambassador.get("hs_id").toString()
+    updateHubspotAmbassador(obj)
+  }
+  return ambassador.get("hs_id")
+}
+
+/*
  * sendTriplerCountsToHubspot(ambassador)
  */
 async function sendTriplerCountsToHubspot(ambassador) {
@@ -355,4 +377,5 @@ module.exports = {
   searchAmbassadors: searchAmbassadors,
   initialSyncAmbassadorToHubSpot: initialSyncAmbassadorToHubSpot,
   sendTriplerCountsToHubspot:sendTriplerCountsToHubspot,
+  syncAmbassadorToHubSpot:syncAmbassadorToHubSpot,
 }

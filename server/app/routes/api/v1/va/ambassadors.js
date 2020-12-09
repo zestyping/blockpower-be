@@ -368,12 +368,11 @@ async function updateAmbassador(req, res) {
  * updateCurrentAmbassador(req, res)
  *
  * This function was intended to provide Ambassadors with a method of altering their profile information.
- *   However, this functionality is not in place on the frontend. It is currently commented out.
+ * This updated information is sent to HubSpot.
  *
  */
 async function updateCurrentAmbassador(req, res) {
   let found = req.user
-  console.log("IS THIS FUNCTION ACTUALLY USED?, ", found.get("id"))
 
   // Disabled form fields don't get sent from the frontend, so default it if missing.
   if (!req.body.phone) {
@@ -405,6 +404,8 @@ async function updateCurrentAmbassador(req, res) {
   if(!req.user.get('hs_id')){
       await ambassadorsSvc.setAmbassadorHubspotID(updated)
   }
+
+  await ambassadorsSvc.syncAmbassadorToHubSpot(updated)
 
   return res.json(serializeAmbassador(updated))
 }
