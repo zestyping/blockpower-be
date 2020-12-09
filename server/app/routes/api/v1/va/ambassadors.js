@@ -401,8 +401,8 @@ async function updateCurrentAmbassador(req, res) {
   let updated = await found.update(json)
 
   //if ambassador doesn't currently have a hubspotID, this will set it
-  if(!req.user.get('hs_id')){
-      await ambassadorsSvc.setAmbassadorHubspotID(updated)
+  if (!req.user.get("hs_id")) {
+    await ambassadorsSvc.initialSyncAmbassadorToHubSpot(updated)
   }
 
   await ambassadorsSvc.syncAmbassadorToHubSpot(updated)
@@ -432,7 +432,7 @@ async function deleteAmbassador(req, res) {
  * This cypher query finds how many Triplers this Ambassador already has claimed, limits the claim list to just
  *   the Triplers that can be claimed and still remain under the CLAIM_TRIPLER_LIMIT env var, then claims them.
  *
- * If the Ambassador has a Hubspot ID (hs_id), the Ambassador's tripler numbers are updated in HubSpot. 
+ * If the Ambassador has a Hubspot ID (hs_id), the Ambassador's tripler numbers are updated in HubSpot.
  */
 async function claimTriplers(req, res) {
   let ambassador = req.user
