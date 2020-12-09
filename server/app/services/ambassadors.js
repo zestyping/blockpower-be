@@ -1,6 +1,6 @@
 import {v4 as uuidv4} from "uuid"
 import stringFormat from "string-format"
-import {verifyAlloy} from "../lib/alloy"
+import {verifyAlloy, fuzzyAlloy} from "../lib/alloy"
 import {getAmbassadorHSID, updateHubspotAmbassador, createHubspotContact} from "../lib/crm"
 
 import neode from "../lib/neode"
@@ -96,6 +96,13 @@ async function signup(json, verification, carrierLookup) {
       alloy_person_id: alloy_response.data.alloy_person_id,
     })
   }
+  //if there's a fuzzy match, approve the Ambassador
+  let fuzzy = await fuzzyAlloy(
+    json.first_name,
+    json.last_name,
+    json.address.state,
+    json.address.zip,
+  )
 
   let new_ambassador = await neode.create("Ambassador", {
     id: uuidv4(),
@@ -107,7 +114,7 @@ async function signup(json, verification, carrierLookup) {
     address: JSON.stringify(address, null, 2),
     quiz_results: JSON.stringify(json.quiz_results, null, 2) || null,
     signup_completed: true,
-    approved: false,
+    approved: fuzzy > 0 ? true : false,
     location: {
       latitude: parseFloat(coordinates.latitude),
       longitude: parseFloat(coordinates.longitude),
@@ -238,24 +245,24 @@ async function sendTriplerCountsToHubspot(ambassador) {
   if (ambassador.get("hs_id")) {
     console.log("ambassador hs_id:", ambassador.get("hs_id").toString())
 
-  let pending_triplers_result = await neode.cypher(
-    "MATCH (a:Ambassador {id: $id})-[r:CLAIMS]->(t:Tripler {status:'pending'}) RETURN t",
-    {
-      id: ambassador.get("id"),
-    },
-  )
-  let confirmed_triplers_result = await neode.cypher(
-    "MATCH (a:Ambassador {id: $id})-[r:CLAIMS]->(t:Tripler {status:'confirmed'}) RETURN t",
-    {
-      id: ambassador.get("id"),
-    },
-  )
-  let unconfirmed_triplers_result = await neode.cypher(
-    "MATCH (a:Ambassador {id: $id})-[r:CLAIMS]->(t:Tripler {status:'unconfirmed'}) RETURN t",
-    {
-      id: ambassador.get("id"),
-    },
-  )
+    let pending_triplers_result = await neode.cypher(
+      "MATCH (a:Ambassador {id: $id})-[r:CLAIMS]->(t:Tripler {status:'pending'}) RETURN t",
+      {
+        id: ambassador.get("id"),
+      },
+    )
+    let confirmed_triplers_result = await neode.cypher(
+      "MATCH (a:Ambassador {id: $id})-[r:CLAIMS]->(t:Tripler {status:'confirmed'}) RETURN t",
+      {
+        id: ambassador.get("id"),
+      },
+    )
+    let unconfirmed_triplers_result = await neode.cypher(
+      "MATCH (a:Ambassador {id: $id})-[r:CLAIMS]->(t:Tripler {status:'unconfirmed'}) RETURN t",
+      {
+        id: ambassador.get("id"),
+      },
+    )
     let obj = {}
     ;[
       "first_name",
@@ -383,6 +390,6 @@ module.exports = {
   unclaimTriplers: unclaimTriplers,
   searchAmbassadors: searchAmbassadors,
   initialSyncAmbassadorToHubSpot: initialSyncAmbassadorToHubSpot,
-  sendTriplerCountsToHubspot:sendTriplerCountsToHubspot,
-  syncAmbassadorToHubSpot:syncAmbassadorToHubSpot,
+  sendTriplerCountsToHubspot: sendTriplerCountsToHubspot,
+  syncAmbassadorToHubSpot: syncAmbassadorToHubSpot,
 }
