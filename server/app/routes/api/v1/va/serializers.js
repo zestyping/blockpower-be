@@ -94,7 +94,6 @@ function serializeAmbassadorForAdmin(ambassador) {
   }
   obj["payouts"] = payouts_array
 
-  console.log(obj)
   return obj
 }
 
