@@ -181,3 +181,6 @@ The meaning of each config item is as follows:
 * `TWILIO_MSG_SVC_SID`: The SID for the Twilio messaging service
 * `NEO4J_ENCRYPTION`: Whether or not the neo4j encryption is enabled
 * `HUBSPOT_API_KEY`: The API key for HubSpot
+* `ALLOY_KEY`: The API key for Alloy Verify API
+* `ALLOY_SECRET`: The API secret for Alloy Verify API
+* `ALLOW_BONUS`: Defines if we are allowing upgrade bonus payments for triplers who upgrade to become ambassadors (upgrades identified by matching phone numbers
