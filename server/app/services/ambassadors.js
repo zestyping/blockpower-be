@@ -8,6 +8,7 @@ import neode from "../lib/neode"
 import {validateEmpty, validateUnique, assertUserPhoneAndEmail} from "../lib/validations"
 
 import {ValidationError} from "../lib/errors"
+import { isLocked } from '../lib/fraud';
 import {trimFields} from "../lib/utils"
 import {getValidCoordinates, normalizePhone} from "../lib/normalizers"
 import mail from "../lib/mail"
@@ -231,7 +232,6 @@ async function syncAmbassadorToHubSpot(ambassador) {
       "external_id",
       "phone",
       "signup_completed",
-      "locked",
       "has_w9",
       "paypal_approved",
       "giftcard_completed",
@@ -244,6 +244,7 @@ async function syncAmbassadorToHubSpot(ambassador) {
     obj["alloy_person_id"] = ambassador.get("alloy_person_id")
       ? ambassador.get("alloy_person_id").toString()
       : null
+    obj["locked"] = isLocked(ambassador);
     updateHubspotAmbassador(obj)
   }
   return ambassador.get("hs_id")

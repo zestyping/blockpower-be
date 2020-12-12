@@ -4,6 +4,7 @@ import {v4 as uuidv4} from "uuid"
 
 import {getValidCoordinates, normalizePhone} from "../../../../lib/normalizers"
 import {ValidationError} from "../../../../lib/errors"
+import { isLocked } from '../../../../lib/fraud';
 
 import {formatDate, formatNumber} from "../../../../lib/format"
 import PhoneNumber from "awesome-phonenumber"
@@ -63,7 +64,6 @@ function serializeAmbassador(ambassador) {
     "approved",
     "quiz_completed",
     "onboarding_completed",
-    "locked",
     "payout_provider",
     "payout_additional_data",
     "admin",
@@ -79,6 +79,7 @@ function serializeAmbassador(ambassador) {
 
   const acct = getPrimaryAccount(ambassador);
   obj['account'] = serializeAccount(acct);
+  obj['locked'] = isLocked(ambassador);
 
   let claimees = ambassador.get('claims')
   let array = []
@@ -98,7 +99,7 @@ function serializeAmbassadorForAdmin(ambassador) {
   obj["onboarding_completed"] = ambassador.get("onboarding_completed")
   obj["giftcard_completed"] = ambassador.get("giftcard_completed")
   obj["signup_completed"] = ambassador.get("signup_completed")
-  obj["locked"] = ambassador.get("locked")
+  obj["locked"] = isLocked(ambassador);
   obj["payout_provider"] = ambassador.get("payout_provider")
 
   //claimees
