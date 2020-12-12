@@ -191,14 +191,18 @@ async function initialSyncAmbassadorToHubSpot(ambassador) {
     "https://app.blockpower.vote/ambassadors/admin/#/volunteers/view/" + ambassador.get("id")
   if (!ambassador.get("hs_id")) {
     console.log("no hs id, gettig it from hs")
-    const hs_response = await getAmbassadorHSID(ambassador.get("email"))
+    let hs_response = await getAmbassadorHSID(ambassador.get("email"))
     if (!hs_response) {
       createHubspotContact(obj)
-      const hs_response = await getAmbassadorHSID(ambassador.get("email"))
+      hs_response = await getAmbassadorHSID(ambassador.get("email"))
+    }
+
+    if (!hs_response) {
+      return null;
     }
 
     let cypher_response = await neode.cypher(
-      "MATCH (a:Ambassador {id: $id}) SET a.hs_id=toInteger($hs_id) RETURN a.first_name, a.hs_id",
+      "MATCH (a:Ambassador {id: $id}) SET a.hs_id=$hs_id RETURN a.first_name, a.hs_id",
       {
         id: ambassador.get("id"),
         hs_id: hs_response,
