@@ -290,41 +290,14 @@ async function sendTriplerCountsToHubspot(ambassador) {
   return ambassador.get("hs_id")
 }
 
-/*
- *
- * getPrimaryAccount(ambassador)
- *
- * This function returns the primary Account node for a given Ambassador
- *
- * NOTE: there was originally no is_primary attribute on Ambassador nodes.
- *   The update that added this attribute did not do so via a migration.
- *   Therefore in the database, there existed (exists) legacy nodes without
- *   this attribute. This function checks if none of the Account nodes are
- *   is_primary:true and if none exist, it sets the first one to be primary.
- *
- */
+// Returns the primary Account node for a given Ambassador.
 async function getPrimaryAccount(ambassador) {
-  let relationships = ambassador.get("owns_account")
-  let primaryAccount = null
-
-  if (relationships.length > 0) {
-    relationships.forEach((ownsAccount) => {
-      if (ownsAccount.otherNode().get("is_primary")) {
-        primaryAccount = ownsAccount.otherNode()
-      }
-    })
-
-    if (!primaryAccount) {
-      // probably a legacy account
-      relationships.forEach(async (ownsAccount) => {
-        if (primaryAccount) return
-        await ownsAccount.otherNode().update({is_primary: true})
-        primaryAccount = ownsAccount.otherNode()
-      })
-    }
+  const edges = ambassador.get("owns_account") || [];
+  for (let e = 0; e < edges.length; e++) {
+    const other = edges.get(e)?.otherNode();
+    if (other?.get("is_primary")) return other;
   }
-
-  return primaryAccount
+  return null;
 }
 
 /*
