@@ -29,6 +29,11 @@ async function getAmbassadorHSID(email) {
       console.log(`[HS] Lookup failed with error ${err}`)
       return null
     }
+  } else {
+    if (process.env.NODE_ENV === 'development') {
+      // Return a fake key in development
+      return 'hubspot_id_' + email;
+    }
   }
 }
 
@@ -117,6 +122,8 @@ async function createHubspotContact(req) {
           },
         },
       )
+    } else {
+      console.log('[HS] HUBSPOT_API_KEY is not configured, skipping');
     }
     return response
   } catch (err) {
