@@ -86,6 +86,7 @@ module.exports = {
     type: "localdatetime",
     default: () => new Date(),
   },
+  // TODO: Remove "locked" from the model once we have fraud score components.
   locked: {
     // Has this voter been flagged for fraud?
     type: "boolean",

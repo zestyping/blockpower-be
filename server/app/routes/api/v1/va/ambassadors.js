@@ -63,6 +63,7 @@ async function createAmbassador(req, res) {
       address: JSON.stringify(address, null, 2),
       quiz_results: JSON.stringify(req.body.quiz_results, null, 2) || null,
       approved: false,
+      // TODO: Remove "locked" from the model once we have fraud score components.
       locked: false,
       signup_completed: false,
       onboarding_completed: false,
@@ -136,7 +137,7 @@ async function fetchCurrentAmbassador(req, res) {
  *
  * approveAmbassdaor(req, res)
  *
- * This function sets an Ambassador to be approved:true, locked:false
+ * This function sets an Ambassador's "approved" flag to true.
  * When this function is called, an approval SMS is sent to the Ambassador.
  *
  */
@@ -213,12 +214,7 @@ async function updatePayPalApprovedAmbassador(req, res) {
  *
  * disapproveAmbassador(req, res)
  *
- * This function sets an Ambassador to approved:false and locked:true.
- *
- * This function is called from the admin panel when an admin suspects an Ambassador's account to
- *   be fraudulent. In theory, the above 'approveAmbassador' function might be called at a later
- *   time, but this has not happened in practice, I believe.
- *
+ * This function sets an Ambassador's "approved" flag to false.
  */
 async function disapproveAmbassador(req, res) {
   let found = await req.neode.first("Ambassador", "id", req.params.ambassadorId)
@@ -226,7 +222,7 @@ async function disapproveAmbassador(req, res) {
   if (!found) {
     return error(404, res, "Ambassador not found")
   }
-  //disapprove ONLY dissaproves. Before it would also lock. 
+  //disapprove ONLY dissaproves. Before it would also lock.
   let json = {...{approved: false}}
   let updated = await found.update(json)
   return _204(res)

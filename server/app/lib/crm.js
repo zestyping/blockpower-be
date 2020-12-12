@@ -62,6 +62,8 @@ async function updateHubspotAmbassador(req) {
             is_admin: req.is_admin ? req.is_admin : null,
             signup_completed: req.signup_completed ? req.signup_completed : null,
             paypal_approved: req.paypal_approved ? req.paypal_approved : null,
+            // TODO: When we have fraud score components, send them to HubSpot
+            // instead of the locked flag, which will go away.
             locked: req.locked ? req.locked : null,
             has_w9: req.has_w9 ? req.has_w9 : null,
             payout_provider: req.payout_provider ? req.payout_provider : null,
@@ -106,6 +108,8 @@ async function createHubspotContact(req) {
             is_admin: req.is_admin ? req.is_admin : null,
             signup_completed: req.signup_completed ? req.signup_completed : null,
             paypal_approved: req.paypal_approved ? req.paypal_approved : null,
+            // TODO: When we have fraud score components, send them to HubSpot
+            // instead of the locked flag, which will go away.
             locked: req.locked ? req.locked : null,
             has_w9: req.has_w9 ? req.has_w9 : null,
             payout_provider: req.payout_provider ? req.payout_provider : null,
