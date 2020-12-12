@@ -109,6 +109,10 @@ module.exports = {
     // "stripe" or "paypal"
     type: "string",
   },
+  ekata_match_score: {
+    type: "integer",
+    default: 0,
+  },
   // This relationship connects an Ambassador to a Payout. An Ambassador can have many
   //   Payouts. NOTE the tripler_id property of this relationship.
   gets_paid: {

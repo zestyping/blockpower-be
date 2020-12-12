@@ -8,6 +8,7 @@ import neode from "../lib/neode"
 import {validateEmpty, validateUnique, assertUserPhoneAndEmail} from "../lib/validations"
 
 import {ValidationError} from "../lib/errors"
+import {getEkataMatchScore} from "../lib/blemishes"
 import {trimFields} from "../lib/utils"
 import {getValidCoordinates, normalizePhone} from "../lib/normalizers"
 import mail from "../lib/mail"
@@ -290,14 +291,63 @@ async function sendTriplerCountsToHubspot(ambassador) {
   return ambassador.get("hs_id")
 }
 
+/*
+ * updateEkataMatchScore(ambassador)
+ * Based on the ambassador's verification string and that of the the triplers connected to it,
+ * update the ambassador's Ekata Match Penalty.
+ */
+
+async function updateEkataMatchScore(ambassador) {
+  let ambassadorSubScore = 0
+  let triplerSubScore = 0
+  let ekataMatchScore = 0
+  let ekataThreshold = 3
+  let ekataPenalty = 0
+
+  // calculate Ambassador's Tripler SubScore
+  let query =
+    "MATCH (a:Ambassador {id:$a_id})-[:CLAIMS]->(t:Tripler) RETURN t.first_name as first_name, t.last_name as last_name, t.address as address, t.verification as verification"
+  let collection = await neode.cypher(query, {a_id: ambassador.get("id")})
+  let verificationStrings = []
+  for (let index = 0; index < collection.records.length; index++) {
+    let verificationString = collection.records[index].get("verification").toString().toLowerCase()
+    let triplerProperties = []
+    triplerProperties.push(collection.records[index].get("first_name").toLowerCase())
+    triplerProperties.push(collection.records[index].get("last_name").toLowerCase())
+
+    for (let i in triplerProperties) {
+      if (verificationString.includes(verificationString[i])) {
+        triplerSubScore += 1
+      } else {
+        triplerSubScore += -1
+      }
+    }
+  }
+
+  // calculate the Ambassador's SubScore
+  let verificationString = ambassador.get("first_name").toLowerCase()
+  let ambassadorProperties = [
+    ambassador.get("first_name").toLowerCase(),
+    ambassador.get("last_name").toLowerCase(),
+  ]
+  for (let i in ambassadorProperties) {
+    if (verificationString.includes(ambassadorProperties[i].toLowerCase())) {
+      ambassadorSubScore += 1
+    }
+  }
+
+  ekataMatchScore = ambassadorSubScore + Math.max(0, triplerSubScore)
+  ambassador.update({ekata_match_score: ekataMatchScore})
+}
+
 // Returns the primary Account node for a given Ambassador.
 async function getPrimaryAccount(ambassador) {
-  const edges = ambassador.get("owns_account") || [];
+  const edges = ambassador.get("owns_account") || []
   for (let e = 0; e < edges.length; e++) {
-    const other = edges.get(e)?.otherNode();
-    if (other?.get("is_primary")) return other;
+    const other = edges.get(e)?.otherNode()
+    if (other?.get("is_primary")) return other
   }
-  return null;
+  return null
 }
 
 /*
@@ -324,6 +374,7 @@ async function unclaimTriplers(req) {
   }
 
   await sendTriplerCountsToHubspot(ambassador)
+  await updateEkataMatchScore(ambassador)
 }
 
 /*
@@ -373,4 +424,5 @@ module.exports = {
   initialSyncAmbassadorToHubSpot: initialSyncAmbassadorToHubSpot,
   sendTriplerCountsToHubspot: sendTriplerCountsToHubspot,
   syncAmbassadorToHubSpot: syncAmbassadorToHubSpot,
+  updateEkataMatchScore: updateEkataMatchScore,
 }
