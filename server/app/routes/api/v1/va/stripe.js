@@ -39,7 +39,7 @@ async function createStripeAccount(req, res) {
     await req.user.relateTo(account, 'owns_account');
     await req.user.update({payout_provider: 'stripe'});
   } catch (err) {
-    return error(400, res, err);
+    return error(400, res, err + ' ' + JSON.stringify(err, null, 2));
   }
   
   return _204(res);
@@ -66,7 +66,7 @@ async function createStripeTestAccount(req, res) {
     await req.user.relateTo(account, 'owns_account');
     await req.user.update({payout_provider: 'stripe'});
   } catch (err) {
-    return error(400, res, err);
+    return error(400, res, err + ' ' + JSON.stringify(err, null, 2));
   }
   
   return _204(res);
