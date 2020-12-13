@@ -218,4 +218,13 @@ module.exports = {
     type: "integer",
     default: null,
   },
+  // Voting plans (actually links to start them) provided by this Ambassador
+  // to a Tripler.  One of these should exist for each confirmed Tripler.
+  provides_links: {
+    type: "relationships",
+    direction: "out",
+    relationship: "PROVIDES_LINK",
+    target: "VotingPlan",
+    cascade: "detach"
+  }
 }

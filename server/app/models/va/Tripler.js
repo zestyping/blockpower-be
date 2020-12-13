@@ -132,4 +132,11 @@ module.exports = {
     type: "boolean",
     default: false,
   },
+  voting_plans: {
+    type: "relationships",
+    direction: "in",
+    relationship: "FOR_VOTER",
+    target: "VotingPlan",
+    cascade: "delete"
+  }
 }
