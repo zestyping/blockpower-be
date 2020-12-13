@@ -77,6 +77,11 @@ function serializeAmbassador(ambassador) {
   obj["display_address"] = !!obj["address"] ? serializeAddress(obj["address"]) : ""
   obj["display_name"] = serializeName(ambassador.get("first_name"), ambassador.get("last_name"))
 
+  const claimTriplerLimit = ambassador.get("claim_tripler_limit");
+  if (claimTriplerLimit) {
+    obj["claim_tripler_limit"] = claimTriplerLimit.toNumber();
+  }
+
   const acct = getPrimaryAccount(ambassador);
   obj['account'] = serializeAccount(acct);
   obj['locked'] = isLocked(ambassador);
