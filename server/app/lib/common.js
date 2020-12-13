@@ -27,8 +27,8 @@ var getConfig = function (item, required, def) {
     }
   }
 
-  if (value.toString() === 'true') return true;
-  if (value.toString() === 'false') return false;
+  if (value !== undefined && value.toString() === 'true') return true;
+  if (value !== undefined && value.toString() === 'false') return false;
 
   return value;
 }
