@@ -11,4 +11,5 @@ module.exports = {
   Tripler: require("./Tripler"),
   EkataLocation: require("./EkataLocation"),
   EkataPerson: require("./EkataPerson"),
-}
+  VotingPlan: require('./VotingPlan')
+};

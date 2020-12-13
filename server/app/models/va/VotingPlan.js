@@ -18,10 +18,11 @@ module.exports = {
   // so it can also serve as a unique ID for a voting plan created by a voter.
   ballot_id: "string",  // constrained unique
 
+  create_time: { type: "number", required: true },
+  last_send_time: "number",  // last time we texted this link to the voter
+
   link_code: { type: "string", required: true },  // constrained unique
-  prefill_params: { type: "string", required: true },  // stringified JSON
-  create_time: { type: "datetime", required: true },
-  last_send_time: "datetime",  // last time we texted this link to the voter
+  prefill_params: "string",  // stringified JSON
 
   link_provider: {
     type: "relationship",
@@ -29,7 +30,6 @@ module.exports = {
     relationship: "PROVIDES_LINK",
     target: "Ambassador",
     cascade: "detach",
-    required: true,
   },
   voter: {
     type: "relationship",
@@ -37,6 +37,5 @@ module.exports = {
     relationship: "FOR_VOTER",
     target: "Tripler",
     cascade: "detach",
-    required: true,
   }
 };
