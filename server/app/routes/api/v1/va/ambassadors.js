@@ -729,8 +729,8 @@ module.exports = Router({mergeParams: true})
   .put("/ambassadors/:ambassadorId/admin_bonus/:admin_bonus", (req, res) => {
     if (!req.authenticated) return _401(res, "Permission denied.")
     if (!req.admin) return _403(res, "Permission denied.")
+    return updateAmbassadorAdminBonus(req, res)
   })
-return updateAmbassadorAdminBonus(req, res)
   .put("/ambassadors/:ambassadorId/claim_tripler_limit/:claim_tripler_limit?", (req, res) => {
     if (!req.authenticated) return _401(res, "Permission denied.")
     if (!req.admin) return _403(res, "Permission denied.")
