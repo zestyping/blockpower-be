@@ -193,6 +193,16 @@ module.exports = {
     type: "integer",
     default: null,
   },
+  admin_bonus: {
+    //a hopefully positive number denoting how trusted the ambassador is (but it can be negative)
+    type: "number",
+    default: 0,
+  },
+  bad_triplee_penalty: {
+    // a score measuring the quality of the ambasador's tripler triplees
+    type: "number",
+    default: 0,
+  },
   // Custom, per-ambassador limit on the number of triplers that can be claimed.
   // If null, the limit will be the value of the env var CLAIM_TRIPLER_LIMIT
   claim_tripler_limit: {

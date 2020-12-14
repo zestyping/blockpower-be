@@ -8,7 +8,7 @@ import neode from "../lib/neode"
 import {validateEmpty, validateUnique, assertUserPhoneAndEmail} from "../lib/validations"
 
 import {ValidationError} from "../lib/errors"
-import { isLocked } from '../lib/fraud';
+import {isLocked} from "../lib/fraud"
 import {trimFields} from "../lib/utils"
 import {getValidCoordinates, normalizePhone} from "../lib/normalizers"
 import mail from "../lib/mail"
@@ -199,7 +199,7 @@ async function initialSyncAmbassadorToHubSpot(ambassador) {
     }
 
     if (!hs_response) {
-      return null;
+      return null
     }
 
     let cypher_response = await neode.cypher(
@@ -248,7 +248,7 @@ async function syncAmbassadorToHubSpot(ambassador) {
     obj["alloy_person_id"] = ambassador.get("alloy_person_id")
       ? ambassador.get("alloy_person_id").toString()
       : null
-    obj["locked"] = isLocked(ambassador);
+    obj["locked"] = isLocked(ambassador)
     updateHubspotAmbassador(obj)
   }
   return ambassador.get("hs_id")

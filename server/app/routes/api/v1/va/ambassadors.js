@@ -172,7 +172,7 @@ async function approveAmbassador(req, res) {
 
 /*
  *
- * updateW9Ambassadaor(req, res)
+ * updateW9Ambassador(req, res)
  *
  *
  */
@@ -204,14 +204,38 @@ async function updateTriplerLimit(req, res) {
     return error(404, res, "Ambassador not found")
   }
 
-  let newLimit = req.params.claim_tripler_limit;
+  let newLimit = req.params.claim_tripler_limit
   if (newLimit === null || newLimit === undefined) {
-    newLimit = "null";
+    newLimit = "null"
   }
 
-  req.neode.cypher("MATCH (a:Ambassador {id: $id}) SET a.claim_tripler_limit=toInteger($claim_tripler_limit)", {
+  req.neode.cypher(
+    "MATCH (a:Ambassador {id: $id}) SET a.claim_tripler_limit=toInteger($claim_tripler_limit)",
+    {
+      id: req.params.ambassadorId,
+      claim_tripler_limit: newLimit,
+    },
+  )
+
+  return _204(res)
+}
+
+/*
+ *
+ * updateAmbassadorAdminBonus(req, res)
+ * It gets its own function as some legacy ambassadors might not have this field, so we have to set it
+ *
+ */
+async function updateAmbassadorAdminBonus(req, res) {
+  let found = await req.neode.first("Ambassador", "id", req.params.ambassadorId)
+
+  if (!found) {
+    return error(404, res, "Ambassador not found")
+  }
+
+  req.neode.cypher("MATCH (a:Ambassador {id: $id}) SET a.admin_bonus=toInteger($admin_bonus)", {
     id: req.params.ambassadorId,
-    claim_tripler_limit: newLimit,
+    admin_bonus: req.params.admin_bonus,
   })
 
   return _204(res)
@@ -458,7 +482,6 @@ async function deleteAmbassador(req, res) {
  * If the Ambassador has a Hubspot ID (hs_id), the Ambassador's tripler numbers are updated in HubSpot.
  */
 async function claimTriplers(req, res) {
-
   if (!req.body.triplers || req.body.triplers.length === 0) {
     return error(400, res, "Invalid request, empty list of triplers")
   }
@@ -703,6 +726,11 @@ module.exports = Router({mergeParams: true})
     if (!req.admin) return _403(res, "Permission denied.")
     return updateW9Ambassador(req, res)
   })
+  .put("/ambassadors/:ambassadorId/admin_bonus/:admin_bonus", (req, res) => {
+    if (!req.authenticated) return _401(res, "Permission denied.")
+    if (!req.admin) return _403(res, "Permission denied.")
+  })
+return updateAmbassadorAdminBonus(req, res)
   .put("/ambassadors/:ambassadorId/claim_tripler_limit/:claim_tripler_limit?", (req, res) => {
     if (!req.authenticated) return _401(res, "Permission denied.")
     if (!req.admin) return _403(res, "Permission denied.")
