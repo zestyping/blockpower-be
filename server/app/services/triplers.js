@@ -366,6 +366,7 @@ function buildTriplerSearchQuery(req) {
     where
       not (node)<-[:CLAIMS]-(:Ambassador)
       and not (:Ambassador)-[:WAS_ONCE]->(node)
+      and ( node.voted <> true OR node.voted is null)
       ${phoneFilter}
       ${genderFilter}
       ${ageFilter}
@@ -468,6 +469,7 @@ async function updateClaimedBirthMonth(tripler, month) {
  *   phone number at this time. The /routes side of this will do verification on the Tripler's
  *   phone number before calling this function.
  *
+ * Based on the updated Tripler verification data, the ambassador's Ekata Match Score will be updated.
  */
 async function startTriplerConfirmation(ambassador, tripler, triplerPhone, triplees, verification) {
   try {
@@ -495,6 +497,7 @@ async function startTriplerConfirmation(ambassador, tripler, triplerPhone, tripl
     verification: JSON.stringify(verification, null, 2), // update verification string instead of append
   })
   await ambassadorsSvc.sendTriplerCountsToHubspot(ambassador)
+  await ambassadorsSvc.updateEkataMatchScore(ambassador)
 
   if (typeof verification[1] !== "undefined") {
     await setTriplerEkataLocations(tripler, verification)
