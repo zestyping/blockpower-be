@@ -168,9 +168,9 @@ async function signup(json, verification, carrierLookup) {
 
   initialSyncAmbassadorToHubSpot(new_ambassador)
 
-  // if (typeof verification[1] !== "undefined") {
-  //   setAmbassadorEkataAssociatedPeople(ambassador, verification)
-  // }
+  if (typeof verification[1] !== "undefined") {
+    setAmbassadorEkataAssociatedPeople(new_ambassador, verification)
+  }
 
   return new_ambassador
 }
