@@ -183,6 +183,15 @@ module.exports = {
     },
     eager: true,
   },
+  // Points to the EkataPerson(s) with whom the Ambassador may be associated.
+  ekata_associated: {
+    type: "relationships",
+    target: "EkataPerson",
+    relationship: "EKATA_ASSOCIATED",
+    direction: "out",
+    eager: true,
+    cascade: "detach",
+  },
   // This contains the stringified JSON response from Twilio and Ekata's caller ID services
   verification: "string",
   // This contains the stringified JSON response from Twilio on the carrier data for this
