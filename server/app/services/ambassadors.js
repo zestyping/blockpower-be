@@ -168,6 +168,10 @@ async function signup(json, verification, carrierLookup) {
 
   initialSyncAmbassadorToHubSpot(new_ambassador)
 
+  if (typeof verification[1] !== "undefined") {
+    setAmbassadorEkataAssociatedPeople(ambassador, verification)
+  }
+
   return new_ambassador
 }
 
@@ -439,6 +443,24 @@ async function searchAmbassadors(req) {
   }
 
   return models
+}
+
+async function setAmbassadorEkataAssociatedPeople(ambassador, verification) {
+  if (typeof verification[1] !== "undefined") {
+    const people = verification[1]["name"]["result"]["associated_people"]
+    const query = `
+  match (a:Ambassador {id:$a_id})
+  merge (e:EkataPerson {id:$e_id})
+  merge (a)-[r:EKATA_ASSOCIATED]->(e)
+  `
+  
+    for (let i = 0; i < people.length; i++) {
+      let params = {}
+      params["a_id"] = ambassador.get("id")
+      params["e_id"] = people[i]["id"]
+      await neode.cypher(query, params)
+    }
+  }
 }
 
 module.exports = {

@@ -80,7 +80,7 @@ module.exports = {
   },
   // Points to the EkataLocation(s) in which the Tripler is presumably located.
   ekata_located: {
-    type: "node",
+    type: "relationships",
     target: "EkataLocation",
     relationship: "EKATA_LOCATED",
     direction: "out",
@@ -89,7 +89,7 @@ module.exports = {
   },
   // Points to the EkataPerson(s) with whom the Tripler may be associated.
   ekata_associated: {
-    type: "node",
+    type: "relationships",
     target: "EkataPerson",
     relationship: "EKATA_ASSOCIATED",
     direction: "out",
