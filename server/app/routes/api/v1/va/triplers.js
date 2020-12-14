@@ -248,7 +248,7 @@ async function startTriplerConfirmation(req, res) {
   }
 
   // This allocates a link code and sets up the VotingPlan node.
-  createVotingPlan(ambassador, tripler);
+  createVotingPlan(tripler, ambassador);
   // TODO: Text this link to the Ambassador.
 
   return _204(res)

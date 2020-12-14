@@ -2,13 +2,13 @@ import {v4 as uuidv4} from "uuid"
 import neode from '../lib/neode';
 import { selectTemplate, fillTemplate, getTemplateUsageCount } from '../lib/link_code';
 
-const createVotingPlan = async (canvasser, voter) => {
+const createVotingPlan = async (voter, canvasser) => {
   const template = await selectTemplate(
     voter.get('first_name'), voter.get('last_name'));
   const linkCode = await reserveLinkCode(template);
-  const plan = getVotingPlan(linkCode);
-  plan.relateTo(canvasser, 'canvasser');
+  const plan = await getVotingPlan(linkCode);
   plan.relateTo(voter, 'voter');
+  if (canvasser) plan.relateTo(canvasser, 'canvasser');
   return plan;
 };
 
@@ -37,7 +37,7 @@ const reserveLinkCode = async (template) => {
 };
 
 const getVotingPlan = async (linkCode) =>
-  await node.first('VotingPlan', 'link_code', linkCode);
+  await neode.first('VotingPlan', 'link_code', linkCode);
 
 module.exports = {
   createVotingPlan,
