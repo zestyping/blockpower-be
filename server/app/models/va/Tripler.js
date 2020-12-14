@@ -78,6 +78,24 @@ module.exports = {
     eager: true,
     cascade: "detach",
   },
+  // Points to the EkataLocation(s) in which the Tripler is presumably located.
+  ekata_located: {
+    type: "node",
+    target: "EkataLocation",
+    relationship: "EKATA_LOCATED",
+    direction: "out",
+    eager: true,
+    cascade: "detach",
+  },
+  // Points to the EkataPerson(s) with whom the Tripler may be associated.
+  ekata_associated: {
+    type: "node",
+    target: "EkataPerson",
+    relationship: "EKATA_ASSOCIATED",
+    direction: "out",
+    eager: true,
+    cascade: "detach",
+  },
   // This simply points back to the Ambassador that this Tripler now is
   is_ambassador: {
     type: "node",
