@@ -22,20 +22,21 @@ module.exports = {
   last_send_time: "number",  // last time we texted this link to the voter
 
   link_code: { type: "string", required: true },  // constrained unique
-  prefill_params: "string",  // stringified JSON
 
-  link_provider: {
-    type: "relationship",
+  canvasser: {
+    type: "node",
     direction: "in",
-    relationship: "PROVIDES_LINK",
+    relationship: "CANVASSED",
     target: "Ambassador",
     cascade: "detach",
+    eager: true,
   },
   voter: {
-    type: "relationship",
-    direction: "out",
-    relationship: "FOR_VOTER",
+    type: "node",
+    direction: "in",
+    relationship: "OWNS",
     target: "Tripler",
     cascade: "detach",
+    eager: true,
   }
 };

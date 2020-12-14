@@ -2,33 +2,13 @@ import {v4 as uuidv4} from "uuid"
 import neode from '../lib/neode';
 import { selectTemplate, fillTemplate, getTemplateUsageCount } from '../lib/link_code';
 
-const getPrefillParams = (voter) => {
-  return {
-    address: '30303', // TODO
-    first_name: voter.get('first_name'),
-    last_name: voter.get('last_name'),
-    phone: voter.get('phone'),
-    email: voter.get('email'),
-    utm_term: voter.get('hs_id')
-  };
-};
-
-const createVotingPlan = async (linkProvider, voter) => {
+const createVotingPlan = async (canvasser, voter) => {
   const template = await selectTemplate(
     voter.get('first_name'), voter.get('last_name'));
   const linkCode = await reserveLinkCode(template);
-  const plan = await neode.first('VotingPlan', 'link_code', linkCode);
-  /*
-  TODO: This causes an ERROR_VALIDATION.  I have no idea why.  The
-  field is defined in the model as a string, so why wouldn't this work?
-
-  plan.update({
-    prefill_params: JSON.stringify(getPrefillParams(voter)),
-  });
-
-  */
+  const plan = getVotingPlan(linkCode);
+  plan.relateTo(canvasser, 'canvasser');
   plan.relateTo(voter, 'voter');
-  linkProvider.relateTo(plan, 'provides_links');
   return plan;
 };
 
@@ -46,7 +26,6 @@ const reserveLinkCode = async (template) => {
       ON CREATE SET
         p.id = $uuid,
         p.new = true,
-        p.prefill_params = "{}",
         p.create_time = timestamp()
       ON MATCH SET p.new = false
       RETURN p.new as new
@@ -57,6 +36,10 @@ const reserveLinkCode = async (template) => {
   }
 };
 
+const getVotingPlan = async (linkCode) =>
+  await node.first('VotingPlan', 'link_code', linkCode);
+
 module.exports = {
-  createVotingPlan
+  createVotingPlan,
+  getVotingPlan
 };
