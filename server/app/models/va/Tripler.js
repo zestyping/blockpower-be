@@ -128,4 +128,8 @@ module.exports = {
   zip: "string",
   // The birth month (1-12) of this Tripler, according to the Ambassador.
   claimed_birth_month: "integer",
+  voted: {
+    type: "boolean",
+    default: false,
+  },
 }

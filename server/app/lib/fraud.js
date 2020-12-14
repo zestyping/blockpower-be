@@ -5,7 +5,8 @@ import { ov_config } from './ov_config';
 // POSITIVE if a positive value for the property means GOOD behaviour,
 // NEGATIVE if a positive value for the property means BAD behaviour.
 const TRUST_WEIGHTS = {
-  ekata_match_score: -1,
+  ambassador_ekata_blemish: -1,
+  tripler_ekata_blemish: -1,
   admin_bonus: 1,
 };
 
