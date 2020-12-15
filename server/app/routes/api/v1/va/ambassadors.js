@@ -491,7 +491,7 @@ async function claimTriplers(req, res) {
   }
 
   const claims = ambassador.get('claims');
-  const claimedTriplerCount = claims._values.length; // TODO: look up more idiomatic access
+  const claimedTriplerCount = claims.length; // TODO: look up more idiomatic access
 
   let triplerLimit = ov_config.claim_tripler_limit;
 

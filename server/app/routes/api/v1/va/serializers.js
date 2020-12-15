@@ -8,6 +8,7 @@ import {isLocked} from "../../../../lib/fraud"
 
 import {formatDate, formatNumber} from "../../../../lib/format"
 import PhoneNumber from "awesome-phonenumber"
+import {ov_config} from '../../../../lib/ov_config';
 
 /*
  *
@@ -92,6 +93,21 @@ function serializeAmbassador(ambassador) {
     array.push(serializeTripler(claimees.get(index).otherNode()))
   }
   obj["claimees"] = array
+
+  // if claimees length exceeds threshold value, and has_w9 is false, mark needs_w9_kyc as true
+  const isKYCCompleted = ambassador.get('has_w9');
+  if (!isKYCCompleted) {
+    // this ambassador hasn't completed Stripe's KYC flow, so additional constraints apply
+    const disbursementLimit = ov_config.pending_kyc_tripler_disbursement_limit;
+    const perTriplerPaymentAmount = ov_config.payout_per_tripler;
+
+    const disbursedAmount = perTriplerPaymentAmount * claimees.length;
+
+    if(disbursedAmount >= disbursementLimit){
+      obj['needs_w9_kyc'] = true;
+    }
+  }
+
   return obj
 }
 
