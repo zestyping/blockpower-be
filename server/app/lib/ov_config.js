@@ -77,6 +77,8 @@ export const ov_config = {
   tripler_reconfirmation_message: getConfig("tripler_reconfirmation_message", true, null),
   rejection_sms_for_tripler: getConfig("rejection_sms_for_tripler", true, null),
   rejection_sms_for_ambassador: getConfig("rejection_sms_for_ambassador", true, null),
+  voting_plan_sms_for_ambassador: getConfig("voting_plan_sms_for_ambassador", false, ""), // optional so we can turn this on in staging, off in production
+  voting_plan_sms_for_tripler: getConfig("voting_plan_sms_for_tripler", false, ""), // optional so we can turn this on in staging, off in production
   ambassador_tripler_relation_max_distance: getConfig(
     "ambassador_tripler_relation_max_distance",
     false,
@@ -146,4 +148,9 @@ export const ov_config = {
   // Alloy
   alloy_key: getConfig("alloy_key", true, ""),
   alloy_secret: getConfig("alloy_secret", true, ""),
+
+  // Voting plan links
+  short_link_base_url: getConfig(
+    "short_link_base_url", false, "blockpower.vote"
+  ).replace('/', '')
 }
