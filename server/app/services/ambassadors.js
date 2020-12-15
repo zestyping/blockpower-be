@@ -322,15 +322,14 @@ async function updateEkataMatchScore(ambassador) {
   let query =
     "MATCH (a:Ambassador {id:$a_id})-[:CLAIMS]->(t:Tripler) WHERE  t.status <> 'unconfirmed' RETURN t.first_name as first_name, t.last_name as last_name, t.address as address, t.verification as verification"
   let collection = await neode.cypher(query, {a_id: ambassador.get("id")})
-  let verificationStrings = []
   for (let index = 0; index < collection.records.length; index++) {
     let invidualTriplerMatchScore = 0
-    let address = collection.records[index].get("address").toLowerCase()
+    let triplerAddress = collection.records[index].get("address").toLowerCase()
     let verificationString = collection.records[index].get("verification").toString().toLowerCase()
     let triplerProperties = []
     triplerProperties.push(collection.records[index].get("first_name").toLowerCase())
     triplerProperties.push(collection.records[index].get("last_name").toLowerCase())
-    triplerProperties.push(address.match(re)[0])
+    triplerProperties.push(triplerAddress.match(re)[0].toLowerCase())
     for (let i in triplerProperties) {
       if (verificationString.includes(triplerProperties[i])) {
         invidualTriplerMatchScore++
@@ -347,20 +346,22 @@ async function updateEkataMatchScore(ambassador) {
   }
 
   // determining the blemishness of the ambassador
+
   let verificationString = ambassador.get("verification").toLowerCase()
-  let address = ambassador.get("address").toLowerCase()
+  let ambassadorAddress = ambassador.get("address").toLowerCase()
   let ambassadorProperties = [
     ambassador.get("first_name").toLowerCase(),
     ambassador.get("last_name").toLowerCase(),
-    address.match(re)[0]
+    ambassadorAddress.match(re)[0].toLowerCase() ? ambassadorAddress.match(re)[0].toLowerCase() : ""
   ]
   for (let i in ambassadorProperties) {
-    if (verificationString.includes(ambassadorProperties[i].toLowerCase())) {
+    if (verificationString.includes(ambassadorProperties[i])) {
       ambassadorMatches++
     }
   }
 
   // if the ambassador does not have enough matches, levy the penalty
+
   if (ambassadorMatches < ambassadorEkataThreshold) {
     ambassador_ekata_blemish = ambassadorEkataPenalty
   }
