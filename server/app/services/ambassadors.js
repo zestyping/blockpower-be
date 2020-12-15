@@ -330,7 +330,7 @@ async function updateEkataMatchScore(ambassador) {
     let triplerProperties = []
     triplerProperties.push(collection.records[index].get("first_name").toLowerCase())
     triplerProperties.push(collection.records[index].get("last_name").toLowerCase())
-    triplerProperties.push(address.match(triplerRe)[0].toLowerCase())
+    triplerProperties.push(triplerAddress.match(triplerRe)[0].toLowerCase())
     for (let i in triplerProperties) {
       if (verificationString.includes(triplerProperties[i])) {
         invidualTriplerMatchScore++
