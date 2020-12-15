@@ -9,6 +9,7 @@ import {isLocked} from "../../../../lib/fraud"
 import {formatDate, formatNumber} from "../../../../lib/format"
 import PhoneNumber from "awesome-phonenumber"
 import {ov_config} from '../../../../lib/ov_config';
+import stripeSvc from '../../../../services/stripe';
 
 /*
  *
@@ -102,8 +103,7 @@ function serializeAmbassador(ambassador) {
     const perTriplerPaymentAmount = ov_config.payout_per_tripler;
 
     const disbursedAmount = perTriplerPaymentAmount * claimees.length;
-
-    if(disbursedAmount >= disbursementLimit){
+    if (disbursedAmount >= disbursementLimit) {
       obj['needs_w9_kyc'] = true;
     }
   }

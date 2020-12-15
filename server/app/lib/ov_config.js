@@ -39,6 +39,11 @@ export const ov_config = {
     false,
     process.env.NODE_ENV === "production" ? null : "gotv.ourvoiceusa.org",
   ),
+  client_base_uri: getConfig(
+    'client_base_uri',
+    false,
+    process.env.NODE_ENV === 'production' ? 'https://blockpower.vote' : 'http://localhost:3000'
+  ),
   jwt_iss: getConfig("jwt_iss", false, "ourvoiceusa.org"),
   twilio_disable: getConfig("twilio_disable", false, false),
   twilio_account_sid: getConfig("twilio_account_sid", true, null),

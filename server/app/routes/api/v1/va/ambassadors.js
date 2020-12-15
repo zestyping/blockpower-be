@@ -32,6 +32,8 @@ import reverse_phone from "../../../../lib/reverse_phone"
 import {makeAdminEmail} from "../../../../emails/makeAdminEmail"
 import {getUserJsonFromRequest} from "../../../../lib/normalizers"
 
+import stripeSvc from '../../../../services/stripe';
+
 /*
  *
  * createAmbassador(req, res)
@@ -130,7 +132,14 @@ async function fetchAmbassador(req, res) {
  */
 async function fetchCurrentAmbassador(req, res) {
   if (!req.user.get) return _404(res, "No current ambassador")
-  return res.json(serializeAmbassador(req.user))
+
+  const ambassador = req.user;
+
+  // this may change dynamically
+  const hasSufficientKYC = await stripeSvc.hasSufficientKYCInformation(ambassador);
+  ambassador.update({has_w9: hasSufficientKYC});
+
+  return res.json(serializeAmbassador(ambassador))
 }
 
 /*
@@ -495,7 +504,7 @@ async function claimTriplers(req, res) {
 
   let triplerLimit = ov_config.claim_tripler_limit;
 
-  const isKYCCompleted = ambassador.get('has_w9');
+  const isKYCCompleted = stripeSvc.hasSufficientKYCInformation(ambassadorsSvc);
   if (!isKYCCompleted) {
     // this ambassador hasn't completed Stripe's KYC flow, so additional constraints apply
     const disbursementLimit = ov_config.pending_kyc_tripler_disbursement_limit;
@@ -618,6 +627,13 @@ async function fetchCurrentAmbassadorPayouts(req, res) {
   return res.json(await ambassadorPayouts(req.user, req.neode))
 }
 
+
+async function initiateKYCFlow(req, res) {
+  const ambassador = req.user;
+  const accountLink = await stripeSvc.createKYCEntryLink(ambassador);
+  return res.json(accountLink);
+}
+
 /*
  *
  * fetchAmbassadorPayouts(req, res)
@@ -716,11 +732,14 @@ module.exports = Router({mergeParams: true})
     if (!req.authenticated) return _401(res, "Permission denied.")
     return completeOnboarding(req, res)
   })
+  .get("/ambassadors/current/initiate-kyc-flow", (req, res) => {
+    if (!req.authenticated) return _401(res, "Permission denied.")
+    return initiateKYCFlow(req, res)
+  })
   .get("/ambassadors/current/payouts", (req, res) => {
     if (!req.authenticated) return _401(res, "Permission denied.")
     return fetchCurrentAmbassadorPayouts(req, res)
   })
-
   .post("/ambassadors", (req, res) => {
     if (!req.authenticated) return _401(res, "Permission denied.")
     if (!req.admin) return _403(res, "Permission denied.")
