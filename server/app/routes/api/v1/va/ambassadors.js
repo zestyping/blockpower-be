@@ -437,6 +437,31 @@ async function claimTriplers(req, res) {
     return error(400, res, "Invalid request, empty list of triplers")
   }
 
+  if (req.body.triplers.length === 0) {
+    return error(400, res, 'Invalid request, empty list of triplers');
+  }
+
+  const claims = ambassador.get('claims');
+  const claimedTriplerCount = claims._values.length; // TODO: look up more idiomatic access
+
+  let triplerLimit = ov_config.claim_tripler_limit;
+
+  const isKYCCompleted = ambassador.get('has_w9');
+  if (!isKYCCompleted) {
+    // this ambassador hasn't completed Stripe's KYC flow, so additional constraints apply
+    const disbursementLimit = ov_config.pending_kyc_tripler_disbursement_limit;
+    const perTriplerPaymentAmount = ov_config.payout_per_tripler;
+
+    // TODO: if there are non-tripler-confirmation-based payout events, this arithmetic will stop working
+    triplerLimit = Math.min(triplerLimit, Math.floor(disbursementLimit / perTriplerPaymentAmount));
+  }
+
+  const remainingClaimableTriplerCount = triplerLimit - claimedTriplerCount;
+
+  if (req.body.triplers.length > remainingClaimableTriplerCount) {
+    return error(400, res, 'Invalid request, attempting to claim too many triplers.');
+  }
+
   let query = `
   match(a:Ambassador{id: "${req.user.get("id")}"})
   with a

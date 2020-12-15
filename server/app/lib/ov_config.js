@@ -84,6 +84,7 @@ export const ov_config = {
   ),
   suggest_tripler_limit: getConfig("suggest_tripler_limit", false, 1000),
   claim_tripler_limit: getConfig("claim_tripler_limit", false, 12),
+  pending_kyc_tripler_disbursement_limit: getConfig("pending_kyc_tripler_disbursement_limit", false, 500),
   payout_schedule: getConfig("payout_schedule", false, 60),
   fifo_wakeup: getConfig("fifo_wakeup", false, 300),
   disable_auto_payouts: getConfig("disable_auto_payouts", true, false),

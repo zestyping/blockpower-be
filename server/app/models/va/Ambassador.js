@@ -98,6 +98,7 @@ module.exports = {
     default: false,
   },
   has_w9: {
+    // Has this ambassador completed the Stripe KYC? This is necessary to exceed payments of $600 and send 1099s
     type: "boolean",
     default: false,
   },

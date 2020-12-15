@@ -9,7 +9,7 @@ import {validateEmpty, validateUnique, assertUserPhoneAndEmail} from "../lib/val
 
 import {ValidationError} from "../lib/errors"
 import { isLocked } from '../lib/fraud';
-import {getEkataMatchScore} from "../lib/blemishes"
+// import {getEkataMatchScore} from "../lib/blemishes"
 import {trimFields} from "../lib/utils"
 import {getValidCoordinates, normalizePhone} from "../lib/normalizers"
 import mail from "../lib/mail"
