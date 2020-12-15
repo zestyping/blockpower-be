@@ -136,8 +136,8 @@ async function fetchCurrentAmbassador(req, res) {
   const ambassador = req.user;
 
   // this may change dynamically
-  const hasSufficientKYC = await stripeSvc.hasSufficientKYCInformation(ambassador);
-  ambassador.update({has_w9: hasSufficientKYC});
+  const meets1099Requirements = await stripeSvc.meets1099Requirements(ambassador);
+  await ambassador.update({stripe_1099_enabled: meets1099Requirements});
 
   return res.json(serializeAmbassador(ambassador))
 }
@@ -504,10 +504,10 @@ async function claimTriplers(req, res) {
 
   let triplerLimit = ov_config.claim_tripler_limit;
 
-  const isKYCCompleted = stripeSvc.hasSufficientKYCInformation(ambassadorsSvc);
-  if (!isKYCCompleted) {
+  const meets1099Requirements = stripeSvc.meets1099Requirements(ambassadorsSvc);
+  if (!meets1099Requirements) {
     // this ambassador hasn't completed Stripe's KYC flow, so additional constraints apply
-    const disbursementLimit = ov_config.pending_kyc_tripler_disbursement_limit;
+    const disbursementLimit = ov_config.needs_additional_1099_data_tripler_disbursement_limit;
     const perTriplerPaymentAmount = ov_config.payout_per_tripler;
 
     // TODO: if there are non-tripler-confirmation-based payout events, this arithmetic will stop working
@@ -628,9 +628,9 @@ async function fetchCurrentAmbassadorPayouts(req, res) {
 }
 
 
-async function initiateKYCFlow(req, res) {
+async function initiate1099DataEntry(req, res) {
   const ambassador = req.user;
-  const accountLink = await stripeSvc.createKYCEntryLink(ambassador);
+  const accountLink = await stripeSvc.create1099DataEntryLink(ambassador);
   return res.json(accountLink);
 }
 
@@ -732,14 +732,15 @@ module.exports = Router({mergeParams: true})
     if (!req.authenticated) return _401(res, "Permission denied.")
     return completeOnboarding(req, res)
   })
-  .get("/ambassadors/current/initiate-kyc-flow", (req, res) => {
+  .get("/ambassadors/current/initiate-1099-data-entry", (req, res) => {
     if (!req.authenticated) return _401(res, "Permission denied.")
-    return initiateKYCFlow(req, res)
+    return initiate1099DataEntry(req, res)
   })
   .get("/ambassadors/current/payouts", (req, res) => {
     if (!req.authenticated) return _401(res, "Permission denied.")
     return fetchCurrentAmbassadorPayouts(req, res)
   })
+
   .post("/ambassadors", (req, res) => {
     if (!req.authenticated) return _401(res, "Permission denied.")
     if (!req.admin) return _403(res, "Permission denied.")

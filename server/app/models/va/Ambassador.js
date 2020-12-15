@@ -106,7 +106,7 @@ module.exports = {
     default: false,
   },
   stripe_1099_enabled: {
-    // Has this ambassador completed the Stripe KYC? This is necessary to exceed payments of $600 and send 1099s
+    // Has this ambassador completed the Stripe KYC for 1099 purposes? This is necessary to exceed payments of $600 and send 1099s
     type: "boolean",
     default: false,
   },

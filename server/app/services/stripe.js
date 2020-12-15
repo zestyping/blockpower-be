@@ -110,7 +110,7 @@ function getStripeAccount(ambassador) {
   throw 'Stripe account not set for ambassador, cannot pay';
 }
 
-async function hasSufficientKYCInformation(ambassador) {
+async function meets1099Requirements(ambassador) {
   let stripeAccount = null;
   try {
     stripeAccount = getStripeAccount(ambassador);
@@ -120,7 +120,7 @@ async function hasSufficientKYCInformation(ambassador) {
   const accountId = stripeAccount.get('account_id');
   const capability = await stripe(ov_config.stripe_secret_key).accounts.retrieveCapability(accountId, CAPABILITY_1099_MISC);
 
-  if(capability && capability['stats'] === 'active'){
+  if(capability && capability['status'] === 'active'){
     // there is sufficient KYC information for 1099 issuance
     return true;
   }
@@ -145,7 +145,7 @@ async function hasSufficientKYCInformation(ambassador) {
   return true;
 }
 
-async function createKYCEntryLink(ambassador) {
+async function create1099DataEntryLink(ambassador) {
   const stripeAccount = getStripeAccount(ambassador);
   const account = stripeAccount.get('account_id');
 
@@ -276,6 +276,6 @@ module.exports = {
   createConnectTestAccount: createConnectTestAccount,
   disburse: disburse,
   settle: settle,
-  createKYCEntryLink,
-  hasSufficientKYCInformation
+  create1099DataEntryLink,
+  meets1099Requirements
 };

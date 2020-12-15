@@ -99,7 +99,7 @@ function serializeAmbassador(ambassador) {
   const meets1099Requirements = ambassador.get('stripe_1099_enabled');
   if (!meets1099Requirements) {
     // this ambassador hasn't completed Stripe's KYC flow, so additional constraints apply
-    const disbursementLimit = ov_config.pending_kyc_tripler_disbursement_limit;
+    const disbursementLimit = ov_config.needs_additional_1099_data_tripler_disbursement_limit;
     const perTriplerPaymentAmount = ov_config.payout_per_tripler;
 
     const disbursedAmount = perTriplerPaymentAmount * claimees.length;
