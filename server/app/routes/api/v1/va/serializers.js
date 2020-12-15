@@ -69,6 +69,7 @@ function serializeAmbassador(ambassador) {
     "payout_additional_data",
     "admin",
     "has_w9",
+    'stripe_1099_enabled',
     "paypal_approved",
   ].forEach((x) => (obj[x] = ambassador.get(x)))
   obj["address"] = !!ambassador.get("address")
@@ -94,9 +95,9 @@ function serializeAmbassador(ambassador) {
   }
   obj["claimees"] = array
 
-  // if claimees length exceeds threshold value, and has_w9 is false, mark needs_w9_kyc as true
-  const isKYCCompleted = ambassador.get('has_w9');
-  if (!isKYCCompleted) {
+  // if claimees length exceeds threshold value, and stripe_1099_enabled is false, mark needs_w9_kyc as true
+  const meets1099Requirements = ambassador.get('stripe_1099_enabled');
+  if (!meets1099Requirements) {
     // this ambassador hasn't completed Stripe's KYC flow, so additional constraints apply
     const disbursementLimit = ov_config.pending_kyc_tripler_disbursement_limit;
     const perTriplerPaymentAmount = ov_config.payout_per_tripler;
@@ -104,7 +105,7 @@ function serializeAmbassador(ambassador) {
     const disbursedAmount = perTriplerPaymentAmount * claimees.length;
 
     if(disbursedAmount >= disbursementLimit){
-      obj['needs_w9_kyc'] = true;
+      obj['needs_additional_1099_data'] = true;
     }
   }
 

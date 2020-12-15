@@ -241,6 +241,7 @@ async function syncAmbassadorToHubSpot(ambassador) {
       "phone",
       "signup_completed",
       "has_w9",
+      'stripe_1099_enabled',
       "paypal_approved",
       "giftcard_completed",
       "is_admin",

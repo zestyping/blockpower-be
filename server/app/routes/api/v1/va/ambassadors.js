@@ -495,10 +495,10 @@ async function claimTriplers(req, res) {
 
   let triplerLimit = ov_config.claim_tripler_limit;
 
-  const isKYCCompleted = ambassador.get('has_w9');
-  if (!isKYCCompleted) {
+  const meets1099Requirements = ambassador.get('stripe_1099_enabled');
+  if (!meets1099Requirements) {
     // this ambassador hasn't completed Stripe's KYC flow, so additional constraints apply
-    const disbursementLimit = ov_config.pending_kyc_tripler_disbursement_limit;
+    const disbursementLimit = ov_config.needs_additional_1099_data_tripler_disbursement_limit;
     const perTriplerPaymentAmount = ov_config.payout_per_tripler;
 
     // TODO: if there are non-tripler-confirmation-based payout events, this arithmetic will stop working
