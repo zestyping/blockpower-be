@@ -311,6 +311,7 @@ async function updateEkataMatchScore(ambassador) {
   let tripler_ekata_blemish = 0
   let ambassador_ekata_blemish = 0
   let re = /\d* \w{1,2}/
+  let triplerRe = /"address1":"(\w{1,4})/
 
   //these are still being tuned to find the best fit
 
@@ -329,7 +330,7 @@ async function updateEkataMatchScore(ambassador) {
     let triplerProperties = []
     triplerProperties.push(collection.records[index].get("first_name").toLowerCase())
     triplerProperties.push(collection.records[index].get("last_name").toLowerCase())
-    triplerProperties.push(triplerAddress.match(re)[0].toLowerCase())
+    triplerProperties.push(address.match(triplerRe)[0].toLowerCase())
     for (let i in triplerProperties) {
       if (verificationString.includes(triplerProperties[i])) {
         invidualTriplerMatchScore++
