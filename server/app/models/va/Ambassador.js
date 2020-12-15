@@ -213,9 +213,18 @@ module.exports = {
     default: 0,
   },
   // Custom, per-ambassador limit on the number of triplers that can be claimed.
-  // If null, the limit will be the value of the env var CLAIM_TRIPLER_LIMIT
+  // If null, the limit will be the value of the env var CLAIM_TRIPLER_LIMIT.
   claim_tripler_limit: {
     type: "integer",
     default: null,
   },
+  // Voting plans (actually links to start them) for Triplers canvassed by
+  // this Ambassador.  There should be one of these for each confirmed Tripler.
+  canvassed_plans: {
+    type: "relationships",
+    direction: "out",
+    relationship: "CANVASSED",
+    target: "VotingPlan",
+    cascade: "detach"
+  }
 }
