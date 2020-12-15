@@ -18,8 +18,11 @@ const FRAUD_THRESHOLD = parseFloat(ov_config.fraud_threshold) || -8;
 // Determines whether the user's actions should be blocked for fraud,
 // by comparing the total trust score to the FRAUD_THRESHOLD.
 export const isLocked = (user) => {
-
-  return calcTrust(user) < FRAUD_THRESHOLD;
+  if (user) {
+      return calcTrust(user) < FRAUD_THRESHOLD;
+  }
+  else 
+    return false
 };
 
 // Calculates the total trust score, which will be compared against
