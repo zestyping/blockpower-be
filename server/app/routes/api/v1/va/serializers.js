@@ -4,7 +4,7 @@ import {v4 as uuidv4} from "uuid"
 
 import {getValidCoordinates, normalizePhone} from "../../../../lib/normalizers"
 import {ValidationError} from "../../../../lib/errors"
-import {isLocked} from "../../../../lib/fraud"
+import {isLocked, getTrustFactors} from "../../../../lib/fraud"
 
 import {formatDate, formatNumber} from "../../../../lib/format"
 import PhoneNumber from "awesome-phonenumber"
@@ -106,6 +106,7 @@ function serializeAmbassadorForAdmin(ambassador) {
   obj["signup_completed"] = ambassador.get("signup_completed")
   obj["payout_provider"] = ambassador.get("payout_provider")
   obj["admin_bonus"] = ambassador.get("admin_bonus") || 0
+  obj["trust_factors"] = getTrustFactors(ambassador)
 
   //claimees
   let claimees = ambassador.get("claims")

@@ -8,6 +8,7 @@ const TRUST_WEIGHTS = {
   ambassador_ekata_blemish: -1,
   tripler_ekata_blemish: -1,
   admin_bonus: 1,
+  bad_triplee_penalty: -1,
 };
 
 // This should be a negative number, below which the user will be
@@ -35,7 +36,7 @@ export const calcTrust = (user) => {
 export const getTrustFactors = (user) => {
   const factors = {};
   for (const key of Object.keys(TRUST_WEIGHTS)) {
-    factors[key] = user[key] || 0;
+    factors[key] = user.get(key) || 0;
   }
   const trust = calcTrust(user);
   return {
