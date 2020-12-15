@@ -142,7 +142,7 @@ The meaning of each config item is as follows:
 * `MAKE_ADMIN_API`: Flag to enable `PUT /admin` api which makes an ambassador amin, default set to false
 * `AMBASSADOR_TRIPLER_RELATION_MAX_DISTANCE`: Distance in meters to decide if a tripler can be suggested to ambassador, default set to 10000
 * `SUGGEST_TRIPLER_LIMIT`: Maximum number of triplers returned by suggest-triplers api, default set to 1000
-* `CLAIM_TRIPLER_LIMIT`: Maximum number of triplers an ambassador can claim, default set to 12
+* `CLAIM_TRIPLER_LIMIT`: Maximum number of triplers an ambassador can claim (unless overridden by the claim_tripler_limit property on the ambassador), default set to 12
 * `PAYOUT_SCHEDULE`: Payout schedule in minutes, default set to 60 minutes
 * `FIFO_WAKEUP`: FIFO queue wakeup/sleep interval in milliseconds, default set to 300 msec
 * `DISABLE_AUTO_PAYOUTS`: Disable automatic payouts

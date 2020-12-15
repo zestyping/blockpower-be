@@ -111,8 +111,12 @@ module.exports = {
     // "stripe" or "paypal"
     type: "string",
   },
-  ekata_match_score: {
-    type: "integer",
+  ambassador_ekata_blemish: {
+    type: "number",
+    default: 0,
+  },
+  tripler_ekata_blemish: {
+    type: "number",
     default: 0,
   },
   // This relationship connects an Ambassador to a Payout. An Ambassador can have many
@@ -180,6 +184,15 @@ module.exports = {
     },
     eager: true,
   },
+  // Points to the EkataPerson(s) with whom the Ambassador may be associated.
+  ekata_associated: {
+    type: "relationships",
+    target: "EkataPerson",
+    relationship: "EKATA_ASSOCIATED",
+    direction: "out",
+    eager: true,
+    cascade: "detach",
+  },
   // This contains the stringified JSON response from Twilio and Ekata's caller ID services
   verification: "string",
   // This contains the stringified JSON response from Twilio on the carrier data for this
@@ -190,4 +203,29 @@ module.exports = {
     type: "integer",
     default: null,
   },
+  admin_bonus: {
+    //a hopefully positive number denoting how trusted the ambassador is (but it can be negative)
+    type: "number",
+    default: 0,
+  },
+  bad_triplee_penalty: {
+    // a score measuring the quality of the ambasador's tripler triplees
+    type: "number",
+    default: 0,
+  },
+  // Custom, per-ambassador limit on the number of triplers that can be claimed.
+  // If null, the limit will be the value of the env var CLAIM_TRIPLER_LIMIT.
+  claim_tripler_limit: {
+    type: "integer",
+    default: null,
+  },
+  // Voting plans (actually links to start them) for Triplers canvassed by
+  // this Ambassador.  There should be one of these for each confirmed Tripler.
+  canvassed_plans: {
+    type: "relationships",
+    direction: "out",
+    relationship: "CANVASSED",
+    target: "VotingPlan",
+    cascade: "detach"
+  }
 }

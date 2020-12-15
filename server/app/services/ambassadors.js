@@ -8,8 +8,7 @@ import neode from "../lib/neode"
 import {validateEmpty, validateUnique, assertUserPhoneAndEmail} from "../lib/validations"
 
 import {ValidationError} from "../lib/errors"
-import { isLocked } from '../lib/fraud';
-// import {getEkataMatchScore} from "../lib/blemishes"
+import {isLocked} from "../lib/fraud"
 import {trimFields} from "../lib/utils"
 import {getValidCoordinates, normalizePhone} from "../lib/normalizers"
 import mail from "../lib/mail"
@@ -169,6 +168,10 @@ async function signup(json, verification, carrierLookup) {
 
   initialSyncAmbassadorToHubSpot(new_ambassador)
 
+  if (typeof verification[1] !== "undefined") {
+    setAmbassadorEkataAssociatedPeople(new_ambassador, verification)
+  }
+
   return new_ambassador
 }
 
@@ -200,7 +203,7 @@ async function initialSyncAmbassadorToHubSpot(ambassador) {
     }
 
     if (!hs_response) {
-      return null;
+      return null
     }
 
     let cypher_response = await neode.cypher(
@@ -249,7 +252,7 @@ async function syncAmbassadorToHubSpot(ambassador) {
     obj["alloy_person_id"] = ambassador.get("alloy_person_id")
       ? ambassador.get("alloy_person_id").toString()
       : null
-    obj["locked"] = isLocked(ambassador);
+    obj["locked"] = isLocked(ambassador)
     updateHubspotAmbassador(obj)
   }
   return ambassador.get("hs_id")
@@ -303,46 +306,69 @@ async function sendTriplerCountsToHubspot(ambassador) {
  */
 
 async function updateEkataMatchScore(ambassador) {
-  let ambassadorSubScore = 0
-  let triplerSubScore = 0
-  let ekataMatchScore = 0
-  let ekataThreshold = 3
-  let ekataPenalty = 0
+  //resetting (in case any validation score changed, it calculates fresh)
+  let ambassadorMatches = 0
+  let tripler_ekata_blemish = 0
+  let ambassador_ekata_blemish = 0
+  let re = /\d* \w{1,2}/
 
-  // calculate Ambassador's Tripler SubScore
+  //these are still being tuned to find the best fit
+
+  let ambassadorEkataThreshold = ov_config.ambassadorEkataThreshold || 1
+  let ambassadorEkataPenalty = ov_config.ambassadorEkataPenalty || 2
+  let triplerEkataPenalty = ov_config.triplerEkataPenalty || 1
+  let triplerEkataBonus = ov_config.triplerEkataBonus || 2
+
   let query =
-    "MATCH (a:Ambassador {id:$a_id})-[:CLAIMS]->(t:Tripler) RETURN t.first_name as first_name, t.last_name as last_name, t.address as address, t.verification as verification"
+    "MATCH (a:Ambassador {id:$a_id})-[:CLAIMS]->(t:Tripler) WHERE  t.status <> 'unconfirmed' RETURN t.first_name as first_name, t.last_name as last_name, t.address as address, t.verification as verification"
   let collection = await neode.cypher(query, {a_id: ambassador.get("id")})
   let verificationStrings = []
   for (let index = 0; index < collection.records.length; index++) {
+    let invidualTriplerMatchScore = 0
+    let address = collection.records[index].get("address").toLowerCase()
     let verificationString = collection.records[index].get("verification").toString().toLowerCase()
     let triplerProperties = []
     triplerProperties.push(collection.records[index].get("first_name").toLowerCase())
     triplerProperties.push(collection.records[index].get("last_name").toLowerCase())
-
+    triplerProperties.push(address.match(re)[0])
     for (let i in triplerProperties) {
-      if (verificationString.includes(verificationString[i])) {
-        triplerSubScore += 1
-      } else {
-        triplerSubScore += -1
+      if (verificationString.includes(triplerProperties[i])) {
+        invidualTriplerMatchScore++
       }
+    }
+
+    if (invidualTriplerMatchScore >= 1) {
+    // if the individual tripler has one or more matches (good), then the overall tripler blemish is made smaller
+      tripler_ekata_blemish = tripler_ekata_blemish - triplerEkataBonus
+    } else {
+    // if the individual tripler has less than one match (bad), then the overall tripler blemish is made larger
+      tripler_ekata_blemish = tripler_ekata_blemish + triplerEkataPenalty
     }
   }
 
-  // calculate the Ambassador's SubScore
-  let verificationString = ambassador.get("first_name").toLowerCase()
+  // determining the blemishness of the ambassador
+  let verificationString = ambassador.get("verification").toLowerCase()
+  let address = ambassador.get("address").toLowerCase()
   let ambassadorProperties = [
     ambassador.get("first_name").toLowerCase(),
     ambassador.get("last_name").toLowerCase(),
+    address.match(re)[0]
   ]
   for (let i in ambassadorProperties) {
     if (verificationString.includes(ambassadorProperties[i].toLowerCase())) {
-      ambassadorSubScore += 1
+      ambassadorMatches++
     }
   }
 
-  ekataMatchScore = ambassadorSubScore + Math.max(0, triplerSubScore)
-  ambassador.update({ekata_match_score: ekataMatchScore})
+  // if the ambassador does not have enough matches, levy the penalty
+  if (ambassadorMatches < ambassadorEkataThreshold) {
+    ambassador_ekata_blemish = ambassadorEkataPenalty
+  }
+
+  ambassador.update({
+    ambassador_ekata_blemish: ambassador_ekata_blemish,
+    tripler_ekata_blemish: Math.max(0,tripler_ekata_blemish), //tripler_ekata_blemish should not be negative, floor is 0
+  })
 }
 
 // Returns the primary Account node for a given Ambassador.
@@ -417,6 +443,24 @@ async function searchAmbassadors(req) {
   }
 
   return models
+}
+
+async function setAmbassadorEkataAssociatedPeople(ambassador, verification) {
+  if (typeof verification[1] !== "undefined") {
+    const people = verification[1]["name"]["result"]["associated_people"]
+    const query = `
+  match (a:Ambassador {id:$a_id})
+  merge (e:EkataPerson {id:$e_id})
+  merge (a)-[r:EKATA_ASSOCIATED]->(e)
+  `
+
+    for (let i = 0; i < people.length; i++) {
+      let params = {}
+      params["a_id"] = ambassador.get("id")
+      params["e_id"] = people[i]["id"]
+      await neode.cypher(query, params)
+    }
+  }
 }
 
 module.exports = {
