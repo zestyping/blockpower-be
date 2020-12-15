@@ -8,6 +8,7 @@ const TRUST_WEIGHTS = {
   ambassador_ekata_blemish: -1,
   tripler_ekata_blemish: -1,
   admin_bonus: 1,
+  bad_triplee_penalty: -1,
 };
 
 // This should be a negative number, below which the user will be
@@ -17,18 +18,16 @@ const FRAUD_THRESHOLD = parseFloat(ov_config.fraud_threshold) || -8;
 // Determines whether the user's actions should be blocked for fraud,
 // by comparing the total trust score to the FRAUD_THRESHOLD.
 export const isLocked = (user) => {
-  return user.locked;
 
-  // TODO: The above is a placeholder.  Ultimately this should be:
   return calcTrust(user) < FRAUD_THRESHOLD;
 };
 
 // Calculates the total trust score, which will be compared against
 // the FRAUD_THRESHOLD.  POSITIVE means GOOD behaviour.
 export const calcTrust = (user) => {
-  const trust = 0;
+  let trust = 0;
   for (const key of Object.keys(TRUST_WEIGHTS)) {
-    trust += (user[key] || 0) * TRUST_WEIGHTS[key];
+    trust += (user.get(key) || 0) * TRUST_WEIGHTS[key];
   }
   return trust;
 };
@@ -37,7 +36,7 @@ export const calcTrust = (user) => {
 export const getTrustFactors = (user) => {
   const factors = {};
   for (const key of Object.keys(TRUST_WEIGHTS)) {
-    factors[key] = user[key] || 0;
+    factors[key] = user.get(key) || 0;
   }
   const trust = calcTrust(user);
   return {
