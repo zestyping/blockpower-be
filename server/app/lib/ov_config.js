@@ -132,7 +132,7 @@ export const ov_config = {
   ambassadorEkataThreshold: parseInt(getConfig("ambassador_ekata_threshold", false, 1)),
   ambassadorEkataPenalty: parseInt(getConfig("ambassador_ekata_penalty", false, 2)),
   triplerEkataPenalty: parseInt(getConfig("tripler_ekata_penalty", false, 1)),
-  triplerEkataBonus: parseInt(getConfig("tripler_ekta_bonus", false, 2)),
+  triplerEkataBonus: parseInt(getConfig("tripler_ekata_bonus", false, 2)),
 
   stress: getConfig("stress", false, false),
   exclude_unreg_except_in: getConfig("exclude_unreg_except_in", false, ""),
