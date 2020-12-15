@@ -358,7 +358,7 @@ async function signup(req, res) {
   }
 
   if (new_ambassador.approved) {
-    const plan = createVotingPlan(new_ambassador);
+    const plan = await createVotingPlan(new_ambassador);
     try {
       await sms(
         new_ambassador.get("phone"),

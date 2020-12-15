@@ -1,5 +1,6 @@
 import {v4 as uuidv4} from "uuid"
 import neode from '../lib/neode';
+import {ov_config} from "../lib/ov_config"
 import { selectTemplate, fillTemplate, getTemplateUsageCount } from '../lib/link_code';
 
 const createVotingPlan = async (voter, canvasser) => {

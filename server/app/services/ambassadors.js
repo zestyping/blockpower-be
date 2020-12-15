@@ -324,8 +324,8 @@ async function updateEkataMatchScore(ambassador) {
   let collection = await neode.cypher(query, {a_id: ambassador.get("id")})
   for (let index = 0; index < collection.records.length; index++) {
     let invidualTriplerMatchScore = 0
-    let triplerAddress = collection.records[index].get("address").toLowerCase()
-    let verificationString = collection.records[index].get("verification").toString().toLowerCase()
+    let triplerAddress = (collection.records[index].get("address") || '').toLowerCase()
+    let verificationString = (collection.records[index].get("verification") || "").toString().toLowerCase()
     let triplerProperties = []
     triplerProperties.push(collection.records[index].get("first_name").toLowerCase())
     triplerProperties.push(collection.records[index].get("last_name").toLowerCase())
