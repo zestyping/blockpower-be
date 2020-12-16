@@ -101,19 +101,19 @@ export const ov_config = {
   new_ambassador_signup_admin_email_subject: getConfig(
     "new_ambassador_signup_admin_email_subject",
     false,
-    null,
+    "Ambassador signed up",
   ),
   new_ambassador_signup_admin_email_body: getConfig(
     "new_ambassador_signup_admin_email_body",
     false,
-    null,
+    "",
   ),
   tripler_confirm_admin_email_subject: getConfig(
     "tripler_confirm_admin_email_subject",
     false,
-    null,
+    "Tripler confirmed",
   ),
-  tripler_confirm_admin_email_body: getConfig("tripler_confirm_admin_email_body", false, null),
+  tripler_confirm_admin_email_body: getConfig("tripler_confirm_admin_email_body", false, ""),
   disable_upgrade_sms: getConfig("disable_upgrade_sms", false, false),
   upgrade_sms_waiting_period: getConfig("upgrade_sms_waiting_period", true, null),
   upgrade_sms_schedule: getConfig("upgrade_sms_schedule", false, null),
@@ -148,6 +148,7 @@ export const ov_config = {
   // Alloy
   alloy_key: getConfig("alloy_key", true, ""),
   alloy_secret: getConfig("alloy_secret", true, ""),
+  alloy_bypass_keyword: getConfig("alloy_bypass_keyword", false, ""),
 
   // Voting plan links
   short_link_base_url: getConfig(
