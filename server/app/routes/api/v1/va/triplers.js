@@ -247,32 +247,6 @@ async function startTriplerConfirmation(req, res) {
     return error(500, res, "Error in startTriplerConfirmation")
   }
 
-  // This allocates a link code and sets up the VotingPlan node.
-  const plan = await createVotingPlan(tripler, ambassador);
-
-  if (ov_config.voting_plan_sms_for_ambassador) {
-    try {
-      await sms(
-        ambassador.get("phone"),
-        stringFormat(ov_config.voting_plan_sms_for_tripler, {
-          ambassador_first_name: ambassador.get("first_name") || "",
-          ambassador_last_name: ambassador.get("last_name") || "",
-          organization_name: ov_config.organization_name,
-          tripler_first_name: tripler.get("first_name"),
-          tripler_last_name: tripler.get("last_name"),
-          tripler_city: JSON.parse(tripler.get("address")).city,
-          triplee_1: serializeTriplee(triplees[0]),
-          triplee_2: serializeTriplee(triplees[1]),
-          triplee_3: serializeTriplee(triplees[2]),
-          tripler_voting_plan_link: getVotingPlanUrl(plan)
-        })
-      )
-    } catch (err) {
-      req.logger.error("Unhandled error in %s: %s", req.url, err)
-      return error(500, res, "Error sending voting plan SMS to the tripler")
-    }
-  }
-
   return _204(res)
 }
 

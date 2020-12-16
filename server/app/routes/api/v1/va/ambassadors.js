@@ -375,11 +375,12 @@ async function signup(req, res) {
       req.logger.error("Error sending signup sms to the ambassador")
     }
 
+    // TODO(ping): This message should be sent 24 hours after signup, not immediately.
     if (ov_config.voting_plan_sms_for_ambassador) {
       try {
         await sms(
           new_ambassador.get("phone"),
-          format(ov_config.ambassador_signup_message, {
+          format(ov_config.voting_plan_sms_for_ambassador, {
             ambassador_first_name: new_ambassador.get("first_name"),
             ambassador_last_name: new_ambassador.get("last_name") || "",
             ambassador_city: JSON.parse(new_ambassador.get("address")).city,
@@ -390,7 +391,7 @@ async function signup(req, res) {
         )
       } catch (err) {
         req.logger.error("Unhandled error in %s: %s", req.url, err)
-        req.logger.error("Error sending signup sms to the ambassador")
+        req.logger.error("Error sending voting plan sms to the ambassador")
       }
     }
   } else {
