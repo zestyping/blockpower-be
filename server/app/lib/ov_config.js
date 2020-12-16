@@ -152,5 +152,5 @@ export const ov_config = {
   // Voting plan links
   short_link_base_url: getConfig(
     "short_link_base_url", false, "blockpower.vote"
-  ).replace('/', '')
+  ).replace(/\/*$/, '')
 }
