@@ -6,6 +6,7 @@ import {getValidCoordinates, normalizePhone} from "../../../../lib/normalizers"
 import {ValidationError} from "../../../../lib/errors"
 import ambassadorsSvc from "../../../../services/ambassadors"
 import {error} from "../../../../services/errors"
+import {createVotingPlan, getVotingPlanUrl} from "../../../../services/voting_plans"
 
 import {_204, _400, _401, _403, _404} from "../../../../lib/utils"
 
@@ -357,6 +358,7 @@ async function signup(req, res) {
   }
 
   if (new_ambassador.approved) {
+    const plan = await createVotingPlan(new_ambassador);
     try {
       await sms(
         new_ambassador.get("phone"),
@@ -371,6 +373,25 @@ async function signup(req, res) {
     } catch (err) {
       req.logger.error("Unhandled error in %s: %s", req.url, err)
       req.logger.error("Error sending signup sms to the ambassador")
+    }
+
+    if (ov_config.voting_plan_sms_for_ambassador) {
+      try {
+        await sms(
+          new_ambassador.get("phone"),
+          format(ov_config.ambassador_signup_message, {
+            ambassador_first_name: new_ambassador.get("first_name"),
+            ambassador_last_name: new_ambassador.get("last_name") || "",
+            ambassador_city: JSON.parse(new_ambassador.get("address")).city,
+            organization_name: ov_config.organization_name,
+            ambassador_landing_page: ov_config.ambassador_landing_page,
+            ambassador_voting_plan_link: getVotingPlanUrl(plan)
+          }),
+        )
+      } catch (err) {
+        req.logger.error("Unhandled error in %s: %s", req.url, err)
+        req.logger.error("Error sending signup sms to the ambassador")
+      }
     }
   } else {
     req.logger.warn("Ambassador not approved; not sending intro SMS")
