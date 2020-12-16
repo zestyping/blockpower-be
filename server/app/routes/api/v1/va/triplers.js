@@ -6,7 +6,6 @@ import {getValidCoordinates, normalizePhone} from "../../../../lib/normalizers"
 import {ov_config} from "../../../../lib/ov_config"
 import triplersSvc from "../../../../services/triplers"
 import {error} from "../../../../services/errors"
-import {createVotingPlan, getVotingPlanUrl} from "../../../../services/voting_plans"
 
 import {_204, _401, _403, geoCode} from "../../../../lib/utils"
 
