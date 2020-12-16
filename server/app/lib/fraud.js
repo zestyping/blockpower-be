@@ -38,6 +38,8 @@ export const calcTrust = (user) => {
 // Gets all the details on trust to send to the admin front-end for display.
 export const getTrustFactors = (user) => {
   const factors = {};
+  if (user) {
+
   for (const key of Object.keys(TRUST_WEIGHTS)) {
     factors[key] = user.get(key) || 0;
   }
@@ -46,5 +48,10 @@ export const getTrustFactors = (user) => {
     factors: factors,
     weights: TRUST_WEIGHTS,
     trust: trust
-  };
+  }; } else
+  return {
+    factors: 0,
+    weights: 0,
+    trust: 0
+  }
 };
