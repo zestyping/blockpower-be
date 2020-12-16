@@ -14,6 +14,7 @@ import {
 } from "../routes/api/v1/va/serializers"
 import {confirmTriplerEmail} from "../emails/confirmTriplerEmail"
 import ambassadorsSvc from "./ambassadors"
+import {createVotingPlan, getVotingPlanUrl} from "./voting_plans"
 
 /*
  *
@@ -136,6 +137,7 @@ async function confirmTripler(triplerId) {
 
   if (ov_config.voting_plan_sms_for_tripler) {
     try {
+      const triplees = JSON.parse(tripler.get("triplees"))
       await sms(
         tripler.get("phone"),
         stringFormat(ov_config.voting_plan_sms_for_tripler, {
