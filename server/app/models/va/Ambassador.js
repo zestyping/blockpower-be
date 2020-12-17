@@ -240,5 +240,9 @@ module.exports = {
     relationship: "CANVASSED",
     target: "VotingPlan",
     cascade: "detach"
+  },
+  voted: {
+    type: "boolean",
+    default: false,
   }
 }
