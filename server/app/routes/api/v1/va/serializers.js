@@ -102,7 +102,10 @@ function serializeAmbassador(ambassador) {
     const disbursementLimit = ov_config.needs_additional_1099_data_tripler_disbursement_limit;
     const perTriplerPaymentAmount = ov_config.payout_per_tripler;
 
-    const disbursedAmount = perTriplerPaymentAmount * claimees.length;
+    const claimeeStatuses = claimees.map(c => c.otherNode().get('status')); // get the confirmation status
+    const confirmedTriplerCount = claimeeStatuses.filter(s => s === 'confirmed').length; // count the matches
+
+    const disbursedAmount = perTriplerPaymentAmount * confirmedTriplerCount;
 
     if(disbursedAmount >= disbursementLimit){
       obj['needs_additional_1099_data'] = true;
