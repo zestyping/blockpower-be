@@ -1,12 +1,14 @@
 const PREFIXES = ['mr', 'mr.', 'ms', 'ms.', 'mrs', 'mrs.'];
 const SUFFIXES = ['ii', 'iii', 'iv', 'jr', 'jr.', 'sr', 'sr.'];
 
-function splitWords(text) {
-  return text.trim().split(/\s+/);
+function splitWords(str) {
+  // Treat all punctuation and spaces as word breaks, except apostrophes.
+  return str.replace(/['’]/g, '').replace(/\W+/g, ' ').trim().split(' ');
 }
 
-// Functions below are translated from the Python module
+// All functions below are translated from the Python module
 // fullsync.Fraud.tripletNameCheck.modules.genericNameValidator
+
 function normalizeName(name) {
   let words = splitWords(name);
   if (words.length === 1) {
@@ -20,7 +22,8 @@ function normalizeName(name) {
   return words.join(' ');
 }
 
-// words, prefixes, and suffixes must be all lowercase
+// Given words, prefixes, and suffixes that are all lowercase, removes
+// the first word if it's a prefix and the third word isn't a suffix.
 function removePrefix(words, prefixes, suffixes) {
   if (words.length > 2) {
     if (prefixes.includes(words[0]) && !suffixes.includes(words[2])) {
@@ -30,7 +33,8 @@ function removePrefix(words, prefixes, suffixes) {
   return words;
 }
 
-// words and suffixes must be all lowercase
+// Given words and suffixes that are all lowercase, removes the last
+// word if it's a suffix.
 function removeSuffix(words, suffixes) {
   if (suffixes.includes(words[words.length - 1])) {
     return words.slice(0, words.length - 1);
@@ -38,15 +42,18 @@ function removeSuffix(words, suffixes) {
   return words;
 }
 
+// Returns true if the name is non-empty and contains no characters
+// other than letters, periods, apostrophes, or hyphens.
 function allNameChars(name) {
   return !!name.match(/^[ A-Za-z.'’-]+$/);
 }
 
+// Returns true if the name contains at least one vowel.
 function hasVowels(name) {
   return !!name.match(/[aeiouy]/);
 }
 
-// heuristics to guess whether a name seems legitimate
+// Applies some heuristics to guess whether a name seems legitimate.
 function isNameValid(name) {
   const normName = normalizeName(name);
   const noSuffix = removeSuffix(splitWords(normName), SUFFIXES).join(' ');
