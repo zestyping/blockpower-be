@@ -33,6 +33,8 @@ import reverse_phone from "../../../../lib/reverse_phone"
 import {makeAdminEmail} from "../../../../emails/makeAdminEmail"
 import {getUserJsonFromRequest} from "../../../../lib/normalizers"
 
+import stripeSvc from '../../../../services/stripe';
+
 /*
  *
  * createAmbassador(req, res)
@@ -131,7 +133,14 @@ async function fetchAmbassador(req, res) {
  */
 async function fetchCurrentAmbassador(req, res) {
   if (!req.user.get) return _404(res, "No current ambassador")
-  return res.json(serializeAmbassador(req.user))
+
+  const ambassador = req.user;
+
+  // this may change dynamically
+  const meets1099Requirements = await stripeSvc.meets1099Requirements(ambassador);
+  await ambassador.update({stripe_1099_enabled: meets1099Requirements});
+
+  return res.json(serializeAmbassador(ambassador))
 }
 
 /*
@@ -512,12 +521,13 @@ async function claimTriplers(req, res) {
     return error(400, res, 'Invalid request, empty list of triplers');
   }
 
+  const ambassador =  req.user;
   const claims = ambassador.get('claims');
   const claimedTriplerCount = claims.length; // TODO: look up more idiomatic access
 
   let triplerLimit = ov_config.claim_tripler_limit;
 
-  const meets1099Requirements = ambassador.get('stripe_1099_enabled');
+  const meets1099Requirements = await stripeSvc.meets1099Requirements(ambassador);
   if (!meets1099Requirements) {
     // this ambassador hasn't completed Stripe's KYC flow, so additional constraints apply
     const disbursementLimit = ov_config.needs_additional_1099_data_tripler_disbursement_limit;
@@ -640,6 +650,13 @@ async function fetchCurrentAmbassadorPayouts(req, res) {
   return res.json(await ambassadorPayouts(req.user, req.neode))
 }
 
+
+async function initiate1099DataEntry(req, res) {
+  const ambassador = req.user;
+  const accountLink = await stripeSvc.create1099DataEntryLink(ambassador);
+  return res.json(accountLink);
+}
+
 /*
  *
  * fetchAmbassadorPayouts(req, res)
@@ -737,6 +754,10 @@ module.exports = Router({mergeParams: true})
   .put("/ambassadors/current/complete-onboarding", (req, res) => {
     if (!req.authenticated) return _401(res, "Permission denied.")
     return completeOnboarding(req, res)
+  })
+  .get("/ambassadors/current/initiate-1099-data-entry", (req, res) => {
+    if (!req.authenticated) return _401(res, "Permission denied.")
+    return initiate1099DataEntry(req, res)
   })
   .get("/ambassadors/current/payouts", (req, res) => {
     if (!req.authenticated) return _401(res, "Permission denied.")
