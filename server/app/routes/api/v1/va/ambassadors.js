@@ -526,6 +526,10 @@ async function claimTriplers(req, res) {
   const claimedTriplerCount = claims.length; // TODO: look up more idiomatic access
 
   let triplerLimit = ov_config.claim_tripler_limit;
+  const triplerLimitOverride = Number.parseInt(ambassador.get('claim_tripler_limit'));
+  if(Number.isSafeInteger(triplerLimitOverride)){
+    triplerLimit = triplerLimitOverride;
+  }
 
   const meets1099Requirements = await stripeSvc.meets1099Requirements(ambassador);
   if (!meets1099Requirements) {
