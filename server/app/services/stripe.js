@@ -146,7 +146,12 @@ async function meets1099Requirements(ambassador) {
 }
 
 async function create1099DataEntryLink(ambassador) {
-  const stripeAccount = getStripeAccount(ambassador);
+  let stripeAccount;
+  try {
+    stripeAccount = getStripeAccount(ambassador);
+  } catch (e) {
+    return null;
+  }
   const account = stripeAccount.get('account_id');
 
   const accountDetails = await stripe(ov_config.stripe_secret_key).accounts.update(

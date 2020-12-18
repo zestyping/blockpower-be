@@ -665,8 +665,12 @@ async function fetchCurrentAmbassadorPayouts(req, res) {
 
 
 async function initiate1099DataEntry(req, res) {
+  if (!req.user.get) return _404(res, "No current ambassador");
   const ambassador = req.user;
   const accountLink = await stripeSvc.create1099DataEntryLink(ambassador);
+  if (!accountLink) {
+    return _400(res, 'Payments account needs to be set up before more data can be provided')
+  }
   return res.json(accountLink);
 }
 
