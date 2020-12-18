@@ -142,7 +142,6 @@ export const ov_config = {
   triplerEkataPenalty: parseInt(getConfig("tripler_ekata_penalty", false, 1)),
   triplerEkataBonus: parseInt(getConfig("tripler_ekata_bonus", false, 2)),
 
-  stress: getConfig("stress", false, false),
   exclude_unreg_except_in: getConfig("exclude_unreg_except_in", false, ""),
   search_tripler_max_distance: getConfig("search_tripler_max_distance", false, 150000),
   payout_batch_size: getConfig("payout_batch_size", false, 100),
