@@ -337,10 +337,6 @@ async function signup(req, res) {
   let new_ambassador = null
 
   req.body.externalId = req.externalId
-  if (ov_config.stress_testing) {
-    // During stress testing, allow clients to choose arbitrary external IDs.
-    req.body.externalId = 'testing:' + req.body.testingExternalId;
-  }
 
   const carrierLookup = await validateCarrier(req.body.phone)
   const {
