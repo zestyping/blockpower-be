@@ -532,21 +532,32 @@ async function claimTriplers(req, res) {
   }
 
 
-  const meets1099Requirements = await stripeSvc.meets1099Requirements(ambassador);
-  if (!meets1099Requirements) {
-    // this ambassador hasn't completed Stripe's KYC flow, so additional constraints apply
-    const disbursementLimit = ov_config.needs_additional_1099_data_tripler_disbursement_limit;
-    const perTriplerPaymentAmount = ov_config.payout_per_tripler;
-
-    const triplerStatuses = claims.map(c => c.otherNode().get('status')); // get the confirmation status
-    const confirmedTriplerCount = triplerStatuses.filter(s => s === 'confirmed').length; // count the matches
-
-    const disbursedAmount = perTriplerPaymentAmount * confirmedTriplerCount;
-    if (disbursedAmount >= disbursementLimit) {
-      return error(400, res, 'Invalid request, please provide additional data before you can claim further triplers.');
+  let stripeAccount = null;
+  ambassador.get('owns_account').forEach((entry) => {
+    if (entry.otherNode().get('account_type') === 'stripe' && entry.otherNode().get('is_primary')) {
+      stripeAccount = entry.otherNode();
     }
+  });
 
-    // triplerLimit = Math.min(triplerLimit, Math.floor(disbursementLimit / perTriplerPaymentAmount));
+  if(stripeAccount) {
+    // we only check 1099 requirements for Stripe users
+    const meets1099Requirements = await stripeSvc.meets1099Requirements(ambassador);
+    if (!meets1099Requirements) {
+      // this ambassador hasn't completed Stripe's KYC flow, so additional constraints apply
+      const disbursementLimit = ov_config.needs_additional_1099_data_tripler_disbursement_limit;
+      const perTriplerPaymentAmount = ov_config.payout_per_tripler;
+
+      const triplerStatuses = claims.map(c => c.otherNode().get('status')); // get the confirmation status
+      const confirmedTriplerCount = triplerStatuses.filter(s => s === 'confirmed').length; // count the matches
+
+      const disbursedAmount = perTriplerPaymentAmount * confirmedTriplerCount;
+      if (disbursedAmount >= disbursementLimit) {
+        return error(400, res, 'Invalid request, please provide additional data before you can claim further triplers.');
+      }
+
+      // the tripler limit won't be dynamically adjusted for now, but be binary
+      // triplerLimit = Math.min(triplerLimit, Math.floor(disbursementLimit / perTriplerPaymentAmount));
+    }
   }
 
 

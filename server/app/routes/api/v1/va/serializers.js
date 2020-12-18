@@ -117,7 +117,9 @@ function serializeAmbassador(ambassador) {
     // if no payments account is set up, we assume the default will be Stripe, so to prevent immediately running into
     // a snag, we automatically prompt the user to set up a payments account.
     // If they set up PayPal, this will solve the problem automatically
-    obj['needs_primary_account_setup'] = true;
+
+    // disable KYC threshold for any combination other than stripe == primary payments account
+    // obj['needs_primary_account_setup'] = true;
   }
 
   return obj
