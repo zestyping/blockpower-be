@@ -399,6 +399,7 @@ function buildTriplerSearchQuery(req) {
       ${genderFilter}
       ${ageFilter}
       ${msaFilter}
+      ${zipFilter}
     with a.location as a_location, node,a
     limit 500
     with a, a_location, node, ${firstNameNorm ? `"${firstNameNorm}"` : null} as first_n_q, ${
