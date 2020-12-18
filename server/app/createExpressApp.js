@@ -197,10 +197,10 @@ function invite(req, res) {
 // Returns a promise for the Ambassador node for the authenticated user.
 function authenticateUser(req, res) {
   try {
-
-    if (ov_config.stress_testing && req.query.testingExternalId) {
+    if (ov_config.stress_testing && req.header('x-external-id')) {
       // In stress testing mode, allow the client to choose any external ID.
-      req.externalId = 'testing:' + req.query.testingExternalId;
+      req.externalId = 'testing:' + req.header('x-external-id');
+      console.log('Bypassing authentication with X-External-Id:', req.externalId);
     } else {
       if (!req.header('authorization')) {
         _400(res, "Missing required header.");
