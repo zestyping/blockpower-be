@@ -208,7 +208,7 @@ module.exports = {
   carrier_info: "string",
 
   alloy_person_id: {
-    type: "integer",
+    type: "string",
     default: null,
   },
   admin_bonus: {
