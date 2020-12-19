@@ -413,7 +413,7 @@ async function updateEkataMatchScore(ambassador) {
 
 async function updateTrustFactors(ambassador) {
   await updateEkataMatchScore(ambassador);
-  const triplers = ambassador.claims(rel => rel.otherNode);
+  const triplers = ambassador.get('claims').map(rel => rel.otherNode());
   const trustFactors = calcTripleeNameTrustFactors(ambassador, triplers);
   await ambassador.update(trustFactors);
 }

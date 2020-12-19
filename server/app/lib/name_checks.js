@@ -3,7 +3,7 @@ const SUFFIXES = ['ii', 'iii', 'iv', 'jr', 'jr.', 'sr', 'sr.'];
 
 function splitWords(str) {
   // Treat all punctuation and spaces as word breaks, except apostrophes.
-  return str.replace(/['’]/g, '').replace(/\W+/g, ' ').trim().split(' ');
+  return (str || '').replace(/['’]/g, '').replace(/\W+/g, ' ').trim().split(' ');
 }
 
 // All functions below are translated from the Python module

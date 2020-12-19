@@ -2,6 +2,7 @@ import { normalizeName, isNameValid } from './name_checks';
 import { parseJson } from './json';
 
 function evaluateTripleeNames(ambassadorName, triplerName, tripleeNames) {
+  console.log('evaluateTripleeNames', {ambassadorName, triplerName, tripleeNames});
   const nonUniqueNames = [];
   const suspiciousNames = [];
   const sameAsAmbassadorNames = [];
@@ -21,6 +22,7 @@ function evaluateTripleeNames(ambassadorName, triplerName, tripleeNames) {
 
     seenNames.add(norm);
   }
+  console.log('=>', {nonUniqueNames, suspiciousNames, sameAsAmbassadorNames, sameAsTriplerNames});
   return {
     nonUniqueNames,
     suspiciousNames,
@@ -30,7 +32,17 @@ function evaluateTripleeNames(ambassadorName, triplerName, tripleeNames) {
 }
 
 function getFullName(node) {
-  return (node.get('first_name') + ' ' + node.get('last_name')).trim();
+  const first_name = node.get('first_name') || '';
+  const last_name = node.get('last_name') || '';
+  return (first_name + ' ' + last_name).trim();
+}
+
+function getTripleeNames(tripler) {
+  const names = parseJson(tripler.get('triplees'), []);
+  return names.map(
+    ({first_name, last_name}) =>
+    ((first_name || '') + ' ' + (last_name || '')).trim()
+  );
 }
 
 function calcTripleeNameTrustFactors(ambassador, triplers) {
@@ -41,7 +53,7 @@ function calcTripleeNameTrustFactors(ambassador, triplers) {
   let numTriplersWithRepeatedTriplees = 0;
 
   for (const tripler of triplers) {
-    const tripleeNames = parseJson(tripler.get('triplees'), []);
+    const tripleeNames = getTripleeNames(tripler);
     allTripleeNames.push(...tripleeNames.map(normalizeName));
 
     const result = evaluateTripleeNames(
@@ -55,13 +67,15 @@ function calcTripleeNameTrustFactors(ambassador, triplers) {
   }
   const numUniqueTriplees = new Set(allTripleeNames).size;
   const numRepeatedNames = allTripleeNames.length - numUniqueTriplees;
-  return {
-    num_suspicious_triplee_names: numSuspiciousNames,
-    num_triplee_names_matching_ambassador: numSameAsAmbassadorNames,
-    num_triplee_names_matching_tripler: numSameAsTriplerNames,
-    num_repeated_triplee_names_beyond_two: Math.max(0, numRepeatedNames - 2),
-    num_triplers_with_repeated_triplee_names: numTriplersWithRepeatedTriplees,
-  }
+  const results = {
+    suspicious_triplee_names: numSuspiciousNames,
+    triplee_names_matching_ambassador: numSameAsAmbassadorNames,
+    triplee_names_matching_tripler: numSameAsTriplerNames,
+    repeated_triplee_names_beyond_two: Math.max(0, numRepeatedNames - 2),
+    triplers_with_repeated_triplee_names: numTriplersWithRepeatedTriplees,
+  };
+  console.log(`ambassador ${getFullName(ambassador)}:`, results);
+  return results;
 }
 
 module.exports = {
