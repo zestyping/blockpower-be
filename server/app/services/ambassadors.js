@@ -9,6 +9,7 @@ import {validateEmpty, validateUnique, assertUserPhoneAndEmail} from "../lib/val
 
 import {ValidationError} from "../lib/errors"
 import {isLocked} from "../lib/fraud"
+import {calcTripleeNameTrustFactors} from "../lib/triplee_checks"
 import {trimFields} from "../lib/utils"
 import {getValidCoordinates, normalizePhone} from "../lib/normalizers"
 import mail from "../lib/mail"
@@ -410,6 +411,13 @@ async function updateEkataMatchScore(ambassador) {
   })
 }
 
+async function updateTrustFactors(ambassador) {
+  await updateEkataMatchScore(ambassador);
+  const triplers = ambassador.claims(rel => rel.otherNode);
+  const trustFactors = calcTripleeNameTrustFactors(ambassador, triplers);
+  await ambassador.update(trustFactors);
+}
+
 // Returns the primary Account node for a given Ambassador.
 async function getPrimaryAccount(ambassador) {
   const edges = ambassador.get("owns_account") || []
@@ -444,7 +452,7 @@ async function unclaimTriplers(req) {
   }
 
   await sendTriplerCountsToHubspot(ambassador)
-  await updateEkataMatchScore(ambassador)
+  await updateTrustFactors(ambassador)
 }
 
 /*
@@ -512,5 +520,5 @@ module.exports = {
   initialSyncAmbassadorToHubSpot: initialSyncAmbassadorToHubSpot,
   sendTriplerCountsToHubspot: sendTriplerCountsToHubspot,
   syncAmbassadorToHubSpot: syncAmbassadorToHubSpot,
-  updateEkataMatchScore: updateEkataMatchScore,
+  updateTrustFactors: updateTrustFactors
 }
