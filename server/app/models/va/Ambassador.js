@@ -224,7 +224,7 @@ module.exports = {
   // Custom, per-ambassador limit on the number of triplers that can be claimed.
   // If null, the limit will be the value of the env var CLAIM_TRIPLER_LIMIT.
   claim_tripler_limit: {
-    type: "integer",
+    type: "number",
     default: null,
   },
   //explains the ekata match scores
