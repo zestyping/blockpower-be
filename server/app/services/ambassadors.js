@@ -93,7 +93,7 @@ async function signup(json, verification, carrierLookup) {
   let existing_ambassador = null
 
   if (alloy_response) {
-    const alloy_person_id=alloy_response.data.alloy_person_id.toString()
+    const alloy_person_id = '' + alloy_response?.data?.alloy_person_id
     existing_ambassador = await neode.first("Ambassador", {alloy_person_id: alloy_person_id})
   }
   //if there's a fuzzy match, approve the Ambassador
