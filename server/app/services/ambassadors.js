@@ -93,9 +93,8 @@ async function signup(json, verification, carrierLookup) {
   let existing_ambassador = null
 
   if (alloy_response) {
-    existing_ambassador = await neode.first("Ambassador", {
-      alloy_person_id: alloy_response.data.alloy_person_id,
-    })
+    const alloy_person_id = '' + alloy_response?.data?.alloy_person_id
+    existing_ambassador = await neode.first("Ambassador", {alloy_person_id: alloy_person_id})
   }
   //if there's a fuzzy match, approve the Ambassador
   let fuzzy = await fuzzyAlloy(
@@ -129,7 +128,7 @@ async function signup(json, verification, carrierLookup) {
   if (existing_ambassador && !existing_ambassador.get("external_id")) {
     // existing ambassador exists and does not have an external id
     // delete it and copy over the approved and alloy_person_id
-    let alloy_person_id = existing_ambassador.get("alloy_person_id")
+    const alloy_person_id = existing_ambassador.get("alloy_person_id")
     let approved = existing_ambassador.get("approved")
     //copy all the relationships from one to the other
     let query = `MATCH (old:Ambassador {alloy_person_id: $alloy_person_id})
