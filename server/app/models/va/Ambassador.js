@@ -13,7 +13,7 @@ module.exports = {
     type: "string",
   },
   hs_id: {
-    type: "integer",
+    type: "string",
   },
   first_name: {
     type: "string",

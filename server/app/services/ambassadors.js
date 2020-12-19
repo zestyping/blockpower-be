@@ -248,10 +248,8 @@ async function syncAmbassadorToHubSpot(ambassador) {
     ].forEach((x) => (obj[x] = ambassador.get(x)))
     obj["website"] =
       "https://app.blockpower.vote/ambassadors/admin/#/volunteers/view/" + ambassador.get("id")
-    obj["hs_id"] = ambassador.get("hs_id").toString()
-    obj["alloy_person_id"] = ambassador.get("alloy_person_id")
-      ? ambassador.get("alloy_person_id").toString()
-      : null
+    obj["hs_id"] = ambassador.get("hs_id") || ""
+    obj["alloy_person_id"] = ambassador.get("alloy_person_id") || ""
     obj["locked"] = isLocked(ambassador)
     updateHubspotAmbassador(obj)
   }
@@ -264,8 +262,9 @@ async function syncAmbassadorToHubSpot(ambassador) {
 async function sendTriplerCountsToHubspot(ambassador) {
   //only continue if there's a hs_id
   console.log("ambassador id:", ambassador.get("id"))
-  if (ambassador.get("hs_id")) {
-    console.log("ambassador hs_id:", ambassador.get("hs_id").toString())
+  const hs_id = ambassador.get("hs_id") || "";
+  if (hs_id) {
+    console.log("ambassador hs_id:", hs_id)
 
     let pending_triplers_result = await neode.cypher(
       "MATCH (a:Ambassador {id: $id})-[r:CLAIMS]->(t:Tripler {status:'pending'}) RETURN t",
@@ -289,14 +288,14 @@ async function sendTriplerCountsToHubspot(ambassador) {
     ;["first_name", "last_name", "approved", "external_id"].forEach(
       (x) => (obj[x] = ambassador.get(x)),
     )
-    obj["hs_id"] = ambassador.get("hs_id").toString()
+    obj["hs_id"] = hs_id;
     obj["num_pending_triplers"] = pending_triplers_result.records.length
     obj["num_unconfirmed_triplers"] = unconfirmed_triplers_result.records.length
     obj["num_confirmed_triplers"] = confirmed_triplers_result.records.length
 
     updateHubspotAmbassador(obj)
   }
-  return ambassador.get("hs_id")
+  return hs_id;
 }
 
 /*

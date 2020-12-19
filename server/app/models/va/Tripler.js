@@ -9,6 +9,9 @@ module.exports = {
     type: "uuid",
     primary: true,
   },
+  hs_id: {
+    type: "string",
+  },
   // This attribute contains the VoterID as imported from the voter data CSV
   voter_id: {
     type: "string",
