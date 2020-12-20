@@ -53,6 +53,9 @@ function calcTripleeNameTrustFactors(ambassador, triplers) {
   let numTriplersWithRepeatedTriplees = 0;
 
   for (const tripler of triplers) {
+    // Triplers in the "unconfirmed" status have no triplees yet.
+    if (!tripler.get('triplees')) continue;
+
     const tripleeNames = getTripleeNames(tripler);
     allTripleeNames.push(...tripleeNames.map(normalizeName));
 
