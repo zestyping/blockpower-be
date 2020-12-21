@@ -151,10 +151,12 @@ export const ov_config = {
   twilio_msg_svc_sid: getConfig("twilio_msg_svc_sid", false, null),
   neo4j_encryption: getConfig("neo4j_encryption", false, "ON"),
   hubspot_api_key: getConfig("hubspot_api_key", false, ""),
+  tripler_search_name_boost: getConfig("tripler_search_name_boost", false, 1),
+  alloy_bypass_keyword: getConfig("alloy_bypass_keyword", false, ""),
+  fraud_threshold: getConfig("fraud_threshold", false, -8),
   // Alloy
   alloy_key: getConfig("alloy_key", true, ""),
   alloy_secret: getConfig("alloy_secret", true, ""),
-  alloy_bypass_keyword: getConfig("alloy_bypass_keyword", false, ""),
 
   // Voting plan links
   short_link_base_url: getConfig(
