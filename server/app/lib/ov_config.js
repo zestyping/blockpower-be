@@ -143,6 +143,14 @@ export const ov_config = {
   triplerEkataPenalty: parseInt(getConfig("tripler_ekata_penalty", false, 1)),
   triplerEkataBonus: parseInt(getConfig("tripler_ekata_bonus", false, 2)),
 
+  trust_weight_ambassador_ekata_blemish: parseFloat(getConfig("trust_weight_ambassador_ekata_blemish", false, -1)),
+  trust_weight_tripler_ekata_blemish: parseFloat(getConfig("trust_weight_tripler_ekata_blemish", false, -1)),
+  trust_weight_suspicious_triplee_names: parseFloat(getConfig("trust_weight_suspicious_triplee_names", false, -1)),
+  trust_weight_triplee_names_matching_ambassador: parseFloat(getConfig("trust_weight_triplee_names_matching_ambassador", false, -1)),
+  trust_weight_triplee_names_matching_tripler: parseFloat(getConfig("trust_weight_triplee_names_matching_tripler", false, -1)),
+  trust_weight_repeated_triplee_names_beyond_two: parseFloat(getConfig("trust_weight_repeated_triplee_names_beyond_two", false, -1)),
+  trust_weight_triplers_with_repeated_triplee_names: parseFloat(getConfig("trust_weight_triplers_with_repeated_triplee_names", false, -1)),
+
   exclude_unreg_except_in: getConfig("exclude_unreg_except_in", false, ""),
   search_tripler_max_distance: getConfig("search_tripler_max_distance", false, 150000),
   payout_batch_size: getConfig("payout_batch_size", false, 100),
