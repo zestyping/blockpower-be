@@ -184,8 +184,8 @@ The meaning of each config item is as follows:
 * `ALLOY_SECRET`: The API secret for Alloy Verify API
 * `ALLOW_BONUS`: Defines if we are allowing upgrade bonus payments for triplers who upgrade to become ambassadors (upgrades identified by matching phone numbers
 * `AMBASSADOR_EKATA_THRESHOLD`: Number defining how many of the following parameters must have a match from Ekata on ambassador signup in order for the ambassador to not accrue an ambassador_ekata_blemish - first name, last name, first 4 characters of address for that phone number
-* `AMBASSADOR_EKATA_PENALTY`: Number definining how many ambassador_ekata_blemish points are accrued by the ambassador when they do not reach the above thereshold
-* `TRIPLER_EKATA_PENALTY`: Number definining how many tripler_ekata_blemish points are accrued by the ambassador when a Tripler they contacted does not have any matches for first name, last name nor address in Ekata data returned for the Tripler's phone number 
+* `AMBASSADOR_EKATA_PENALTY`: Number defining how many ambassador_ekata_blemish points are accrued by the ambassador when they do not reach the above thereshold
+* `TRIPLER_EKATA_PENALTY`: Number defining how many tripler_ekata_blemish points are accrued by the ambassador when a Tripler they contacted does not have any matches for first name, last name nor address in Ekata data returned for the Tripler's phone number 
 * `TRIPLER_EKATA_BONUS`: Number defining how many tripler_ekata_blemsih points are deducted for for the ambassador when a Tripler they contacted DOES have matches for first name, last name or address in Ekata data returned for the Tripler's phone number
 * `SHORT_LINK_BASE_URL`: "www.blockpower.vote" - Sets the URL for BallotReady links (or other links) sent in text messages
 * `VOTING_PLAN_SMS_FOR_TRIPLER`: Copy for SMS sent to a tripler with their custom BallotReady URL
