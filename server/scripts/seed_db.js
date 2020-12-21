@@ -101,8 +101,10 @@ async function randomPhone(model) {
 
 async function emptyDatabase() {
   console.log("Emptying database...");
-  await neode.deleteAll('Ambassador');
-  await neode.deleteAll('Tripler');
+  for (const label of neode.models.keys()) {
+    console.log(`Deleting ${label} nodes...`);
+    await neode.deleteAll(label);
+  }
 }
 
 async function baseUserData() {
