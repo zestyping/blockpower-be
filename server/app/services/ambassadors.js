@@ -372,8 +372,8 @@ async function updateEkataMatchScore(ambassador) {
 
   // determining the blemishness of the ambassador
 
-  let verificationString = ambassador.get("verification").toLowerCase()
-  let ambassadorAddress = ambassador.get("address").toLowerCase()
+  let verificationString = (ambassador.get("verification") || '').toLowerCase()
+  let ambassadorAddress = (ambassador.get("address") || '').toLowerCase()
 
   let ambassadorProperties = [
     ambassador.get("first_name").toLowerCase(),
@@ -411,7 +411,7 @@ async function updateEkataMatchScore(ambassador) {
 
 async function updateTrustFactors(ambassador) {
   await updateEkataMatchScore(ambassador);
-  const triplers = ambassador.get('claims').map(rel => rel.otherNode());
+  const triplers = (ambassador.get('claims') || []).map(rel => rel.otherNode());
   const trustFactors = calcTripleeNameTrustFactors(ambassador, triplers);
   await ambassador.update(trustFactors);
 }
