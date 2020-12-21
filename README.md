@@ -191,4 +191,6 @@ The meaning of each config item is as follows:
 * `VOTING_PLAN_SMS_FOR_TRIPLER`: Copy for SMS sent to a tripler with their custom BallotReady URL
 * `VOTING_PLAN_SMS_FOR_AMBASSADOR`: Copy for SMS sent to a ambassador with their custom BallotReady URL
 * `NEEDS_ADDITIONAL_1099_DATA_TRIPLER_DISBURSEMENT_LIMIT`: Threshold of total pending + disbursed + settled (settled is used for PayPal only) payouts after which an ambassador must complete the Stripe 1099 flow to provide SSN and DOB to Stripe. Set in cents, e.g. 45000 = $450 of total earnings
-* `CLIENT_BASE_URI: "https://app.blockpower.vote/ambassadors"`: Base URL to return ambassador to following completion of above Stripe flow  
+* `CLIENT_BASE_URI:`: Base URL to return ambassador to following completion of above Stripe flow  
+* `FRAUD_THRESHOLD`: Amount of fraud points after which an ambassador's account will automatically be locked
+* `TRIPLER_SEARCH_NAME_BOOST`: Number, e.g. "5". Factor by which we weight name matchiness in Tripler search results
