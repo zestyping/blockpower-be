@@ -169,7 +169,7 @@ async function createAmbassador(opts) {
       await new_ambassador.relateTo(tripler, 'claims');
     }
     if (status === 'confirmed') {
-      updateTrustFactors(ambassador);
+      updateTrustFactors(new_ambassador);
     }
   }
   return new_ambassador;
