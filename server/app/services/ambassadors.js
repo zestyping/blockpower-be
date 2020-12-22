@@ -138,14 +138,19 @@ async function signup(json, verification, carrierLookup) {
               OPTIONAL MATCH (old)<-[in:HAS_SOCIAL_MATCH]-(s2:SocialMatch)
               WITH new, old, collect(distinct s1) as outs, collect(distinct s2) as ins
               FOREACH (x in outs | CREATE (new)-[:HAS_SOCIAL_MATCH]->(x))
-              FOREACH (y in ins | CREATE (new)<-[:HAS_SOCIAL_MATCH]-(y))`
+              FOREACH (y in ins | CREATE (new)<-[:HAS_SOCIAL_MATCH]-(y))
+              SET new.alloy_person_id=old.alloy_person_id
+              SET new.approved=old.approved
+              SET old:DummyAmbassador
+              REMOVE old:Ambassador
+              `
 
-    let status = await neode.cypher(query, {
-      alloy_person_id: existing_ambassador.get("alloy_person_id"),
-      new_ambassador: new_ambassador.get("id"),
-    })
-    existing_ambassador.delete()
-    new_ambassador.update({alloy_person_id: alloy_person_id, approved: approved})
+    // let status = await neode.cypher(query, {
+    //   alloy_person_id: existing_ambassador.get("alloy_person_id"),
+    //   new_ambassador: new_ambassador.get("id"),
+    // })
+    // existing_ambassador.delete()
+    // new_ambassador.update({alloy_person_id: alloy_person_id, approved: approved})
   }
 
   // send email in the background
