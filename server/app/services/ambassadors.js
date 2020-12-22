@@ -194,7 +194,7 @@ async function initialSyncAmbassadorToHubSpot(ambassador) {
   //only continue if there's no hs_id
 
   let obj = {}
-  ;["first_name", "last_name", "approved", "email", "phone", "external_id"].forEach(
+  ;["first_name", "last_name", "approved", "email", "phone", "external_id", "alloy_person_id"].forEach(
     (x) => (obj[x] = ambassador.get(x)),
   )
   obj["alloy_person_id"] = ambassador.get("alloy_person_id")
