@@ -144,10 +144,10 @@ async function signup(json, verification, carrierLookup) {
               FOREACH (y in ins | CREATE (new)<-[:HAS_SOCIAL_MATCH]-(y))
               WITH new, old
               MERGE (new)-[:HAD_PLACEHOLDER]->(old)
-              SET new.alloy_person_id=old.alloy_person_id
-              SET new.approved=old.approved
               SET old:DummyAmbassador
               REMOVE old:Ambassador
+              SET new.alloy_person_id=old.alloy_person_id
+              SET new.approved=old.approved
               RETURN new, old
               `
     let status = await neode.cypher(query, {
@@ -197,9 +197,6 @@ async function initialSyncAmbassadorToHubSpot(ambassador) {
   ;["first_name", "last_name", "approved", "email", "phone", "external_id", "alloy_person_id"].forEach(
     (x) => (obj[x] = ambassador.get(x)),
   )
-  obj["alloy_person_id"] = ambassador.get("alloy_person_id")
-    ? ambassador.get("alloy_person_id").toString()
-    : null
   obj["website"] =
     "https://app.blockpower.vote/ambassadors/admin/#/volunteers/view/" + ambassador.get("id")
   if (!ambassador.get("hs_id")) {
