@@ -154,8 +154,9 @@ export function doExpressInit(log, db, qq, neode) {
         if (plan) {
           const voter = plan.get('voter');
           const canvasser = plan.get('canvasser');
+          const linkCode = plan.get('link_code');
           if (voter || canvasser) {
-            res.redirect(prepareBallotReadyUrl(voter, canvasser));
+            res.redirect(prepareBallotReadyUrl(voter, canvasser, linkCode));
           } else {
             _500(res, 'Voting plan has no voter and no canvasser.');
           }
