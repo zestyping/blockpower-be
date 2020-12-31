@@ -30,7 +30,7 @@ const getZip = (person) => {
   return address.zip;
 };
 
-const prepareBallotReadyUrl = (voter, canvasser) => {
+const prepareBallotReadyUrl = (voter, canvasser, link_code) => {
   let params;
   params = {
     name: getFullName(voter),
@@ -43,6 +43,9 @@ const prepareBallotReadyUrl = (voter, canvasser) => {
     address: getAddress(voter) || getZip(canvasser),
     utm_content: canvasser?.get?.('hs_id'),
     utm_term: voter?.get?.('hs_id'),
+    // The link_code param is not used by BallotReady; we include it so that
+    // it will show up in the initial_url field in the BallotReady clickstream.
+    link_code: link_code
   };
   return BASE_URL + '?' + stringify(params);
 };
