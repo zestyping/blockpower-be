@@ -1,6 +1,9 @@
 const {ov_config} = require("./ov_config")
 const axios = require("axios")
 
+/*
+ * Searches for a Hubspot Contact by email and returns a hubspot contact id. 
+*/
 async function getContactHSID(email) {
   let hs_key = ov_config.hubspot_api_key
 
@@ -38,6 +41,9 @@ async function getContactHSID(email) {
   }
 }
 
+/*
+ * Updates hubspot contact. The response isn't used. 
+*/
 async function updateHubspotAmbassador(req) {
   let hs_key = ov_config.hubspot_api_key
   console.log("req", req)
@@ -84,6 +90,9 @@ async function updateHubspotAmbassador(req) {
   }
 }
 
+/*
+ * Creates a new hubspot contact and returns a hubspot contact id. 
+*/
 async function createHubspotContact(req) {
   let hs_key = ov_config.hubspot_api_key
   console.log("req", req)

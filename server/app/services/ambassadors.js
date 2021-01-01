@@ -200,7 +200,7 @@ async function initialSyncAmbassadorToHubSpot(ambassador) {
   obj["website"] =
     "https://app.blockpower.vote/ambassadors/admin/#/volunteers/view/" + ambassador.get("id")
   if (!ambassador.get("hs_id")) {
-    console.log("[HS] Ambassador checking if it's already in Hubspot")
+    console.log("[HS] Checking if Ambassador already has a Hubspot contact.")
     let hs_id = await getContactHSID(ambassador.get("email"))
     if (!hs_id) {
     console.log("[HS] Ambassador is not in Hubspot, creating contact")
