@@ -46,7 +46,7 @@ const getVotingPlanUrl = (plan) =>
 
 const recordVotingPlanClick = async (plan) => {
   const clicks = plan.get('link_clicks');
-  const timestamps = parseJson(clicks, []);
+  const timestamps = parseJson(clicks, []) || [];
   timestamps.push((new Date()).toISOString());
   await plan.update({
     link_clicks: JSON.stringify(timestamps)
