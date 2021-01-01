@@ -64,7 +64,6 @@ async function updateHubspotAmbassador(req) {
             giftcard_completed: req.giftcard_completed ? req.giftcard_completed : null,
             external_id: req.external_id ? req.external_id : null,
             phone: req.phone ? req.phone : null,
-            is_admin: req.is_admin ? req.is_admin : null,
             signup_completed: req.signup_completed ? req.signup_completed : null,
             paypal_approved: req.paypal_approved ? req.paypal_approved : null,
             // TODO: When we have fraud score components, send them to HubSpot
@@ -111,7 +110,6 @@ async function createHubspotContact(req) {
             giftcard_completed: req.giftcard_completed ? req.giftcard_completed : null,
             google_fb_id: req.external_id ? req.external_id : null,
             phone: req.phone ? req.phone : null,
-            is_admin: req.is_admin ? req.is_admin : null,
             signup_completed: req.signup_completed ? req.signup_completed : null,
             paypal_approved: req.paypal_approved ? req.paypal_approved : null,
             // TODO: When we have fraud score components, send them to HubSpot
