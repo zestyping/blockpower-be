@@ -13,12 +13,12 @@ const getAddress = (person) => {
   try {
     address = JSON.parse(person.get('address'));
   } catch (e) { }
-  return [
+  return address ? [
     address.address1,
     address.city,
     address.state,
     address.zip
-  ].join(', ');
+  ].join(', ') : null;
 };
 
 const getZip = (person) => {
@@ -27,7 +27,7 @@ const getZip = (person) => {
   try {
     address = JSON.parse(person.get('address'));
   } catch (e) { }
-  return address.zip;
+  return (address ? address.zip : null) || person.get('zip');
 };
 
 const prepareBallotReadyUrl = (voter, canvasser, link_code) => {

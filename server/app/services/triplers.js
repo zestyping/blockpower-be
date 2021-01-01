@@ -235,6 +235,7 @@ async function createTripleeWithPlan(tripler, tripleeName) {
   await triplee.update({
     email: plan.get('link_code') + '@linkcode.faux.blockpower.vote'
   });
+  return plan;
 }
 
 /*
