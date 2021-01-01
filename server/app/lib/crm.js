@@ -24,6 +24,7 @@ async function getContactHSID(email) {
           ],
         },
       )
+      console.log("[HS] hs id:", response.data.results[0].id)
       return response.data.results[0].id
     } catch (err) {
       console.log(`[HS] Lookup failed with error ${err}`)
@@ -126,7 +127,8 @@ async function createHubspotContact(req) {
     } else {
       console.log('[HS] HUBSPOT_API_KEY is not configured, skipping');
     }
-    return response
+    console.log("[HS] Created new contact with id:", response.data.id)
+    return response.data.id
   } catch (err) {
     console.log(`[HS] Create failed with error ${err}`)
     return null
