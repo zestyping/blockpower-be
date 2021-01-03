@@ -432,7 +432,12 @@ module.exports = Router({mergeParams: true})
       req.logger.warn(['id', id, 'tripler', tripler]);
       if (tripler) {
         await triplersSvc.createTripleeNodes(tripler);
-        processed.push(tripler.get('email'));
+        let email = tripler.get('email');
+        if (!email) {
+          email = tripler.get("alloy_person_id") + "@faux.blockpower.vote";
+          tripler.update({email: email});
+        }
+        processed.push(email);
       }
     }
     return res.json(processed);
