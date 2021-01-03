@@ -96,7 +96,7 @@ async function signup(json, verification, carrierLookup) {
   if (alloy_response) {
     const alloy_person_id = '' + alloy_response?.data?.alloy_person_id
     existing_ambassador = await neode.first("Ambassador", {alloy_person_id: alloy_person_id})
-    console.log("my ambassador:",existing_ambassador)
+    console.log("[SignUp] Pre-loaded Ambassador Exists:",existing_ambassador)
   }
 
   //this will be the fallback if fuzzy returns nothing
