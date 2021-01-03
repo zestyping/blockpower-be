@@ -134,10 +134,10 @@ async function signup(json, verification, carrierLookup) {
 
   if (existing_ambassador && !existing_ambassador.get("external_id")) {
     // existing ambassador exists and does not have an external id
-    // delete it and copy over alloy_person_id
+    // re-label the existing ambassador to avoid alloy_person_id constraint violation
+    // and copy over alloy_person_id to the new ambassador
+    // copy all the relationships from old to new
     const alloy_person_id = existing_ambassador.get("alloy_person_id")
-    //copy all the relationships from old to new
-    //turn the placeholder ambassador into "DummyAmbassador"
     let query = `MATCH (old:Ambassador {alloy_person_id: toString($alloy_person_id)})
               MATCH (new:Ambassador {id: $new_ambassador})
               OPTIONAL MATCH (old)-[out:HAS_SOCIAL_MATCH]->(s1:SocialMatch)
