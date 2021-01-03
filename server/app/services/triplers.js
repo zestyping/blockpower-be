@@ -645,6 +645,7 @@ async function setTriplerEkataAssociatedPeople(tripler, verification) {
 
 async function syncTriplerHubSpot(tripler) {
   const email = tripler.get("alloy_person_id") + "@faux.blockpower.vote"
+  tripler.update({email: email});
   const query = "MATCH (t:Tripler {alloy_person_id: $alloy_person_id}) SET t.hs_id=toString($hs_id) RETURN t.id, t.hs_id"
 
   if (!tripler.get("hs_id")) {
