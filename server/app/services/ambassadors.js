@@ -100,7 +100,8 @@ async function signup(json, verification, carrierLookup) {
   }
 
   //this will be the fallback if fuzzy returns nothing
-  const preapproved = existing_ambassador?.get("approved") || false
+  const preapproved = existing_ambassador ? existing_ambassador.get("approved") : false
+  console.log("[SignUp] New ambassador's pre-approval status:",preapproved)
 
   //if there's a fuzzy match, approve the Ambassador no matter what. 
   //If no fuzzy, will fall back to pre-approval.
