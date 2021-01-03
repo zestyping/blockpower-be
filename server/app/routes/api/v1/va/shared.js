@@ -41,14 +41,10 @@ module.exports = Router({ mergeParams: true })
       admins: (await req.db.query('match (v:Ambassador {admin: true}) return count(v)')).data[0],
       ambassadors: {
         all: (await req.db.query('match (a:Ambassador) return count(a)')).data[0],
-        approved: (await req.db.query('match (a:Ambassador {approved: true}) return count(a)')).data[0],
         signup_completed: (await req.db.query('match (a:Ambassador {signup_completed: true}) return count(a)')).data[0],
-        quiz_completed: (await req.db.query('match (a:Ambassador {quiz_completed: true}) return count(a)')).data[0],
         onboarding_completed: (await req.db.query('match (a:Ambassador {onboarding_completed: true}) return count(a)')).data[0],
         all_voted: (await req.db.query('match (a:Ambassador {voted: true}) return count(a)')).data[0],
-        approved_voted: (await req.db.query('match (a:Ambassador {approved:true, voted: true}) return count(a)')).data[0],
         signup_completed_voted: (await req.db.query('match (a:Ambassador {signup_completed: true, voted: true}) return count(a)')).data[0],
-        quiz_completed_voted: (await req.db.query('match (a:Ambassador {quiz_completed: true, voted: true}) return count(a)')).data[0],
         onboarding_completed_voted: (await req.db.query('match (a:Ambassador {onboarding_completed: true, voted: true}) return count(a)')).data[0],
       },
       triplers: {
