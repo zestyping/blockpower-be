@@ -675,4 +675,5 @@ module.exports = {
   updateTriplerCarrier: updateTriplerCarrier,
   updateTriplerBlockedCarrier: updateTriplerBlockedCarrier,
   updateClaimedBirthMonth: updateClaimedBirthMonth,
+  createTripleeNodes: createTripleeNodes,
 }
