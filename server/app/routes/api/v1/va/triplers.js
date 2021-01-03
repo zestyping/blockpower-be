@@ -422,15 +422,18 @@ module.exports = Router({mergeParams: true})
     if (!req.authenticated) return _401(res, "Permission denied.")
     if (!req.admin) return _403(res, "Permission denied.")
     const results = await neode.cypher(
-      'MATCH (t:Tripler {status: "confirmed"}) WHERE NOT (t)-[:CLAIMS]->() RETURN t.id as id LIMIT $limit',
+      'MATCH (t:Tripler {status: "confirmed"}) WHERE EXISTS(t.triplees) AND NOT (t)-[:CLAIMS]->() RETURN t.id as id LIMIT $limit',
       {limit: +req.body.count || 0}
     );
     const processed = [];
     for (let i = 0; i < results.records.length; i++) {
       const id = results.records[i].get('id');
       const tripler = await neode.first('Tripler', 'id', id);
-      await triplersSvc.createTripleeNodes(tripler);
-      processed.push(tripler.get('email'));
+      req.logger.warn(['id', id, 'tripler', tripler]);
+      if (tripler) {
+        await triplersSvc.createTripleeNodes(tripler);
+        processed.push(tripler.get('email'));
+      }
     }
     return res.json(processed);
   })
